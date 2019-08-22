@@ -1,0 +1,29 @@
+{
+  "name": "@gatsby-plugin-multilingual/translations-loader",
+  "version": "0.1.0",
+  "description": "A complementary 'gatsby-plugin-multilingual' plugin that allows you to add translation files from a custom directory.",
+  "keywords": [
+    "gatsby",
+    "gatsby-plugin-multilingual"
+  ],
+  "author": "Ruslan Vasiliev <ervasive@gmail.com>",
+  "homepage": "https://github.com/ervasive/gatsby-multilingual/tree/master/packages/@translations-loader#readme",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "github.com/ervasive/gatsby-multilingual.git",
+    "directory": "packages/@translations-loader"
+  },
+  "bugs": {
+    "url": "https://github.com/ervasive/gatsby-multilingual/issues"
+  },
+  "dependencies": {
+    "@gatsby-plugin-multilingual/shared": "file:../@shared",
+    "@hapi/joi": "^15.1.0",
+    "fs-extra": "^8.1.0",
+    "gatsby-source-filesystem": "^2.1.2",
+    "js-yaml": "^3.13.1",
+    "lodash": "^4.17.15"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "site",
+  "private": true,
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "serve": "gatsby serve"
+  },
+  "dependencies": {
+    "@gatsby-plugin-multilingual/translations-loader": "*",
+    "gatsby": "^2.13.57",
+    "gatsby-source-filesystem": "^2.1.9",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "theme": "*"
+  },
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT"
+}

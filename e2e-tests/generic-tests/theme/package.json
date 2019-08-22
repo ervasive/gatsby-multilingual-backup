@@ -1,0 +1,10 @@
+{
+  "name": "theme",
+  "version": "0.1.2",
+  "private": true,
+  "dependencies": {
+    "gatsby": "^2.13.67",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
+  }
+}

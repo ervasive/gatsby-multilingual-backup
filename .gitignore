@@ -1,0 +1,31 @@
+# Node modules
+node_modules/
+
+# TypeScript incremental compilation cache
+*.tsbuildinfo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Mac OS
+.DS_Store
+
+# dotenv environment variables file
+.env
+
+# gatsby files
+.cache/
+public
+
+# e2e files
+e2e-tests/**/screenshots
+e2e-tests/**/videos
+
+# compiled assets
+packages/**/*.js
+packages/**/*.d.ts
+packages/**/*.d.ts.map

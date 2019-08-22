@@ -1,0 +1,24 @@
+{
+  "name": "e2e-generic-tests-case",
+  "private": true,
+  "scripts": {
+    "build": "cd site && npm run build",
+    "develop": "cd site && npm run develop",
+    "serve": "cd site && npm run serve",
+    "start": "npm run develop",
+    "test": "npm run build && npm run start-server-and-test",
+    "start-server-and-test": "start-server-and-test serve http://localhost:9000 cy:run",
+    "cy:run": "cypress run",
+    "cy:open": "cypress open --config=baseUrl=http://localhost:8000"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "cypress": "^3.4.1",
+    "start-server-and-test": "^1.10.0"
+  },
+  "workspaces": [
+    "./site",
+    "./theme",
+    "../../packages/*"
+  ]
+}

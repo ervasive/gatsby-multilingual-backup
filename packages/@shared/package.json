@@ -1,0 +1,27 @@
+{
+  "name": "@gatsby-plugin-multilingual/shared",
+  "version": "0.1.0",
+  "description": "A collection of shared utilities used by gatsby-multilingual packages.",
+  "keywords": [
+    "gatsby",
+    "gatsby-plugin-multilingual"
+  ],
+  "author": "Ruslan Vasiliev <ervasive@gmail.com>",
+  "homepage": "https://github.com/ervasive/gatsby-multilingual/tree/master/packages/@shared#readme",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "github.com/ervasive/gatsby-multilingual.git",
+    "directory": "packages/@shared"
+  },
+  "bugs": {
+    "url": "https://github.com/ervasive/gatsby-multilingual/issues"
+  },
+  "dependencies": {
+    "@hapi/joi": "^15.1.0",
+    "fs-extra": "^8.1.0",
+    "js-yaml": "^3.13.1",
+    "lodash": "^4.17.15"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "gatsby-plugin-multilingual",
+  "version": "0.1.0",
+  "description": "A modular solution for creating multilingual Gatsby projects.",
+  "keywords": [
+    "gatsby",
+    "gatsby-plugin",
+    "gatsby-plugin-multilingual"
+  ],
+  "author": "Ruslan Vasiliev <ervasive@gmail.com>",
+  "homepage": "https://github.com/ervasive/gatsby-multilingual/tree/master/packages/gatsby-plugin-multilingual#readme",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "github.com/ervasive/gatsby-multilingual.git",
+    "directory": "packages/gatsby-plugin-multilingual"
+  },
+  "bugs": {
+    "url": "https://github.com/ervasive/gatsby-multilingual/issues"
+  },
+  "dependencies": {
+    "@gatsby-plugin-multilingual/shared": "file:../@shared",
+    "@gatsby-plugin-multilingual/translations-loader": "file:../@translations-loader",
+    "@hapi/joi": "^15.1.0",
+    "fs-extra": "^8.1.0",
+    "i18next": "^17.0.6",
+    "i18next-xhr-backend": "^3.0.0",
+    "js-yaml": "^3.13.1",
+    "lodash": "^4.17.15",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-i18next": "^10.11.4"
+  },
+  "peerDependencies": {
+    "gatsby": "^2.13.41",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  }
+}
