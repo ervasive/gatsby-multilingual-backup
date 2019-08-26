@@ -7,7 +7,6 @@
   "references": [
     { "path": "./packages/@shared" },
     { "path": "./packages/@translations-loader" },
-    { "path": "./packages/@static-pages-transformer" },
     { "path": "./packages/gatsby-plugin-multilingual" }
   ]
 }
