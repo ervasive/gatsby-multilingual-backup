@@ -18,6 +18,9 @@
   "bugs": {
     "url": "https://github.com/ervasive/gatsby-multilingual/issues"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@hapi/joi": "^15.1.0",
     "fs-extra": "^8.1.0",

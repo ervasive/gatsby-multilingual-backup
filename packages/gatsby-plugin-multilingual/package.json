@@ -19,6 +19,9 @@
   "bugs": {
     "url": "https://github.com/ervasive/gatsby-multilingual/issues"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@gatsby-plugin-multilingual/shared": "file:../@shared",
     "@gatsby-plugin-multilingual/translations-loader": "file:../@translations-loader",
