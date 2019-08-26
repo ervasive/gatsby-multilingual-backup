@@ -15,6 +15,11 @@
     "lint": "eslint '**/*.{js,jsx,ts,tsx}'",
     "lerna": "lerna"
   },
+  "dependencies": {
+    "@gatsby-plugin-multilingual/shared": "file:packages/@shared",
+    "@gatsby-plugin-multilingual/translations-loader": "file:packages/@translations-loader",
+    "gatsby-plugin-multilingual": "file:packages/gatsby-plugin-multilingual"
+  },
   "devDependencies": {
     "@types/express": "^4.17.0",
     "@types/fs-extra": "^8.0.0",
