@@ -14,98 +14,64 @@ commands:
       - run: scripts/exit-if-no-changes.sh packages e2e-tests .circleci
   install:
     steps:
-      - install_lerna:
-          name: Install Lerna globally
-          command: npm install --global lerna
       - restore_cache:
-          name: Restore project dependencies cache
+          name: Restore project cache
           keys:
-            - cache-{{ checksum "package-lock.json" }}
+            - v4-cache-{{ checksum "package-lock.json" }}
       - run:
-          name: Bootstrap project dependencies
-          command: lerna bootstrap
+          name: Install project dependencies
+          command: npm ci
       - save_cache:
-          name: Save project dependencies cache
-          key: cache-{{ checksum "package-lock.json" }}
+          name: Save project cache
+          key: v4-cache-{{ checksum "package-lock.json" }}
           paths:
-            - node_modules
+            - ~/.cache
+            - ~/.npm
   run-e2e-test:
     parameters:
       scope:
         type: string
     steps:
-      - run: lerna run test --scope=<< parameters.scope >> --stream
+      - run: npm run lerna -- run test --scope=<< parameters.scope >> --stream
       - store_test_results:
-          path: results
+          path: reports
       - store_artifacts:
-          path: results
-      - store_artifacts:
-          path: results/videos
-      - store_artifacts:
-          path: results/screenshots
+          path: reports
+          destination: reports
 
 jobs:
-  setup:
-    executor: node
-    steps:
-      - checkout
-      - persist_to_workspace:
-          root: ~/project
-          paths:
-            - '*'
-  install:
-    executor: node
-    steps:
-      - attach_workspace:
-          at: ~/project
-      - exit-if-no-changes
-      - install
-      - persist_to_workspace:
-          root: ~/project
-          paths:
-            - '*'
   lint:
     executor: node
     steps:
-      - attach_workspace:
-          at: ~/project
+      - checkout
       - exit-if-no-changes
-      - run: npm run lint --format junit -o reports/lint/results.xml
+      - install
+      - run: npm run lint -- --format junit -o reports/lint/results.xml
       - store_test_results:
           path: reports
       - store_artifacts:
           path: reports
-  compile:
-    executor: node
-    steps:
-      - attach_workspace:
-          at: ~/project
-      - exit-if-no-changes
-      - run: npm run ts:compile
-      - persist_to_workspace:
-          root: ~/project
-          paths:
-            - packages
+          destination: reports
   unit-tests:
     executor: node
     steps:
-      - attach_workspace:
-          at: ~/project
+      - checkout
       - exit-if-no-changes
-      - run:
-          command: npm run jest -- --ci
-          environment:
-            JEST_JUNIT_OUTPUT: reports/unit-tests/results.xml
+      - install
+      - run: npm run ts:compile
+      - run: npm run jest -- --ci
       - store_test_results:
           path: reports
       - store_artifacts:
           path: reports
+          destination: reports
   e2e-test-generic:
     executor: e2e
     steps:
-      - attach_workspace:
-          at: ~/project
+      - checkout
       - exit-if-no-changes
+      - install
+      - run: npm run ts:compile
       - run-e2e-test:
           scope: e2e-generic-test-site
 
@@ -113,19 +79,6 @@ workflows:
   version: 2
   build-test:
     jobs:
-      - setup
-      - install:
-          requires:
-            - setup
-      - lint:
-          requires:
-            - install
-      - compile:
-          requires:
-            - install
-      - unit-tests:
-          requires:
-            - compile
-      - e2e-test-generic:
-          requires:
-            - compile
+      - lint
+      - unit-tests
+      - e2e-test-generic

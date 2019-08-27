@@ -1,9 +1,9 @@
 {
   "baseUrl": "http://localhost:9000",
-  "screenshotsFolder": "../../../results/screenshots",
-  "videosFolder": "../../../results/videos",
+  "screenshotsFolder": "../../../reports/screenshots",
+  "videosFolder": "../../../reports/videos",
   "reporter": "junit",
   "reporterOptions": {
-    "mochaFile": "../../../results/e2e/tests-result.xml"
+    "mochaFile": "../../../reports/e2e/results.xml"
   }
 }
