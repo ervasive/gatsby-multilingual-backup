@@ -14,6 +14,9 @@ commands:
       - run: scripts/exit-if-no-changes.sh packages e2e-tests .circleci
   install:
     steps:
+      - install_lerna:
+          name: Install Lerna globally
+          command: npm install --global lerna
       - restore_cache:
           name: Restore project dependencies cache
           keys:
@@ -31,7 +34,7 @@ commands:
       scope:
         type: string
     steps:
-      - run: npm run lerna -- run test --scope=<< parameters.scope >> --stream
+      - run: lerna run test --scope=<< parameters.scope >> --stream
       - store_test_results:
           path: results
       - store_artifacts:
