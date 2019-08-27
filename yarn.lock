@@ -856,7 +856,7 @@
 "@gatsby-plugin-multilingual/translations-loader@file:packages/@translations-loader":
   version "0.1.0"
   dependencies:
-    "@gatsby-plugin-multilingual/shared" "file:../../.cache/yarn/v4/npm-@gatsby-plugin-multilingual-translations-loader-0.1.0-17582990-0c5d-4aac-802c-e745acd1062c-1566899730098/node_modules/@gatsby-plugin-multilingual/@shared"
+    "@gatsby-plugin-multilingual/shared" "file:../../.cache/yarn/v4/npm-@gatsby-plugin-multilingual-translations-loader-0.1.0-981efb7d-38b1-4745-ad35-1e7ef73dfe65-1566899955820/node_modules/@gatsby-plugin-multilingual/@shared"
     "@hapi/joi" "^15.1.0"
     fs-extra "^8.1.0"
     gatsby-source-filesystem "^2.1.2"
@@ -6306,8 +6306,8 @@ gatsby-page-utils@^0.0.9:
 "gatsby-plugin-multilingual@file:packages/gatsby-plugin-multilingual":
   version "0.1.0"
   dependencies:
-    "@gatsby-plugin-multilingual/shared" "file:../../.cache/yarn/v4/npm-gatsby-plugin-multilingual-0.1.0-f4d34c41-15a1-4ea2-9737-4332eaf21929-1566899730215/node_modules/@shared"
-    "@gatsby-plugin-multilingual/translations-loader" "file:../../.cache/yarn/v4/npm-gatsby-plugin-multilingual-0.1.0-f4d34c41-15a1-4ea2-9737-4332eaf21929-1566899730215/node_modules/@translations-loader"
+    "@gatsby-plugin-multilingual/shared" "file:../../.cache/yarn/v4/npm-gatsby-plugin-multilingual-0.1.0-a5343a8f-9605-4f47-89e7-82c11c75a59e-1566899955939/node_modules/@shared"
+    "@gatsby-plugin-multilingual/translations-loader" "file:../../.cache/yarn/v4/npm-gatsby-plugin-multilingual-0.1.0-a5343a8f-9605-4f47-89e7-82c11c75a59e-1566899955939/node_modules/@translations-loader"
     "@hapi/joi" "^15.1.0"
     fs-extra "^8.1.0"
     i18next "^17.0.6"
