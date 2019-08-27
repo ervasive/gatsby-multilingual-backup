@@ -1,0 +1,12 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "package.json",
+        "packages/@shared/package.json",
+        "packages/@translations-loader/package.json",
+        "packages/gatsby-plugin-multilingual/package.json"
+      ]
+    }
+  }
+}
