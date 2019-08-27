@@ -1,6 +1,6 @@
 {
-  "name": "theme",
-  "version": "0.1.2",
+  "name": "e2e-generic-test-theme",
+  "version": "0.1.1-alpha.0",
   "private": true,
   "dependencies": {
     "gatsby": "^2.13.67",
