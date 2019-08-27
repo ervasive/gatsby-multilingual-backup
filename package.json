@@ -3,9 +3,6 @@
   "private": true,
   "license": "MIT",
   "repository": "github:ervasive/gatsby-multilingual",
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
     "ts:compile": "tsc --build",
     "ts:clean": "tsc --build --clean",
