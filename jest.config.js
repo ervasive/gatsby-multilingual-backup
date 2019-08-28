@@ -8,5 +8,11 @@ module.exports = {
       tsConfig: 'tsconfig.base.json',
     },
   },
-  reporters: ['default', 'jest-junit'],
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      { outputDirectory: 'reports/unit-tests', outputName: 'results.xml' },
+    ],
+  ],
 }

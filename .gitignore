@@ -24,6 +24,7 @@ public
 # e2e files
 e2e-tests/**/screenshots
 e2e-tests/**/videos
+results
 
 # compiled assets
 packages/**/*.js

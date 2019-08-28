@@ -3,9 +3,6 @@
   "private": true,
   "license": "MIT",
   "repository": "github:ervasive/gatsby-multilingual",
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
     "ts:compile": "tsc --build",
     "ts:clean": "tsc --build --clean",
@@ -18,6 +15,8 @@
   "dependencies": {
     "@gatsby-plugin-multilingual/shared": "file:packages/@shared",
     "@gatsby-plugin-multilingual/translations-loader": "file:packages/@translations-loader",
+    "e2e-generic-test-site": "file:e2e-tests/generic-tests/site",
+    "e2e-generic-test-theme": "file:e2e-tests/generic-tests/theme",
     "gatsby-plugin-multilingual": "file:packages/gatsby-plugin-multilingual"
   },
   "devDependencies": {
@@ -31,6 +30,7 @@
     "@types/shelljs": "^0.8.5",
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
+    "cypress": "^3.4.1",
     "eslint": "^6.2.2",
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-cypress": "^2.6.0",
@@ -46,6 +46,7 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "shelljs": "^0.8.3",
+    "start-server-and-test": "^1.10.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.5.2",
     "webpack-bundle-analyzer": "^3.3.2"

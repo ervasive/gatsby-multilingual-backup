@@ -1,20 +1,25 @@
 {
-  "name": "site",
+  "name": "e2e-generic-test-site",
+  "version": "0.1.1-alpha.0",
+  "main": "index.js",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "build": "gatsby build",
     "develop": "gatsby develop",
-    "serve": "gatsby serve"
+    "serve": "gatsby serve",
+    "start": "npm run develop",
+    "test": "npm run build && npm run start-server-and-test",
+    "start-server-and-test": "start-server-and-test serve http://localhost:9000 cy:run",
+    "cy:run": "cypress run",
+    "cy:open": "cypress open --config=baseUrl=http://localhost:8000"
   },
   "dependencies": {
-    "@gatsby-plugin-multilingual/translations-loader": "*",
+    "e2e-generic-test-theme": "file:../theme",
     "gatsby": "^2.13.57",
+    "gatsby-plugin-multilingual": "file:../../../packages/gatsby-plugin-multilingual",
     "gatsby-source-filesystem": "^2.1.9",
     "react": "^16.9.0",
-    "react-dom": "^16.9.0",
-    "theme": "*"
-  },
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT"
+    "react-dom": "^16.9.0"
+  }
 }
