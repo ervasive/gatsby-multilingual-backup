@@ -19,12 +19,10 @@ yarn-error.log*
 
 # gatsby files
 .cache/
-public
+public/
 
-# e2e files
-e2e-tests/**/screenshots
-e2e-tests/**/videos
-results
+# testing reports
+reports/
 
 # compiled assets
 packages/**/*.js
