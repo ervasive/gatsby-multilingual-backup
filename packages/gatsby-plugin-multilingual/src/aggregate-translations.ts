@@ -50,8 +50,8 @@ export default (
   }
 
   // `public` namespace files
-  for (let [language, namespaces] of Object.entries(translations)) {
-    for (let [namespace, data] of Object.entries(namespaces)) {
+  for (const [language, namespaces] of Object.entries(translations)) {
+    for (const [namespace, data] of Object.entries(namespaces)) {
       const filename = path.resolve(
         PUBLIC_TRANSLATIONS_DIR,
         language,

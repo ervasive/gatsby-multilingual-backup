@@ -10,7 +10,7 @@ export const createPagesRegistry = (
   const registry: PagesRegistry = {}
   const duplicates: LingualPage[] = []
 
-  for (let page of pages.values()) {
+  for (const page of pages.values()) {
     if (!(page.context as any).lingual) {
       continue
     }

@@ -10,7 +10,7 @@ module.exports = (options: PluginOptions): GatsbyConfig => {
     defaultTranslationsLoader: { disable, path, priority },
   } = getOptions(options)
 
-  let config: GatsbyConfig = {
+  const config: GatsbyConfig = {
     plugins: [],
   }
 
