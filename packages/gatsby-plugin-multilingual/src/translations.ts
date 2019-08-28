@@ -51,8 +51,8 @@ export const aggregateTranslations = (
   }
 
   // `public` namespace files
-  for (let [language, namespaces] of Object.entries(translations)) {
-    for (let [namespace, data] of Object.entries(namespaces)) {
+  for (const [language, namespaces] of Object.entries(translations)) {
+    for (const [namespace, data] of Object.entries(namespaces)) {
       const filename = path.resolve(
         PUBLIC_TRANSLATIONS_DIR,
         language,
@@ -71,7 +71,7 @@ export const processTranslations = async (
 ): Promise<void> => {
   const translationsFiles = await aggregateTranslations(nodes, options)
 
-  for (let [filepath, data] of Object.entries(translationsFiles)) {
+  for (const [filepath, data] of Object.entries(translationsFiles)) {
     await outputJSON(filepath, data)
   }
 }
