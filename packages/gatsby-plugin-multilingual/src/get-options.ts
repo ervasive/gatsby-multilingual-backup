@@ -6,6 +6,8 @@ const defaultOptions: PluginValidatedOptions = {
   availableLanguages: ['en'],
   defaultNamespace: 'common',
   includeDefaultLanguageInURL: false,
+  removeInvalidPages: true,
+  removeSkippedPages: true,
   defaultTranslationsLoader: {
     path: 'translations',
     priority: 0,
