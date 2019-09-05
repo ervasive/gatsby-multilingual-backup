@@ -243,15 +243,13 @@ describe('Pages', () => {
     cy.get('[data-path="/ru/nested/invalid-dynamic"]').should('not.exist')
 
     // not-allowed-language-dynamic
-    cy.get('[data-path="/not-allowed-language-dynamic"]').should('not.exist')
+    cy.get('[data-path="/not-allowed-language-dynamic"]').should('exist')
     cy.get('[data-path="/en/not-allowed-language-dynamic"]').should('not.exist')
     cy.get('[data-path="/ru/not-allowed-language-dynamic"]').should('not.exist')
     cy.get('[data-path="/de/not-allowed-language-dynamic"]').should('not.exist')
 
     // nested/not-allowed-language-dynamic
-    cy.get('[data-path="/nested/not-allowed-language-dynamic"]').should(
-      'not.exist',
-    )
+    cy.get('[data-path="/nested/not-allowed-language-dynamic"]').should('exist')
     cy.get('[data-path="/en/nested/not-allowed-language-dynamic"]').should(
       'not.exist',
     )
