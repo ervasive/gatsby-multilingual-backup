@@ -6,6 +6,7 @@ module.exports = {
       options: {
         defaultLanguage: 'en',
         availableLanguages: ['en', 'ru'],
+        includeDefaultLanguageInURL: true,
       },
     },
     {

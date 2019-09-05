@@ -18,12 +18,21 @@ const Index = () => {
           id
         }
       }
+      allSitePage {
+        nodes {
+          path
+          context {
+            language
+            genericPath
+          }
+        }
+      }
     }
   `)
 
   return (
     <div>
-      <h2>Test</h2>
+      <h2>Test registered nodes count</h2>
       <div>
         Registered file nodes count:{' '}
         <span id="allFileCount">{data.allFile.nodes.length}</span>
@@ -35,7 +44,7 @@ const Index = () => {
         </span>
       </div>
 
-      <h2>Test</h2>
+      <h2>Test registered nodes data</h2>
       <table id="namespace-nodes">
         <thead>
           <tr>
@@ -64,6 +73,31 @@ const Index = () => {
                       ))}
                     </ul>
                   </td>
+                </tr>
+              )
+            },
+          )}
+        </tbody>
+      </table>
+
+      <h2>Test registered lingual pages</h2>
+      <table id="pages">
+        <thead>
+          <tr>
+            <th>Path</th>
+            <th>Language</th>
+            <th>Generic path</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.allSitePage.nodes.map(
+            ({ path, context: { language, genericPath } }) => {
+              const dataPath = path.replace(/\/$/, '')
+              return (
+                <tr key={dataPath} data-path={dataPath}>
+                  <td className="path">{path}</td>
+                  <td className="language">{language}</td>
+                  <td className="generic-path">{genericPath}</td>
                 </tr>
               )
             },
