@@ -90,18 +90,19 @@ const Index = () => {
           </tr>
         </thead>
         <tbody>
-          {data.allSitePage.nodes.map(
-            ({ path, context: { language, genericPath } }) => {
-              const dataPath = path.replace(/\/$/, '')
-              return (
-                <tr key={dataPath} data-path={dataPath}>
-                  <td className="path">{path}</td>
-                  <td className="language">{language}</td>
-                  <td className="generic-path">{genericPath}</td>
-                </tr>
-              )
-            },
-          )}
+          {data.allSitePage.nodes.map(node => {
+            const dataPath = node.path.replace(/\/$/, '')
+            const language = (node.context && node.context.language) || ''
+            const genericPath = (node.context && node.context.genericPath) || ''
+
+            return (
+              <tr key={dataPath} data-path={dataPath}>
+                <td className="path">{node.path}</td>
+                <td className="language">{language}</td>
+                <td className="generic-path">{genericPath}</td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
