@@ -17,3 +17,7 @@ export const CACHE_TRANSLATIONS_DEFAULT_FILE = path.resolve(
 )
 
 export const PUBLIC_TRANSLATIONS_DIR = path.resolve(PUBLIC_DIR, 'translations')
+export const REDIRECT_TEMPLATE_FILE = path.resolve(
+  CACHE_DIR,
+  'RedirectTemplate.js',
+)
