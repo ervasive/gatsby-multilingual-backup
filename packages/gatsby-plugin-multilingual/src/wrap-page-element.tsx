@@ -19,7 +19,7 @@ const WrapPageElement = ({
     includeDefaultLanguageInURL,
   } = getOptions(pluginOptions)
 
-  if (pageContext.lingual) {
+  if (pageContext.language) {
     i18next.changeLanguage(pageContext.language)
   }
 

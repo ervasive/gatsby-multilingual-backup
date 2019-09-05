@@ -1,22 +1,21 @@
-import path from 'path'
-import Joi from '@hapi/joi'
-import { merge } from 'lodash'
 import { GatsbyNode } from 'gatsby'
 import {
-  LingualPage,
+  GatsbyPage,
   NAMESPACE_NODE_TYPENAME,
 } from '@gatsby-plugin-multilingual/shared'
 import getOptions from './get-options'
 import prepareCacheDir from './prepare-cache-dir'
 import { processTranslations } from './translations'
 import { createPagesRegistry, writePagesRegistry } from './pages-registry'
-import normalizePath from './utils/normalize-path'
 import {
+  PLUGIN_NAME,
   CACHE_PAGES_FILE,
   CACHE_NAMESPACES_FILE,
   CACHE_TRANSLATIONS_ALL_FILE,
   CACHE_TRANSLATIONS_DEFAULT_FILE,
 } from './constants'
+import copyRedirectTemplate from './copyRedirectTemplate'
+import generatePages from './generate-pages'
 
 export const onCreateWebpackConfig: GatsbyNode['onCreateWebpackConfig'] = ({
   actions,
@@ -41,6 +40,7 @@ export const onPreBootstrap: GatsbyNode['onPreBootstrap'] = async (
     await prepareCacheDir()
 
     const options = getOptions(pluginOptions)
+    await copyRedirectTemplate(options.pathToRedirectTemplate)
     await processTranslations(getNodesByType(NAMESPACE_NODE_TYPENAME), options)
   } catch (err) {
     reporter.panic(err)
@@ -63,100 +63,54 @@ export const onCreateNode: GatsbyNode['onCreateNode'] = async (
   }
 }
 
-const schema = Joi.object({
-  context: Joi.object({
-    lingual: Joi.boolean(),
-    language: Joi.string().required(),
-    genericPath: Joi.string().required(),
-  }),
-})
-
 export const onCreatePage: GatsbyNode['onCreatePage'] = async (
-  { page, actions: { createPage, deletePage }, reporter },
+  { page, actions: { createPage, deletePage, createRedirect }, reporter },
   pluginOptions,
 ): Promise<void> => {
-  if (!(page.context as any).lingual) {
+  const typedPage = (page as unknown) as GatsbyPage
+
+  if (typedPage.path === '/dev-404-page/') {
     return
   }
 
-  const { error } = Joi.validate(page, schema, {
-    allowUnknown: true,
-    abortEarly: false,
-  })
+  const options = getOptions(pluginOptions)
+  const { pages, redirects, error, removeOriginalPage } = generatePages(
+    typedPage,
+    options,
+  )
+
+  if (removeOriginalPage) {
+    deletePage(typedPage)
+  }
 
   if (error) {
-    reporter.warn(
-      `Error.\n- ${error.details
-        .map(({ message }): string => message)
-        .join('\n- ')}`,
-    )
-    return
-  }
+    const message =
+      `${PLUGIN_NAME}: The following errors were encountered while ` +
+      `processing pages:\n${error.message}`
 
-  const currentPage = (page as unknown) as LingualPage
-  const newPages: LingualPage[] = []
-
-  const {
-    defaultLanguage,
-    availableLanguages,
-    includeDefaultLanguageInURL,
-  } = getOptions(pluginOptions)
-
-  deletePage(currentPage)
-
-  // Do not create any pages for an unsupported language
-  if (![...availableLanguages, 'all'].includes(currentPage.context.language)) {
-    return
-  }
-
-  // Prepare a page for each language if the language value is set to "all"
-  if (currentPage.context.language === 'all') {
-    availableLanguages.forEach((language): void => {
-      newPages.push(
-        merge({}, currentPage, {
-          context: {
-            language,
-          },
-        }),
-      )
-    })
-  } else {
-    newPages.push(currentPage)
-  }
-
-  newPages.forEach((page): void => {
-    const shouldIncludeLanguagePrefix =
-      includeDefaultLanguageInURL || page.context.language !== defaultLanguage
-
-    const newPage: LingualPage = merge({}, page, {
-      path: normalizePath(
-        shouldIncludeLanguagePrefix
-          ? `${page.context.language}${page.context.genericPath}`
-          : page.context.genericPath,
-      ),
-      context: {
-        genericPath: normalizePath(page.context.genericPath),
-      },
-    })
-
-    createPage(newPage)
-
-    // Additionally generate a redirect for prefixless page variant to the
-    // correct one
-    if (
-      includeDefaultLanguageInURL &&
-      page.context.language === defaultLanguage
-    ) {
-      const redirectPage: LingualPage = merge({}, page, {
-        path: normalizePath(page.context.genericPath),
-        // TODO: provide a mechanism for user defined redirect components with
-        // a fallback
-        component: path.resolve('src/templates/stub.js'),
-      })
-
-      createPage(redirectPage)
+    switch (error.type) {
+      case 'warn':
+        reporter.warn(message)
+        break
+      case 'error':
+        reporter.error(message)
+        break
+      case 'panic':
+        reporter.panic(message)
+        break
+      default:
+        reporter.warn('Unknown error type')
+        break
     }
-  })
+  }
+
+  if (redirects) {
+    redirects.forEach(redirect => createRedirect(redirect))
+  }
+
+  if (pages) {
+    pages.forEach(page => createPage(page as GatsbyPage))
+  }
 }
 
 export const onPostBootstrap: GatsbyNode['onPostBootstrap'] = async ({

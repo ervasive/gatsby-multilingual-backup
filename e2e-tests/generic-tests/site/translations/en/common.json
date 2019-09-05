@@ -1,0 +1,7 @@
+{
+  "key": "gatsby-plugin-multilingual-language-en",
+  "parent-key": {
+    "nested-key": "nested-value"
+  },
+  "unique-key-gatsby-plugin-multilingual-language-en": "value"
+}

@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import { MultilingualContext } from './MultilingualContext'
-import { MLContextProviderData } from './types'
+import { ContextProviderData } from './types'
 
-export default (): MLContextProviderData => {
+export default (): ContextProviderData => {
   return useContext(MultilingualContext)
 }
