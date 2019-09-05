@@ -3,13 +3,16 @@ import {
   WrapRootElementBrowserArgs,
 } from 'gatsby'
 import i18next from 'i18next'
-import { LingualPage } from '@gatsby-plugin-multilingual/shared'
+import { GatsbyPage, GatsbyRedirect } from '@gatsby-plugin-multilingual/shared'
 
 export interface PluginOptions extends GatsbyPluginOptions {
   defaultLanguage?: any
   availableLanguages?: any
   defaultNamespace?: any
   includeDefaultLanguageInURL?: any
+  removeInvalidPages?: any
+  removeSkippedPages?: any
+  pathToRedirectTemplate?: any
   defaultTranslationsLoader?: {
     disable?: any
     path?: any
@@ -22,6 +25,9 @@ export interface PluginValidatedOptions extends GatsbyPluginOptions {
   availableLanguages: string[]
   defaultNamespace: string
   includeDefaultLanguageInURL: boolean
+  removeInvalidPages: boolean
+  removeSkippedPages: boolean
+  pathToRedirectTemplate?: string
   defaultTranslationsLoader: {
     disable: boolean
     path: string
@@ -29,9 +35,41 @@ export interface PluginValidatedOptions extends GatsbyPluginOptions {
   }
 }
 
+export interface MultilingualPage extends GatsbyPage {
+  context: {
+    multilingual: {
+      languages: string[]
+      skip?: boolean
+    }
+  }
+}
+
+export interface MonolingualPage extends GatsbyPage {
+  context: {
+    language: string
+    genericPath: string
+  }
+}
+
+export interface RedirectPage extends GatsbyPage {
+  context: {
+    redirectTo: string
+  }
+}
+
+export interface PagesGeneratorResult {
+  pages: (MonolingualPage | RedirectPage)[]
+  redirects: GatsbyRedirect[]
+  error?: {
+    type: string
+    message: string
+  }
+  removeOriginalPage?: boolean
+}
+
 export type PagesRegistry = Record<string, Record<string, string>>
 
-export type MLContextProviderData = Pick<
+export type ContextProviderData = Pick<
   PluginValidatedOptions,
   | 'defaultLanguage'
   | 'availableLanguages'
@@ -51,7 +89,7 @@ export interface WrapRootElementProps {
 export interface WrapPageElementArgs {
   element: object
   props: {
-    pageContext: LingualPage['context']
+    pageContext: MonolingualPage['context']
   }
 }
 

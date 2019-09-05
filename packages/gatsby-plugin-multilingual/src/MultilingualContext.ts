@@ -1,8 +1,8 @@
 import React from 'react'
-import { MLContextProviderData } from './types'
+import { ContextProviderData } from './types'
 import getOptions from './get-options'
 
-export const MultilingualContext = React.createContext<MLContextProviderData>({
+export const MultilingualContext = React.createContext<ContextProviderData>({
   ...getOptions(),
   pages: {},
 })

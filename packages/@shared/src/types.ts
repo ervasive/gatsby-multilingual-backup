@@ -1,24 +1,16 @@
 import {
   Node as GatsbyNode,
   PluginOptions as GatsbyPluginOptions,
+  Actions as GatsbyActions,
 } from 'gatsby'
 
-export interface GatsbyPage extends GatsbyNode {
-  path: string
-  component: string
-  isCreatedByStatefulCreatePages: boolean
+export type GatsbyPage = Parameters<GatsbyActions['createPage']>[0] & {
   context: {
     [key: string]: unknown
   }
 }
 
-export interface LingualPage extends GatsbyPage {
-  context: {
-    lingual: boolean
-    language: string
-    genericPath: string
-  }
-}
+export type GatsbyRedirect = Parameters<GatsbyActions['createRedirect']>[0]
 
 export interface GatsbyStorePlugin {
   name: string

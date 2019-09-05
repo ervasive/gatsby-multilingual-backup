@@ -1,23 +1,21 @@
 import { outputJSON } from 'fs-extra'
 import { debounce } from 'lodash'
-import { GatsbyPage, LingualPage } from '@gatsby-plugin-multilingual/shared'
-import { PagesRegistry } from './types'
+import { GatsbyPage } from '@gatsby-plugin-multilingual/shared'
+import { MonolingualPage, PagesRegistry } from './types'
 import { CACHE_PAGES_FILE } from './constants'
 
 export const createPagesRegistry = (
   pages: Map<string, GatsbyPage>,
-): { registry: PagesRegistry; duplicates: LingualPage[] } => {
+): { registry: PagesRegistry; duplicates: MonolingualPage[] } => {
   const registry: PagesRegistry = {}
-  const duplicates: LingualPage[] = []
+  const duplicates: MonolingualPage[] = []
 
   for (const page of pages.values()) {
-    if (!(page.context as any).lingual) {
+    if (!page.context.language || !page.context.languagelessPath) {
       continue
     }
 
-    // Validate here as well?
-
-    const currentPage = (page as unknown) as LingualPage
+    const currentPage = (page as unknown) as MonolingualPage
 
     const {
       path,
