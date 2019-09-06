@@ -18,38 +18,8 @@ describe('generatePages', () => {
     expect(removeOriginalPage).toBeUndefined()
   })
 
-  it(
-    `should produce a warning on invalid MultilingualPage shape and ` +
-      `set "removeOriginalPage" to false if "removeInvalidPages" is not set`,
-    () => {
-      const { pages, redirects, error, removeOriginalPage } = generatePages(
-        {
-          path: '/non-multilingual-page-path-value',
-          component: '',
-          context: {
-            multilingual: {
-              languages: 'non-valid-value',
-              skip: 'non-valid-value',
-            },
-          },
-        },
-        getOptions({ removeInvalidPages: false, plugins: [] }),
-      )
-
-      expect(pages.length).toBe(0)
-      expect(redirects.length).toBe(0)
-      expect((error as any).type).toMatch('warn')
-      expect((error as any).message).toMatch(
-        /"languages" property.*"skip" property/is,
-      )
-      expect(removeOriginalPage).toBe(false)
-    },
-  )
-
-  it(
-    `should produce a warning on invalid MultilingualPage shape and ` +
-      `set "removeOriginalPage" to true if "removeInvalidPages" is set`,
-    () => {
+  describe(`"removeInvalidPages" flag`, () => {
+    it(`should produce a warning and set "removeOriginalPage" if the flag=true`, () => {
       const { pages, redirects, error, removeOriginalPage } = generatePages(
         {
           path: '/non-multilingual-page-path-value',
@@ -71,13 +41,35 @@ describe('generatePages', () => {
         /"languages" property.*"skip" property/is,
       )
       expect(removeOriginalPage).toBe(true)
-    },
-  )
+    })
 
-  it(
-    `should produce empty values for a "skipped" page and set ` +
-      `"removeOriginalPage" to false if "removeSkippedPages" is not set`,
-    () => {
+    it(`should produce a warning and not set "removeOriginalPage" if the flag=false`, () => {
+      const { pages, redirects, error, removeOriginalPage } = generatePages(
+        {
+          path: '/non-multilingual-page-path-value',
+          component: '',
+          context: {
+            multilingual: {
+              languages: 'non-valid-value',
+              skip: 'non-valid-value',
+            },
+          },
+        },
+        getOptions({ removeInvalidPages: false, plugins: [] }),
+      )
+
+      expect(pages.length).toBe(0)
+      expect(redirects.length).toBe(0)
+      expect((error as any).type).toMatch('warn')
+      expect((error as any).message).toMatch(
+        /"languages" property.*"skip" property/is,
+      )
+      expect(removeOriginalPage).toBe(false)
+    })
+  })
+
+  describe(`"removeSkippedPages" flag`, () => {
+    it(`should not set "removeOriginalPage" if the flag=false`, () => {
       const { pages, redirects, error, removeOriginalPage } = generatePages(
         {
           path: '/non-multilingual-page-path-value',
@@ -100,13 +92,9 @@ describe('generatePages', () => {
       expect(redirects.length).toBe(0)
       expect(error).toBeUndefined()
       expect(removeOriginalPage).toBe(false)
-    },
-  )
+    })
 
-  it(
-    `should produce empty values for a "skipped" page and set ` +
-      `"removeOriginalPage" to true if "removeSkippedPages" is set`,
-    () => {
+    it(`should set "removeOriginalPage" if the flag=true`, () => {
       const { pages, redirects, error, removeOriginalPage } = generatePages(
         {
           path: '/non-multilingual-page-path-value',
@@ -129,311 +117,454 @@ describe('generatePages', () => {
       expect(redirects.length).toBe(0)
       expect(error).toBeUndefined()
       expect(removeOriginalPage).toBe(true)
-    },
-  )
+    })
+  })
 
-  it(
-    `should produce a warning if the MultilingualPage page does not ` +
-      `specify any valid language and set "removeOriginalPage" to false`,
-    () => {
+  describe(`with invalid input page shape`, () => {
+    it(`should produce a warning and on invalid languages array item value type`, () => {
       const { pages, redirects, error, removeOriginalPage } = generatePages(
         {
           path: '/non-multilingual-page-path-value',
           component: '',
           context: {
             multilingual: {
-              languages: ['de', 'es'],
+              languages: [NaN],
             },
           },
         },
-        getOptions({ availableLanguages: ['en', 'ru'], plugins: [] }),
+        getOptions({ plugins: [] }),
       )
 
       expect(pages.length).toBe(0)
       expect(redirects.length).toBe(0)
       expect((error as any).type).toMatch('warn')
-      expect((error as any).message).toMatch(/has no valid languages/is)
-      expect(removeOriginalPage).toBe(false)
-    },
-  )
+      expect((error as any).message).toMatch(/"languages" property/is)
+      expect(removeOriginalPage).toBe(true)
+    })
 
-  it(
-    `should produce all required values for a valid MultilingualPage page ` +
-      `without any redirects if "includeDefaultLanguageInURL" set to false`,
-    () => {
+    it(`should produce a warning on invalid language as an object value`, () => {
       const { pages, redirects, error, removeOriginalPage } = generatePages(
         {
           path: '/non-multilingual-page-path-value',
           component: '',
           context: {
-            arbitraryContextProperty: true,
             multilingual: {
-              languages: ['en', 'ru'],
+              languages: [{ wrongLanguagePropertyName: 'en' }],
             },
           },
         },
-        getOptions({
-          availableLanguages: ['en', 'ru'],
-          includeDefaultLanguageInURL: false,
-          plugins: [],
-        }),
+        getOptions({ plugins: [] }),
       )
 
-      expect(pages.length).toBe(2)
-      expect(pages[0]).toEqual({
-        path: `/non-multilingual-page-path-value`,
-        component: '',
-        context: {
-          language: 'en',
-          genericPath: '/non-multilingual-page-path-value',
-          arbitraryContextProperty: true,
-        },
-      })
-      expect(pages[1]).toEqual({
-        path: `/ru/non-multilingual-page-path-value`,
-        component: '',
-        context: {
-          language: 'ru',
-          genericPath: '/non-multilingual-page-path-value',
-          arbitraryContextProperty: true,
-        },
-      })
+      expect(pages.length).toBe(0)
       expect(redirects.length).toBe(0)
-      expect(error).toBeUndefined()
+      expect((error as any).type).toMatch('warn')
+      expect((error as any).message).toMatch(/"languages" property/is)
       expect(removeOriginalPage).toBe(true)
-    },
-  )
+    })
+  })
 
-  it(
-    `should produce all required values for a valid MultilingualPage page ` +
-      `with required redirects if "includeDefaultLanguageInURL" set to true`,
-    () => {
-      const { pages, redirects, error, removeOriginalPage } = generatePages(
-        {
-          path: '/non-multilingual-page-path-value',
-          component: '',
-          context: {
-            arbitraryContextProperty: true,
-            multilingual: {
-              languages: ['en', 'ru'],
-            },
+  it(`should produce a warning and set "removeOriginalPage" to false on no allowed languages`, () => {
+    const { pages, redirects, error, removeOriginalPage } = generatePages(
+      {
+        path: '/non-multilingual-page-path-value',
+        component: '',
+        context: {
+          multilingual: {
+            languages: ['de', { language: 'es' }],
           },
         },
-        getOptions({
-          availableLanguages: ['en', 'ru'],
-          includeDefaultLanguageInURL: true,
-          plugins: [],
-        }),
-      )
+      },
+      getOptions({ availableLanguages: ['en', 'ru'], plugins: [] }),
+    )
 
-      expect(pages.length).toBe(3)
+    expect(pages.length).toBe(0)
+    expect(redirects.length).toBe(0)
+    expect((error as any).type).toMatch('warn')
+    expect((error as any).message).toMatch(/has no valid languages/is)
+    expect(removeOriginalPage).toBe(false)
+  })
+})
 
-      expect(pages[0]).toEqual({
-        path: `/en/non-multilingual-page-path-value`,
+describe(`"includeDefaultLanguageInURL" flag`, () => {
+  it(`should generate pages for a input page without redirects if the flag=false`, () => {
+    const { pages, redirects, error, removeOriginalPage } = generatePages(
+      {
+        path: '/non-multilingual-page-path-value',
         component: '',
         context: {
-          language: 'en',
-          genericPath: '/non-multilingual-page-path-value',
           arbitraryContextProperty: true,
-        },
-      })
-
-      expect(pages[1]).toMatchObject({
-        path: `/non-multilingual-page-path-value`,
-        context: {
-          redirectTo: '/en/non-multilingual-page-path-value',
-          arbitraryContextProperty: true,
-        },
-      })
-      expect(pages[1].component).toMatch(/RedirectTemplate/)
-
-      expect(pages[2]).toEqual({
-        path: `/ru/non-multilingual-page-path-value`,
-        component: '',
-        context: {
-          language: 'ru',
-          genericPath: '/non-multilingual-page-path-value',
-          arbitraryContextProperty: true,
-        },
-      })
-
-      expect(redirects.length).toBe(1)
-
-      expect(redirects[0]).toEqual({
-        fromPath: '/non-multilingual-page-path-value',
-        toPath: '/en/non-multilingual-page-path-value',
-        isPermanent: true,
-      })
-
-      expect(error).toBeUndefined()
-      expect(removeOriginalPage).toBe(true)
-    },
-  )
-
-  it(
-    `should produce all required values for a page with "multilingual" path ` +
-      `without any redirects if "includeDefaultLanguageInURL" set to false`,
-    () => {
-      const { pages, redirects, error, removeOriginalPage } = generatePages(
-        {
-          path: '/multilingual-page-path-value.en,ru',
-          component: '',
-          context: {
-            arbitraryContextProperty: true,
+          multilingual: {
+            languages: ['en', { language: 'ru', slug: 'путь-страницы' }],
           },
         },
-        getOptions({
-          availableLanguages: ['en', 'ru'],
-          includeDefaultLanguageInURL: false,
-          plugins: [],
-        }),
-      )
+      },
+      getOptions({
+        defaultLanguage: 'en',
+        availableLanguages: ['en', 'ru'],
+        includeDefaultLanguageInURL: false,
+        plugins: [],
+      }),
+    )
 
-      expect(pages.length).toBe(2)
+    expect(pages.length).toBe(2)
+    expect(pages[0]).toEqual({
+      path: `/non-multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'en',
+        genericPath: '/non-multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+    expect(pages[1]).toEqual({
+      path: `/ru/путь-страницы`,
+      component: '',
+      context: {
+        language: 'ru',
+        genericPath: '/non-multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+    expect(redirects.length).toBe(0)
+    expect(error).toBeUndefined()
+    expect(removeOriginalPage).toBe(true)
+  })
 
-      expect(pages[0]).toEqual({
-        path: `/multilingual-page-path-value`,
+  it(`should generate pages for a input page based on the "path" property without redirects if the flag=false`, () => {
+    const { pages, redirects, error, removeOriginalPage } = generatePages(
+      {
+        path: '/multilingual-page-path-value.en,ru',
         component: '',
         context: {
-          language: 'en',
-          genericPath: '/multilingual-page-path-value',
           arbitraryContextProperty: true,
         },
-      })
+      },
+      getOptions({
+        defaultLanguage: 'en',
+        availableLanguages: ['en', 'ru'],
+        includeDefaultLanguageInURL: false,
+        plugins: [],
+      }),
+    )
 
-      expect(pages[1]).toEqual({
-        path: `/ru/multilingual-page-path-value`,
+    expect(pages.length).toBe(2)
+
+    expect(pages[0]).toEqual({
+      path: `/multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'en',
+        genericPath: '/multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(pages[1]).toEqual({
+      path: `/ru/multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'ru',
+        genericPath: '/multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(redirects.length).toBe(0)
+    expect(error).toBeUndefined()
+    expect(removeOriginalPage).toBe(true)
+  })
+
+  it(`should generate pages for a input page with redirects if the flag=true`, () => {
+    const { pages, redirects, error, removeOriginalPage } = generatePages(
+      {
+        path: '/non-multilingual-page-path-value',
         component: '',
         context: {
-          language: 'ru',
-          genericPath: '/multilingual-page-path-value',
           arbitraryContextProperty: true,
-        },
-      })
-
-      expect(redirects.length).toBe(0)
-      expect(error).toBeUndefined()
-      expect(removeOriginalPage).toBe(true)
-    },
-  )
-
-  it(
-    `should produce all required values for a page with "multilingual" path ` +
-      `with all required redirects if "includeDefaultLanguageInURL" set to true`,
-    () => {
-      const { pages, redirects, error, removeOriginalPage } = generatePages(
-        {
-          path: '/multilingual-page-path-value.en,ru',
-          component: '',
-          context: {
-            arbitraryContextProperty: true,
+          multilingual: {
+            languages: ['en', { language: 'ru', slug: 'путь-страницы' }],
           },
         },
-        getOptions({
-          availableLanguages: ['en', 'ru'],
-          includeDefaultLanguageInURL: true,
-          plugins: [],
-        }),
-      )
+      },
+      getOptions({
+        defaultLanguage: 'en',
+        availableLanguages: ['en', 'ru'],
+        includeDefaultLanguageInURL: true,
+        plugins: [],
+      }),
+    )
 
-      expect(pages.length).toBe(3)
+    expect(pages.length).toBe(3)
 
-      expect(pages[0]).toEqual({
-        path: `/en/multilingual-page-path-value`,
+    expect(pages[0]).toEqual({
+      path: `/en/non-multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'en',
+        genericPath: '/non-multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(pages[1]).toMatchObject({
+      path: `/non-multilingual-page-path-value`,
+      context: {
+        redirectTo: '/en/non-multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+    expect(pages[1].component).toMatch(/RedirectTemplate/)
+
+    expect(pages[2]).toEqual({
+      path: `/ru/путь-страницы`,
+      component: '',
+      context: {
+        language: 'ru',
+        genericPath: '/non-multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(redirects.length).toBe(1)
+
+    expect(redirects[0]).toEqual({
+      fromPath: '/non-multilingual-page-path-value',
+      toPath: '/en/non-multilingual-page-path-value',
+      isPermanent: true,
+    })
+
+    expect(error).toBeUndefined()
+    expect(removeOriginalPage).toBe(true)
+  })
+
+  it(`should generate pages for a input page based on the "path" property with redirects if the flag=true`, () => {
+    const { pages, redirects, error, removeOriginalPage } = generatePages(
+      {
+        path: '/multilingual-page-path-value.en,ru',
         component: '',
         context: {
-          language: 'en',
-          genericPath: '/multilingual-page-path-value',
           arbitraryContextProperty: true,
         },
-      })
+      },
+      getOptions({
+        defaultLanguage: 'en',
+        availableLanguages: ['en', 'ru'],
+        includeDefaultLanguageInURL: true,
+        plugins: [],
+      }),
+    )
 
-      expect(pages[1]).toMatchObject({
-        path: `/multilingual-page-path-value`,
-        context: {
-          redirectTo: '/en/multilingual-page-path-value',
-          arbitraryContextProperty: true,
-        },
-      })
-      expect(pages[1].component).toMatch(/RedirectTemplate/)
+    expect(pages.length).toBe(3)
 
-      expect(pages[2]).toEqual({
-        path: `/ru/multilingual-page-path-value`,
+    expect(pages[0]).toEqual({
+      path: `/en/multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'en',
+        genericPath: '/multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(pages[1]).toMatchObject({
+      path: `/multilingual-page-path-value`,
+      context: {
+        redirectTo: '/en/multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+    expect(pages[1].component).toMatch(/RedirectTemplate/)
+
+    expect(pages[2]).toEqual({
+      path: `/ru/multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'ru',
+        genericPath: '/multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(redirects.length).toBe(1)
+
+    expect(redirects[0]).toEqual({
+      fromPath: '/multilingual-page-path-value',
+      toPath: '/en/multilingual-page-path-value',
+      isPermanent: true,
+    })
+
+    expect(error).toBeUndefined()
+    expect(removeOriginalPage).toBe(true)
+  })
+})
+
+describe(`"all" keyword`, () => {
+  it(`should generate pages for all available languages if the keyword present in languages array as a string`, () => {
+    const { pages, redirects, error, removeOriginalPage } = generatePages(
+      {
+        path: '/non-multilingual-page-path-value',
         component: '',
         context: {
-          language: 'ru',
-          genericPath: '/multilingual-page-path-value',
-          arbitraryContextProperty: true,
-        },
-      })
-
-      expect(redirects.length).toBe(1)
-
-      expect(redirects[0]).toEqual({
-        fromPath: '/multilingual-page-path-value',
-        toPath: '/en/multilingual-page-path-value',
-        isPermanent: true,
-      })
-
-      expect(error).toBeUndefined()
-      expect(removeOriginalPage).toBe(true)
-    },
-  )
-
-  it(
-    `should translate "all" keyword for languages value into the list of ` +
-      `pages for all available languages`,
-    () => {
-      const { pages, redirects, error, removeOriginalPage } = generatePages(
-        {
-          path: '/multilingual-page-path-value.all',
-          component: '',
-          context: {
-            arbitraryContextProperty: true,
+          multilingual: {
+            languages: ['all', { language: 'ru', slug: 'путь-страницы' }],
           },
-        },
-        getOptions({
-          availableLanguages: ['en', 'ru', 'de'],
-          includeDefaultLanguageInURL: false,
-          plugins: [],
-        }),
-      )
-
-      expect(pages.length).toBe(3)
-
-      expect(pages[0]).toEqual({
-        path: `/multilingual-page-path-value`,
-        component: '',
-        context: {
-          language: 'en',
-          genericPath: '/multilingual-page-path-value',
           arbitraryContextProperty: true,
         },
-      })
+      },
+      getOptions({
+        availableLanguages: ['en', 'ru', 'de'],
+        includeDefaultLanguageInURL: false,
+        plugins: [],
+      }),
+    )
 
-      expect(pages[1]).toEqual({
-        path: `/ru/multilingual-page-path-value`,
+    expect(pages.length).toBe(3)
+
+    expect(pages[0]).toEqual({
+      path: `/non-multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'en',
+        genericPath: '/non-multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(pages[1]).toEqual({
+      path: `/ru/путь-страницы`,
+      component: '',
+      context: {
+        language: 'ru',
+        genericPath: '/non-multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(pages[2]).toEqual({
+      path: `/de/non-multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'de',
+        genericPath: '/non-multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(redirects.length).toBe(0)
+    expect(error).toBeUndefined()
+    expect(removeOriginalPage).toBe(true)
+  })
+
+  it(`should generate pages for all available languages if the keyword present in languages array as an object language property`, () => {
+    const { pages, redirects, error, removeOriginalPage } = generatePages(
+      {
+        path: '/non-multilingual-page-path-value',
         component: '',
         context: {
-          language: 'ru',
-          genericPath: '/multilingual-page-path-value',
+          multilingual: {
+            languages: [
+              { language: 'all' },
+              { language: 'ru', slug: 'путь-страницы' },
+            ],
+          },
           arbitraryContextProperty: true,
         },
-      })
+      },
+      getOptions({
+        availableLanguages: ['en', 'ru', 'de'],
+        includeDefaultLanguageInURL: false,
+        plugins: [],
+      }),
+    )
 
-      expect(pages[2]).toEqual({
-        path: `/de/multilingual-page-path-value`,
+    expect(pages.length).toBe(3)
+
+    expect(pages[0]).toEqual({
+      path: `/non-multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'en',
+        genericPath: '/non-multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(pages[1]).toEqual({
+      path: `/ru/путь-страницы`,
+      component: '',
+      context: {
+        language: 'ru',
+        genericPath: '/non-multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(pages[2]).toEqual({
+      path: `/de/non-multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'de',
+        genericPath: '/non-multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(redirects.length).toBe(0)
+    expect(error).toBeUndefined()
+    expect(removeOriginalPage).toBe(true)
+  })
+
+  it(`should generate pages for all available languages if the keyword present in the form of a path suffix`, () => {
+    const { pages, redirects, error, removeOriginalPage } = generatePages(
+      {
+        path: '/multilingual-page-path-value.all',
         component: '',
         context: {
-          language: 'de',
-          genericPath: '/multilingual-page-path-value',
           arbitraryContextProperty: true,
         },
-      })
+      },
+      getOptions({
+        availableLanguages: ['en', 'ru', 'de'],
+        includeDefaultLanguageInURL: false,
+        plugins: [],
+      }),
+    )
 
-      expect(redirects.length).toBe(0)
-      expect(error).toBeUndefined()
-      expect(removeOriginalPage).toBe(true)
-    },
-  )
+    expect(pages.length).toBe(3)
+
+    expect(pages[0]).toEqual({
+      path: `/multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'en',
+        genericPath: '/multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(pages[1]).toEqual({
+      path: `/ru/multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'ru',
+        genericPath: '/multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(pages[2]).toEqual({
+      path: `/de/multilingual-page-path-value`,
+      component: '',
+      context: {
+        language: 'de',
+        genericPath: '/multilingual-page-path-value',
+        arbitraryContextProperty: true,
+      },
+    })
+
+    expect(redirects.length).toBe(0)
+    expect(error).toBeUndefined()
+    expect(removeOriginalPage).toBe(true)
+  })
 })

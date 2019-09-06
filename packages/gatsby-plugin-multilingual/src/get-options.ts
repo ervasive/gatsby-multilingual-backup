@@ -8,6 +8,7 @@ const defaultOptions: PluginValidatedOptions = {
   includeDefaultLanguageInURL: false,
   removeInvalidPages: true,
   removeSkippedPages: true,
+  customSlugs: {},
   defaultTranslationsLoader: {
     path: 'translations',
     priority: 0,

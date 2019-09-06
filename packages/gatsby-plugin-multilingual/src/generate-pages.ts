@@ -7,6 +7,7 @@ import {
   PluginValidatedOptions,
   MultilingualPage,
   PagesGeneratorResult,
+  MultilingualContextLanguage,
 } from './types'
 
 export default (
@@ -19,8 +20,8 @@ export default (
     removeSkippedPages,
   }: PluginValidatedOptions,
 ): PagesGeneratorResult => {
-  let genericPath: string | null = null
-  let languages: string[] | null = null
+  let genericPath = ''
+  const languageToSlugMap: Map<string, string> = new Map()
 
   // If we have a potential MultilingualPage try to validate it and get the
   // multilingual data from it first
@@ -30,14 +31,19 @@ export default (
       Joi.object({
         languages: Joi.array()
           .items(
-            Joi.string().error(
-              () =>
-                `The "languages" property must be an array of language keys`,
-            ),
+            Joi.string(),
+            Joi.object({
+              language: Joi.string().required(),
+              slug: Joi.string(),
+            }),
           )
           .required()
           .error(
-            () => `The "languages" property must be an array of language keys`,
+            () =>
+              `The "languages" property must be an array which can contain ` +
+              `two value types:\n` +
+              `\tstring - represents a language key` +
+              `\tobject - represents a language key and a custom page slug`,
           ),
         skip: Joi.boolean().error(
           () => `The "skip" property must be a boolean value`,
@@ -61,7 +67,13 @@ export default (
       }
 
       genericPath = multilintualPage.path
-      languages = multilintualPage.context.multilingual.languages
+      multilintualPage.context.multilingual.languages.map(value => {
+        if (typeof value === 'string') {
+          languageToSlugMap.set(value, genericPath)
+        } else {
+          languageToSlugMap.set(value.language, value.slug || genericPath)
+        }
+      })
     } else {
       const errorMsg = `The page with the path: "${
         page.path
@@ -83,32 +95,53 @@ export default (
 
   // If the previous step was unable to extract multilingual data, try to get it
   // from the path property
-  if (!genericPath || !languages) {
+  if (genericPath === '' || !languageToSlugMap.size) {
     const pathPartsMatches = /(.+)\.(.+)?$/.exec(page.path)
 
     if (pathPartsMatches) {
       genericPath = pathPartsMatches[1]
-      languages = pathPartsMatches[2].replace('/', '').split(',')
+
+      pathPartsMatches[2]
+        .replace('/', '')
+        .split(',')
+        .map(language => {
+          languageToSlugMap.set(language, genericPath)
+        })
     }
   }
 
   // If by now we couldn't get multilingual data, give up
-  if (!genericPath || !languages) {
+  if (genericPath === '' || !languageToSlugMap.size) {
     return {
       pages: [],
       redirects: [],
     }
   }
 
-  // Get the page's allowed languages.
-  // NOTE: if "all" keyword is present than the page supports all available
-  // languages.
-  const pageLanguages = languages.includes('all')
-    ? availableLanguages
-    : languages.filter(language => availableLanguages.includes(language))
+  // Get the page's allowed languages
+  const pageAllowedLanguages: Required<MultilingualContextLanguage>[] = []
+
+  // if "all" keyword is present than the page supports all available languages
+  if (languageToSlugMap.get('all')) {
+    availableLanguages.forEach(language => {
+      pageAllowedLanguages.push({
+        language,
+        slug: languageToSlugMap.get(language) || genericPath,
+      })
+    })
+  } else {
+    languageToSlugMap.forEach((slug, language) => {
+      if (availableLanguages.includes(language)) {
+        pageAllowedLanguages.push({
+          language,
+          slug,
+        })
+      }
+    })
+  }
 
   // Warn user if we end up without valid languages
-  if (!pageLanguages.length) {
+  if (!pageAllowedLanguages.length) {
     return {
       pages: [],
       redirects: [],
@@ -130,14 +163,14 @@ export default (
   const plainGatsbyPage: GatsbyPage = { ...page }
   delete plainGatsbyPage.context.multilingual
 
-  pageLanguages.forEach((language): void => {
+  pageAllowedLanguages.forEach(({ language, slug }): void => {
     const shouldIncludeLanguagePrefix =
       includeDefaultLanguageInURL || language !== defaultLanguage
 
-    const pagePath = normalizePath(genericPath as string)
-    const pageNewPath = shouldIncludeLanguagePrefix
-      ? `/${language}${pagePath}`
-      : pagePath
+    const pagePath = normalizePath(genericPath)
+    const pageNewPath = normalizePath(
+      shouldIncludeLanguagePrefix ? `${language}/${slug}` : slug,
+    )
 
     result.pages.push(
       merge({}, plainGatsbyPage, {
