@@ -2,7 +2,6 @@
   "name": "gatsby-multilingual",
   "private": true,
   "license": "MIT",
-  "custom_flag": "custom_value",
   "repository": "github:ervasive/gatsby-multilingual",
   "scripts": {
     "ts:compile": "tsc --build",
