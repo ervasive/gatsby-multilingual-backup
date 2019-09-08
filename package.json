@@ -13,6 +13,8 @@
     "lerna": "lerna"
   },
   "dependencies": {
+    "@commitlint/cli": "^8.1.0",
+    "@commitlint/config-conventional": "^8.1.0",
     "@gatsby-plugin-multilingual/shared": "file:packages/@shared",
     "@gatsby-plugin-multilingual/translations-loader": "file:packages/@translations-loader",
     "e2e-generic-test-site": "file:e2e-tests/generic-tests/site",
@@ -53,7 +55,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
   "lint-staged": {
