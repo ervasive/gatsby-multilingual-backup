@@ -11,7 +11,7 @@ executors:
 commands:
   exit-if-no-changes:
     steps:
-      - run: scripts/exit-if-no-changes.sh packages e2e-tests .circleci
+      - run: scripts/exit-if-no-changes.sh package.json packages e2e-tests .circleci
   install:
     steps:
       - restore_cache:
