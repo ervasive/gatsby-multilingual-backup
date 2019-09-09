@@ -18,6 +18,7 @@ export default (
     includeDefaultLanguageInURL,
     removeInvalidPages,
     removeSkippedPages,
+    customSlugs,
   }: PluginValidatedOptions,
 ): PagesGeneratorResult => {
   let genericPath = ''
@@ -167,17 +168,29 @@ export default (
     const shouldIncludeLanguagePrefix =
       includeDefaultLanguageInURL || language !== defaultLanguage
 
-    const pagePath = normalizePath(genericPath)
-    const pageNewPath = normalizePath(
-      shouldIncludeLanguagePrefix ? `${language}/${slug}` : slug,
+    // Shared generic page path (used as a unique value in determinig related
+    // language-specific pages)
+    genericPath = normalizePath(genericPath)
+
+    // Globally defined page slugs take precedence over slug values defined in
+    // a page property
+    const pageSlug =
+      customSlugs[genericPath] && customSlugs[genericPath][language]
+        ? customSlugs[genericPath][language]
+        : slug
+
+    const pagePrefixlessPath = normalizePath(pageSlug)
+
+    const pagePrefixedPath = normalizePath(
+      shouldIncludeLanguagePrefix ? `${language}/${pageSlug}` : pageSlug,
     )
 
     result.pages.push(
       merge({}, plainGatsbyPage, {
-        path: pageNewPath,
+        path: pagePrefixedPath,
         context: {
           language,
-          genericPath: pagePath,
+          genericPath,
         },
       }),
     )
@@ -187,18 +200,18 @@ export default (
       // Client side redirect
       result.pages.push(
         merge({}, plainGatsbyPage, {
-          path: pagePath,
+          path: pagePrefixlessPath,
           component: path.resolve('.cache/multilingual/RedirectTemplate.js'),
           context: {
-            redirectTo: pageNewPath,
+            redirectTo: pagePrefixedPath,
           },
         }),
       )
 
       // Server side redirect
       result.redirects.push({
-        fromPath: pagePath,
-        toPath: pageNewPath,
+        fromPath: pagePrefixlessPath,
+        toPath: pagePrefixedPath,
         isPermanent: true,
       })
     }
