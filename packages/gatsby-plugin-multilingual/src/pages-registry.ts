@@ -11,7 +11,7 @@ export const createPagesRegistry = (
   const duplicates: MonolingualPage[] = []
 
   for (const page of pages.values()) {
-    if (!page.context.language || !page.context.languagelessPath) {
+    if (!page.context.language || !page.context.genericPath) {
       continue
     }
 

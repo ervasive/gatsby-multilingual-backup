@@ -13,6 +13,7 @@ export interface PluginOptions extends GatsbyPluginOptions {
   removeInvalidPages?: any
   removeSkippedPages?: any
   pathToRedirectTemplate?: any
+  customSlugs?: any
   defaultTranslationsLoader?: {
     disable?: any
     path?: any
@@ -28,6 +29,7 @@ export interface PluginValidatedOptions extends GatsbyPluginOptions {
   removeInvalidPages: boolean
   removeSkippedPages: boolean
   pathToRedirectTemplate?: string
+  customSlugs: Record<string, Record<string, string>>
   defaultTranslationsLoader: {
     disable: boolean
     path: string
@@ -35,10 +37,15 @@ export interface PluginValidatedOptions extends GatsbyPluginOptions {
   }
 }
 
+export interface MultilingualContextLanguage {
+  language: string
+  slug?: string
+}
+
 export interface MultilingualPage extends GatsbyPage {
   context: {
     multilingual: {
-      languages: string[]
+      languages: (MultilingualContextLanguage | string)[]
       skip?: boolean
     }
   }
