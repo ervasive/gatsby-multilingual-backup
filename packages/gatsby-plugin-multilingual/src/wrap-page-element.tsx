@@ -17,6 +17,7 @@ const WrapPageElement = ({
     availableLanguages,
     defaultNamespace,
     includeDefaultLanguageInURL,
+    strictPathChecks,
   } = getOptions(pluginOptions)
 
   if (pageContext.language) {
