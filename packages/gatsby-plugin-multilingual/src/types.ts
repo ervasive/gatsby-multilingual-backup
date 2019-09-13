@@ -3,13 +3,16 @@ import {
   WrapRootElementBrowserArgs,
 } from 'gatsby'
 import i18next from 'i18next'
+import { NavigateOptions } from '@reach/router'
 import { GatsbyPage, GatsbyRedirect } from '@gatsby-plugin-multilingual/shared'
+import createLink from 'create-link'
 
 export interface PluginOptions extends GatsbyPluginOptions {
   defaultLanguage?: any
   availableLanguages?: any
   defaultNamespace?: any
   includeDefaultLanguageInURL?: any
+  strictPathChecks?: any
   removeInvalidPages?: any
   removeSkippedPages?: any
   pathToRedirectTemplate?: any
@@ -26,6 +29,7 @@ export interface PluginValidatedOptions extends GatsbyPluginOptions {
   availableLanguages: string[]
   defaultNamespace: string
   includeDefaultLanguageInURL: boolean
+  strictPathChecks: boolean
   removeInvalidPages: boolean
   removeSkippedPages: boolean
   pathToRedirectTemplate?: string
@@ -83,7 +87,9 @@ export type ContextProviderData = Pick<
   | 'defaultNamespace'
   | 'includeDefaultLanguageInURL'
 > & {
-  pages: PagesRegistry
+  getPagePath: (value?: unknown) => Error | string
+  navigate: (value?: unknown, options?: NavigateOptions<{}>) => Error | void
+  Link: ReturnType<typeof createLink>
 }
 
 export interface WrapRootElementProps {
