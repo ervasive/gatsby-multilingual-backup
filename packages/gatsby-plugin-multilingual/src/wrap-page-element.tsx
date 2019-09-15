@@ -27,6 +27,7 @@ const WrapPageElement = ({
     <MultilingualContext.Provider
       value={{
         defaultLanguage,
+        currentLanguage: i18next.language,
         availableLanguages,
         defaultNamespace,
         includeDefaultLanguageInURL,

@@ -13,6 +13,7 @@ const {
 
 export const MultilingualContext = React.createContext<ContextProviderData>({
   defaultLanguage,
+  currentLanguage: defaultLanguage,
   availableLanguages,
   defaultNamespace,
   includeDefaultLanguageInURL,

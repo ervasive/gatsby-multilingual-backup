@@ -85,6 +85,7 @@ export type ContextProviderData = Pick<
   | 'defaultNamespace'
   | 'includeDefaultLanguageInURL'
 > & {
+  currentLanguage: string
   getPath: (value?: unknown) => Error | string
   getLanguages: (
     value?: unknown,
