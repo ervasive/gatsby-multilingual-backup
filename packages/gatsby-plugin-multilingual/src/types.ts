@@ -3,9 +3,7 @@ import {
   WrapRootElementBrowserArgs,
 } from 'gatsby'
 import i18next from 'i18next'
-import { NavigateOptions } from '@reach/router'
 import { GatsbyPage, GatsbyRedirect } from '@gatsby-plugin-multilingual/shared'
-import createLink from 'create-link'
 
 export interface PluginOptions extends GatsbyPluginOptions {
   defaultLanguage?: any
@@ -87,6 +85,7 @@ export type ContextProviderData = Pick<
   | 'defaultNamespace'
   | 'includeDefaultLanguageInURL'
 > & {
+  getPath: (value?: unknown) => Error | string
   getLanguages: (
     value?: unknown,
   ) => Error | { language: string; path: string }[]
