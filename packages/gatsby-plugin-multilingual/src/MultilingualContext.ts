@@ -1,8 +1,6 @@
 import React from 'react'
 import getOptions from './get-options'
-import createLink from './create-link'
-import createNavigate from './create-navigate'
-import createGetPagePath from './create-get-page-path'
+import createGetLanguages from './create-get-languages'
 import { ContextProviderData } from './types'
 
 const {
@@ -17,7 +15,5 @@ export const MultilingualContext = React.createContext<ContextProviderData>({
   availableLanguages,
   defaultNamespace,
   includeDefaultLanguageInURL,
-  getPagePath: createGetPagePath({}, '', false),
-  navigate: createNavigate({}, '', false),
-  Link: createLink({}, '', false),
+  getLanguages: createGetLanguages({}, '', '', false),
 })

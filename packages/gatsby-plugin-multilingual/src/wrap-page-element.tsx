@@ -1,17 +1,12 @@
 import React from 'react'
 import i18next from 'i18next'
 import getOptions from './get-options'
-import createNavigate from './create-navigate'
-import createLink from './create-link'
-import createGetPagePath from './create-get-page-path'
+import createGetLanguages from './create-get-languages'
 import { MultilingualContext } from './MultilingualContext'
 import { WrapPageElementProps } from './types'
 
 const WrapPageElement = ({
-  args: {
-    element,
-    props: { pageContext },
-  },
+  args: { element, props },
   pluginOptions,
   pages,
 }: WrapPageElementProps): JSX.Element => {
@@ -23,7 +18,9 @@ const WrapPageElement = ({
     strictPathChecks,
   } = getOptions(pluginOptions)
 
-  i18next.changeLanguage(pageContext.language)
+  const { language, genericPath } = props.pageContext
+
+  i18next.changeLanguage(language || defaultLanguage)
 
   return (
     <MultilingualContext.Provider
@@ -32,8 +29,9 @@ const WrapPageElement = ({
         availableLanguages,
         defaultNamespace,
         includeDefaultLanguageInURL,
-        getPagePath: createGetPagePath(
+        getLanguages: createGetLanguages(
           pages,
+          genericPath || props.path,
           i18next.language,
           strictPathChecks,
         ),

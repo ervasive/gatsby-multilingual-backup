@@ -87,9 +87,9 @@ export type ContextProviderData = Pick<
   | 'defaultNamespace'
   | 'includeDefaultLanguageInURL'
 > & {
-  getPagePath: (value?: unknown) => Error | string
-  navigate: (value?: unknown, options?: NavigateOptions<{}>) => Error | void
-  Link: ReturnType<typeof createLink>
+  getLanguages: (
+    value?: unknown,
+  ) => Error | { language: string; path: string }[]
 }
 
 export interface WrapRootElementProps {
@@ -102,7 +102,8 @@ export interface WrapRootElementProps {
 export interface WrapPageElementArgs {
   element: object
   props: {
-    pageContext: MonolingualPage['context']
+    path: string
+    pageContext: Partial<MonolingualPage['context']>
   }
 }
 
