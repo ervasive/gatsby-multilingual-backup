@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
-  testRegex: 'packages/.*/src/.*/.*\\.test\\.(js|tsx?)$',
+  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
   testPathIgnorePatterns: ['/node_modules/'],
   setupFiles: [`<rootDir>/jest/loadershim.js`],
   globals: {
@@ -10,11 +10,5 @@ module.exports = {
     },
     __PATH_PREFIX__: ``,
   },
-  reporters: [
-    'default',
-    [
-      'jest-junit',
-      { outputDirectory: 'reports/unit-tests', outputName: 'results.xml' },
-    ],
-  ],
+  collectCoverage: true,
 }
