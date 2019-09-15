@@ -22,7 +22,9 @@ yarn-error.log*
 public/
 
 # testing reports
-reports/
+coverage/
+videos/
+screenshots/
 
 # compiled assets
 packages/**/*.js
