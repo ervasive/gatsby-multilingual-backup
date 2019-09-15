@@ -1,0 +1,12 @@
+name: Build and Test
+on: [push]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+      - run: npm ci
+      - run: npm run lint -- --format junit -o reports/lint/results.xml
