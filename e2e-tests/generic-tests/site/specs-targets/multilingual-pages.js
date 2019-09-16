@@ -19,7 +19,7 @@ const Index = () => {
 
   return (
     <div>
-      <h2>Test registered lingual pages</h2>
+      <h2>Test multilingual pages</h2>
       <table id="pages">
         <thead>
           <tr>
