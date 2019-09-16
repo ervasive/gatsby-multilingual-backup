@@ -1,0 +1,7 @@
+{
+  "key": "site-priority-auto-two-language-en",
+  "parent-key": {
+    "nested-key": "nested-value"
+  },
+  "unique-key-site-priority-auto-two-language-en": "value"
+}

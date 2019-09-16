@@ -52,12 +52,6 @@ const schema = Joi.object().keys({
   includeDefaultLanguageInURL: Joi.boolean().error(
     messages.includeDefaultLanguageInURL,
   ),
-  // TODO: finish the validation when this part of the API is finalized
-  defaultTranslationsLoader: Joi.object({
-    path: Joi.string(),
-    priority: Joi.number(),
-    disable: Joi.boolean(),
-  }),
 })
 
 export default (options?: PluginOptions): void | Error =>
