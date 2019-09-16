@@ -1,0 +1,7 @@
+{
+  "key": "site-priority-custom-language-ru",
+  "parent-key": {
+    "nested-key": "nested-value"
+  },
+  "unique-key-site-priority-custom-language-ru": "value"
+}

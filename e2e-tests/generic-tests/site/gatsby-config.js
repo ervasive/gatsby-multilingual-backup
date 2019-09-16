@@ -17,15 +17,15 @@ module.exports = {
     },
     {
       resolve: '@gatsby-plugin-multilingual/translations-loader',
-      options: { path: 'translations-priority-auto-one' },
+      options: { path: 'translations/priority-auto-one' },
     },
     {
       resolve: '@gatsby-plugin-multilingual/translations-loader',
-      options: { path: 'translations-priority-auto-two' },
+      options: { path: 'translations/priority-auto-two' },
     },
     {
       resolve: '@gatsby-plugin-multilingual/translations-loader',
-      options: { path: 'translations-priority-custom', priority: 5 },
+      options: { path: 'translations/priority-custom', priority: 5 },
     },
     {
       resolve: 'gatsby-source-filesystem',

@@ -5,19 +5,6 @@ import { useStaticQuery, graphql } from 'gatsby'
 const Index = () => {
   const data = useStaticQuery(graphql`
     query {
-      allGatsbyMultilingualNamespace {
-        nodes {
-          namespace
-          language
-          priority
-          data
-        }
-      }
-      allFile {
-        nodes {
-          id
-        }
-      }
       allSitePage {
         nodes {
           path
@@ -32,54 +19,6 @@ const Index = () => {
 
   return (
     <div>
-      <h2>Test registered nodes count</h2>
-      <div>
-        Registered file nodes count:{' '}
-        <span id="allFileCount">{data.allFile.nodes.length}</span>
-      </div>
-      <div>
-        Registered namespace nodes count:{' '}
-        <span id="allGatsbyMultilingualNamespaceCount">
-          {data.allGatsbyMultilingualNamespace.nodes.length}
-        </span>
-      </div>
-
-      <h2>Test registered nodes data</h2>
-      <table id="namespace-nodes">
-        <thead>
-          <tr>
-            <th>Namespace</th>
-            <th>Language</th>
-            <th>Priority</th>
-            <th>Data</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.allGatsbyMultilingualNamespace.nodes.map(
-            ({ namespace, language, priority, data }) => {
-              const nodeData = JSON.parse(data)
-
-              return (
-                <tr key={data} id={nodeData.key}>
-                  <td className="namespace">{namespace}</td>
-                  <td className="language">{language}</td>
-                  <td className="priority">{priority}</td>
-                  <td className="data">
-                    <ul>
-                      {Object.entries(nodeData).map(([key, value]) => (
-                        <li key={key} id={key}>
-                          {JSON.stringify(value)}
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                </tr>
-              )
-            },
-          )}
-        </tbody>
-      </table>
-
       <h2>Test registered lingual pages</h2>
       <table id="pages">
         <thead>
