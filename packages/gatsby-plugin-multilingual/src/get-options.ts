@@ -10,11 +10,6 @@ const defaultOptions: PluginValidatedOptions = {
   removeInvalidPages: true,
   removeSkippedPages: true,
   customSlugs: {},
-  defaultTranslationsLoader: {
-    path: 'translations',
-    priority: 0,
-    disable: false,
-  },
   plugins: [],
 }
 
