@@ -24,19 +24,24 @@ const Page = () => {
   return (
     <div>
       <h2>Test registered translation nodes count</h2>
-      <div>
-        Registered file nodes count:{' '}
+      <p>Validate that non translation nodes are not registered as such.</p>
+      <hr />
+      <p>
+        Registered all file nodes count:{' '}
         <span id="allFileCount">{data.allFile.nodes.length}</span>
-      </div>
-      <div>
-        Registered namespace nodes count:{' '}
+      </p>
+      <p>
+        Registered translation namespace nodes count:{' '}
         <span id="allGatsbyMultilingualNamespaceCount">
           {data.allGatsbyMultilingualNamespace.nodes.length}
         </span>
-      </div>
+      </p>
 
       <h2>Test registered translation nodes data</h2>
-      <table id="namespace-nodes">
+      <p>
+        Validate that all registered translation nodes have appropriate data.
+      </p>
+      <table id="namespace-nodes" style={{ textAlign: 'left' }}>
         <thead>
           <tr>
             <th>Namespace</th>
