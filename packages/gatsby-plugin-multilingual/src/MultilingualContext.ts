@@ -1,8 +1,22 @@
 import React from 'react'
-import { ContextProviderData } from './types'
 import getOptions from './get-options'
+import createGetPath from './create-get-path'
+import createGetLanguages from './create-get-languages'
+import { ContextProviderData } from './types'
+
+const {
+  defaultLanguage,
+  availableLanguages,
+  defaultNamespace,
+  includeDefaultLanguageInURL,
+} = getOptions()
 
 export const MultilingualContext = React.createContext<ContextProviderData>({
-  ...getOptions(),
-  pages: {},
+  defaultLanguage,
+  currentLanguage: defaultLanguage,
+  availableLanguages,
+  defaultNamespace,
+  includeDefaultLanguageInURL,
+  getPath: createGetPath({}, '', false),
+  getLanguages: createGetLanguages({}, '', '', false),
 })

@@ -1,5 +1,11 @@
 module.exports = {
   plugins: [
+    {
+      resolve: `gatsby-plugin-page-creator`,
+      options: {
+        path: `${__dirname}/specs-targets`,
+      },
+    },
     'e2e-generic-test-theme',
     {
       resolve: 'gatsby-plugin-multilingual',

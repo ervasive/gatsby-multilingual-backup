@@ -10,6 +10,7 @@ export interface PluginOptions extends GatsbyPluginOptions {
   availableLanguages?: any
   defaultNamespace?: any
   includeDefaultLanguageInURL?: any
+  strictPathChecks?: any
   removeInvalidPages?: any
   removeSkippedPages?: any
   pathToRedirectTemplate?: any
@@ -26,6 +27,7 @@ export interface PluginValidatedOptions extends GatsbyPluginOptions {
   availableLanguages: string[]
   defaultNamespace: string
   includeDefaultLanguageInURL: boolean
+  strictPathChecks: boolean
   removeInvalidPages: boolean
   removeSkippedPages: boolean
   pathToRedirectTemplate?: string
@@ -83,7 +85,11 @@ export type ContextProviderData = Pick<
   | 'defaultNamespace'
   | 'includeDefaultLanguageInURL'
 > & {
-  pages: PagesRegistry
+  currentLanguage: string
+  getPath: (value?: unknown) => Error | string
+  getLanguages: (
+    value?: unknown,
+  ) => Error | { language: string; path: string }[]
 }
 
 export interface WrapRootElementProps {
@@ -96,7 +102,8 @@ export interface WrapRootElementProps {
 export interface WrapPageElementArgs {
   element: object
   props: {
-    pageContext: MonolingualPage['context']
+    path: string
+    pageContext: Partial<MonolingualPage['context']>
   }
 }
 
