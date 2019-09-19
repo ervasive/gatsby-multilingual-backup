@@ -1,12 +1,10 @@
 import { GatsbyConfig } from 'gatsby'
 import { SOURCE_FILESYSTEM_INSTANCE_NAME } from './constants'
-import { getOptions, validateOptions } from './options'
+import getValidatedOptions from './get-validated-options'
 import { Options } from './types'
 
 module.exports = (options: Options): GatsbyConfig => {
-  validateOptions(options)
-
-  const opts = getOptions(options)
+  const opts = getValidatedOptions(options)
 
   return {
     plugins: [

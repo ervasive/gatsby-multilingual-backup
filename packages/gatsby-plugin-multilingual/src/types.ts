@@ -5,19 +5,7 @@ import {
 import i18next from 'i18next'
 import { GatsbyPage, GatsbyRedirect } from '@gatsby-plugin-multilingual/shared'
 
-export interface PluginOptions extends GatsbyPluginOptions {
-  defaultLanguage?: any
-  availableLanguages?: any
-  defaultNamespace?: any
-  includeDefaultLanguageInURL?: any
-  strictPathChecks?: any
-  removeInvalidPages?: any
-  removeSkippedPages?: any
-  pathToRedirectTemplate?: any
-  customSlugs?: any
-}
-
-export interface PluginValidatedOptions extends GatsbyPluginOptions {
+export interface Options extends GatsbyPluginOptions {
   defaultLanguage: string
   availableLanguages: string[]
   defaultNamespace: string
@@ -69,7 +57,7 @@ export interface PagesGeneratorResult {
 export type PagesRegistry = Record<string, Record<string, string>>
 
 export type ContextProviderData = Pick<
-  PluginValidatedOptions,
+  Options,
   | 'defaultLanguage'
   | 'availableLanguages'
   | 'defaultNamespace'
@@ -84,7 +72,7 @@ export type ContextProviderData = Pick<
 
 export interface WrapRootElementProps {
   args: WrapRootElementBrowserArgs
-  pluginOptions: PluginOptions
+  pluginOptions: Options
   translations: i18next.Resource
   namespaces: string[]
 }
@@ -99,6 +87,6 @@ export interface WrapPageElementArgs {
 
 export interface WrapPageElementProps {
   args: WrapPageElementArgs
-  pluginOptions: PluginOptions
+  pluginOptions: Options
   pages: PagesRegistry
 }

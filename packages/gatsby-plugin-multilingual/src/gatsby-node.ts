@@ -3,7 +3,7 @@ import {
   GatsbyPage,
   NAMESPACE_NODE_TYPENAME,
 } from '@gatsby-plugin-multilingual/shared'
-import getOptions from './get-options'
+import getValidatedOptions from './get-validated-options'
 import prepareCacheDir from './prepare-cache-dir'
 import { processTranslations } from './translations'
 import { createPagesRegistry, writePagesRegistry } from './pages-registry'
@@ -39,7 +39,7 @@ export const onPreBootstrap: GatsbyNode['onPreBootstrap'] = async (
   try {
     await prepareCacheDir()
 
-    const options = getOptions(pluginOptions)
+    const options = getValidatedOptions(pluginOptions)
     await copyRedirectTemplate(options.pathToRedirectTemplate)
     await processTranslations(getNodesByType(NAMESPACE_NODE_TYPENAME), options)
   } catch (err) {
@@ -56,7 +56,7 @@ export const onCreateNode: GatsbyNode['onCreateNode'] = async (
   }
 
   try {
-    const options = getOptions(pluginOptions)
+    const options = getValidatedOptions(pluginOptions)
     await processTranslations(getNodesByType(NAMESPACE_NODE_TYPENAME), options)
   } catch (err) {
     reporter.panic(err)
@@ -73,7 +73,7 @@ export const onCreatePage: GatsbyNode['onCreatePage'] = async (
     return
   }
 
-  const options = getOptions(pluginOptions)
+  const options = getValidatedOptions(pluginOptions)
   const { pages, redirects, error, removeOriginalPage } = generatePages(
     typedPage,
     options,

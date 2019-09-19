@@ -1,6 +1,5 @@
 import React from 'react'
 import i18next from 'i18next'
-import getOptions from './get-options'
 import createGetPath from './create-get-path'
 import createGetLanguages from './create-get-languages'
 import { MultilingualContext } from './MultilingualContext'
@@ -8,17 +7,15 @@ import { WrapPageElementProps } from './types'
 
 const WrapPageElement = ({
   args: { element, props },
-  pluginOptions,
-  pages,
-}: WrapPageElementProps): JSX.Element => {
-  const {
+  pluginOptions: {
     defaultLanguage,
     availableLanguages,
     defaultNamespace,
     includeDefaultLanguageInURL,
     strictPathChecks,
-  } = getOptions(pluginOptions)
-
+  },
+  pages,
+}: WrapPageElementProps): JSX.Element => {
   const { language, genericPath } = props.pageContext
 
   i18next.changeLanguage(language || defaultLanguage)

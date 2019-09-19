@@ -4,7 +4,7 @@ import Joi from '@hapi/joi'
 import { GatsbyPage } from '@gatsby-plugin-multilingual/shared'
 import normalizePath from './utils/normalize-path'
 import {
-  PluginValidatedOptions,
+  Options,
   MultilingualPage,
   PagesGeneratorResult,
   MultilingualContextLanguage,
@@ -19,7 +19,7 @@ export default (
     removeInvalidPages,
     removeSkippedPages,
     customSlugs,
-  }: PluginValidatedOptions,
+  }: Options,
 ): PagesGeneratorResult => {
   let genericPath = ''
   const languageToSlugMap: Map<string, string> = new Map()

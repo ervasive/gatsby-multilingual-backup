@@ -1,7 +1,7 @@
 import path from 'path'
 import { NamespaceNode } from '@gatsby-plugin-multilingual/shared'
 import { aggregateTranslations } from '../translations'
-import getOptions from '../get-options'
+import getValidatedOptions from '../get-validated-options'
 import {
   CACHE_NAMESPACES_FILE,
   CACHE_TRANSLATIONS_ALL_FILE,
@@ -33,11 +33,10 @@ describe('Aggregate translations files', (): void => {
   describe('should return default structure on empty nodes and', (): void => {
     it('single language', async (): Promise<void> => {
       expect.assertions(1)
-      const options = getOptions({
+      const options = getValidatedOptions({
         defaultLanguage: 'en',
         availableLanguages: ['en'],
         defaultNamespace: 'common',
-        plugins: [],
       })
 
       const expected = {
@@ -57,11 +56,10 @@ describe('Aggregate translations files', (): void => {
 
     it('multiple languages', async (): Promise<void> => {
       expect.assertions(1)
-      const options = getOptions({
+      const options = getValidatedOptions({
         defaultLanguage: 'en',
         availableLanguages: ['en', 'ru'],
         defaultNamespace: 'common',
-        plugins: [],
       })
 
       const expected = {
@@ -85,11 +83,10 @@ describe('Aggregate translations files', (): void => {
   describe('should return data for multiple namespaces and', (): void => {
     it('single language', async (): Promise<void> => {
       expect.assertions(1)
-      const options = getOptions({
+      const options = getValidatedOptions({
         defaultLanguage: 'en',
         availableLanguages: ['en'],
         defaultNamespace: 'common',
-        plugins: [],
       })
 
       const nodes: NamespaceNode[] = [
@@ -120,11 +117,10 @@ describe('Aggregate translations files', (): void => {
 
   it('multiple languages', async (): Promise<void> => {
     expect.assertions(1)
-    const options = getOptions({
+    const options = getValidatedOptions({
       defaultLanguage: 'en',
       availableLanguages: ['en', 'ru'],
       defaultNamespace: 'common',
-      plugins: [],
     })
 
     const nodes: NamespaceNode[] = [
@@ -164,11 +160,10 @@ describe('Aggregate translations files', (): void => {
   describe('should take into account priority value', (): void => {
     it('single language', async (): Promise<void> => {
       expect.assertions(1)
-      const options = getOptions({
+      const options = getValidatedOptions({
         defaultLanguage: 'en',
         availableLanguages: ['en'],
         defaultNamespace: 'common',
-        plugins: [],
       })
 
       const nodes: NamespaceNode[] = [
@@ -200,11 +195,10 @@ describe('Aggregate translations files', (): void => {
 
     it('multiple languages', async (): Promise<void> => {
       expect.assertions(1)
-      const options = getOptions({
+      const options = getValidatedOptions({
         defaultLanguage: 'en',
         availableLanguages: ['en', 'ru'],
         defaultNamespace: 'common',
-        plugins: [],
       })
 
       const nodes: NamespaceNode[] = [

@@ -1,4 +1,5 @@
 import path from 'path'
+import { Options } from './types'
 
 export const PLUGIN_NAME = 'gatsby-plugin-multilingual'
 
@@ -21,3 +22,15 @@ export const REDIRECT_TEMPLATE_FILE = path.resolve(
   CACHE_DIR,
   'RedirectTemplate.js',
 )
+
+export const DEFAULT_OPTIONS: Options = {
+  defaultLanguage: 'en',
+  availableLanguages: ['en'],
+  defaultNamespace: 'common',
+  customSlugs: {},
+  includeDefaultLanguageInURL: false,
+  strictPathChecks: false,
+  removeInvalidPages: true,
+  removeSkippedPages: true,
+  plugins: [],
+}

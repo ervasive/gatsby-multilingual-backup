@@ -1,7 +1,9 @@
 import React from 'react'
+import merge from 'lodash/merge'
 import { GatsbyBrowser } from 'gatsby'
 import WrapRootElement from './wrap-root-element'
 import WrapPageElement from './wrap-page-element'
+import { DEFAULT_OPTIONS } from './constants'
 import { WrapPageElementArgs, PagesRegistry } from './types'
 
 import translations from 'translations-default'
@@ -18,7 +20,7 @@ export const wrapRootElement: GatsbyBrowser['wrapRootElement'] = (
 ): JSX.Element => (
   <WrapRootElement
     args={args}
-    pluginOptions={pluginOptions}
+    pluginOptions={merge({}, DEFAULT_OPTIONS, pluginOptions)}
     translations={translations}
     namespaces={namespaces}
   />
@@ -30,7 +32,7 @@ export const wrapPageElement: GatsbyBrowser['wrapPageElement'] = (
 ): JSX.Element => (
   <WrapPageElement
     args={(args as unknown) as WrapPageElementArgs}
-    pluginOptions={pluginOptions}
+    pluginOptions={merge({}, DEFAULT_OPTIONS, pluginOptions)}
     pages={(pages as unknown) as PagesRegistry}
   />
 )

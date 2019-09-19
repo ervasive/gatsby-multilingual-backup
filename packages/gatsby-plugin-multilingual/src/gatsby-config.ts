@@ -1,8 +1,7 @@
 import { GatsbyConfig } from 'gatsby'
-import { PluginOptions } from './types'
-import validateOptions from './validate-options'
+import validatedOptions from './get-validated-options'
 
-module.exports = (options: PluginOptions): GatsbyConfig => {
-  validateOptions(options)
+module.exports = (options: unknown): GatsbyConfig => {
+  validatedOptions(options)
   return { plugins: [] }
 }

@@ -1,7 +1,7 @@
 import path from 'path'
 import merge from 'lodash/merge'
 import { NamespaceNode } from '@gatsby-plugin-multilingual/shared'
-import { PluginValidatedOptions } from './types'
+import { Options } from './types'
 import {
   CACHE_NAMESPACES_FILE,
   CACHE_TRANSLATIONS_ALL_FILE,
@@ -11,11 +11,7 @@ import {
 
 export default (
   nodes: NamespaceNode[],
-  {
-    defaultLanguage,
-    availableLanguages,
-    defaultNamespace,
-  }: PluginValidatedOptions,
+  { defaultLanguage, availableLanguages, defaultNamespace }: Options,
 ): Record<string, object> => {
   const result: Record<string, object> = {}
   const namespaces = new Set([defaultNamespace])
