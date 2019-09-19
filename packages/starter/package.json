@@ -1,0 +1,43 @@
+{
+  "name": "@gatsby-plugin-multilingual/starter",
+  "version": "0.1.1-alpha.0",
+  "description": "A multilingual bare-bones starter for Gatsby",
+  "keywords": [
+    "gatsby",
+    "gatsby-starter",
+    "gatsby-plugin-multilingual"
+  ],
+  "author": "Ruslan Vasiliev <ervasive@gmail.com>",
+  "homepage": "https://github.com/ervasive/gatsby-multilingual/tree/master/packages/starter#readme",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "github.com/ervasive/gatsby-multilingual.git",
+    "directory": "packages/starter"
+  },
+  "bugs": {
+    "url": "https://github.com/ervasive/gatsby-multilingual/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "start": "npm run develop",
+    "serve": "gatsby serve",
+    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing \""
+  },
+  "dependencies": {
+    "@gatsby-plugin-multilingual/translations-loader": "file:../@translations-loader",
+    "gatsby": "^2.15.18",
+    "gatsby-plugin-multilingual": "file:../gatsby-plugin-multilingual",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
+  },
+  "devDependencies": {
+    "prettier": "^1.18.2"
+  }
+}
