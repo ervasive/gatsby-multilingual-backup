@@ -1,5 +1,5 @@
 import generatePages from '../generate-pages'
-import getOptions from '../get-options'
+import getValidatedOptions from '../get-validated-options'
 
 describe('generatePages', () => {
   it(`should produce empty values for a non "multilingual" page`, () => {
@@ -9,7 +9,7 @@ describe('generatePages', () => {
         component: '',
         context: {},
       },
-      getOptions(),
+      getValidatedOptions(),
     )
 
     expect(pages.length).toBe(0)
@@ -31,7 +31,7 @@ describe('generatePages', () => {
             },
           },
         },
-        getOptions({ removeInvalidPages: true, plugins: [] }),
+        getValidatedOptions({ removeInvalidPages: true }),
       )
 
       expect(pages.length).toBe(0)
@@ -55,7 +55,7 @@ describe('generatePages', () => {
             },
           },
         },
-        getOptions({ removeInvalidPages: false, plugins: [] }),
+        getValidatedOptions({ removeInvalidPages: false }),
       )
 
       expect(pages.length).toBe(0)
@@ -81,10 +81,9 @@ describe('generatePages', () => {
             },
           },
         },
-        getOptions({
+        getValidatedOptions({
           availableLanguages: ['en', 'ru'],
           removeSkippedPages: false,
-          plugins: [],
         }),
       )
 
@@ -106,10 +105,9 @@ describe('generatePages', () => {
             },
           },
         },
-        getOptions({
+        getValidatedOptions({
           availableLanguages: ['en', 'ru'],
           removeSkippedPages: true,
-          plugins: [],
         }),
       )
 
@@ -132,7 +130,7 @@ describe('generatePages', () => {
             },
           },
         },
-        getOptions({ plugins: [] }),
+        getValidatedOptions(),
       )
 
       expect(pages.length).toBe(0)
@@ -153,7 +151,7 @@ describe('generatePages', () => {
             },
           },
         },
-        getOptions({ plugins: [] }),
+        getValidatedOptions(),
       )
 
       expect(pages.length).toBe(0)
@@ -175,7 +173,7 @@ describe('generatePages', () => {
           },
         },
       },
-      getOptions({ availableLanguages: ['en', 'ru'], plugins: [] }),
+      getValidatedOptions({ availableLanguages: ['en', 'ru'] }),
     )
 
     expect(pages.length).toBe(0)
@@ -198,11 +196,10 @@ describe('generatePages', () => {
             },
           },
         },
-        getOptions({
+        getValidatedOptions({
           defaultLanguage: 'en',
           availableLanguages: ['en', 'ru'],
           includeDefaultLanguageInURL: false,
-          plugins: [],
         }),
       )
 
@@ -242,11 +239,10 @@ describe('generatePages', () => {
               arbitraryContextProperty: true,
             },
           },
-          getOptions({
+          getValidatedOptions({
             defaultLanguage: 'en',
             availableLanguages: ['en', 'ru'],
             includeDefaultLanguageInURL: false,
-            plugins: [],
           }),
         )
 
@@ -290,11 +286,10 @@ describe('generatePages', () => {
             },
           },
         },
-        getOptions({
+        getValidatedOptions({
           defaultLanguage: 'en',
           availableLanguages: ['en', 'ru'],
           includeDefaultLanguageInURL: true,
-          plugins: [],
         }),
       )
 
@@ -353,11 +348,10 @@ describe('generatePages', () => {
               arbitraryContextProperty: true,
             },
           },
-          getOptions({
+          getValidatedOptions({
             defaultLanguage: 'en',
             availableLanguages: ['en', 'ru'],
             includeDefaultLanguageInURL: true,
-            plugins: [],
           }),
         )
 
@@ -422,10 +416,9 @@ describe('generatePages', () => {
               arbitraryContextProperty: true,
             },
           },
-          getOptions({
+          getValidatedOptions({
             availableLanguages: ['en', 'ru', 'de'],
             includeDefaultLanguageInURL: false,
-            plugins: [],
           }),
         )
 
@@ -485,10 +478,9 @@ describe('generatePages', () => {
               arbitraryContextProperty: true,
             },
           },
-          getOptions({
+          getValidatedOptions({
             availableLanguages: ['en', 'ru', 'de'],
             includeDefaultLanguageInURL: false,
-            plugins: [],
           }),
         )
 
@@ -542,10 +534,9 @@ describe('generatePages', () => {
               arbitraryContextProperty: true,
             },
           },
-          getOptions({
+          getValidatedOptions({
             availableLanguages: ['en', 'ru', 'de'],
             includeDefaultLanguageInURL: false,
-            plugins: [],
           }),
         )
 
@@ -598,7 +589,7 @@ describe('generatePages', () => {
             arbitraryContextProperty: true,
           },
         },
-        getOptions({
+        getValidatedOptions({
           defaultLanguage: 'en',
           availableLanguages: ['en', 'ru', 'de'],
           includeDefaultLanguageInURL: true,
@@ -609,7 +600,6 @@ describe('generatePages', () => {
               de: 'beispiel-globaler-seitenpfad',
             },
           },
-          plugins: [],
         }),
       )
 
@@ -681,7 +671,7 @@ describe('generatePages', () => {
           },
         },
       },
-      getOptions({
+      getValidatedOptions({
         defaultLanguage: 'en',
         availableLanguages: ['en', 'ru', 'de'],
         includeDefaultLanguageInURL: true,
@@ -692,7 +682,6 @@ describe('generatePages', () => {
             de: 'beispiel-globaler-seitenpfad',
           },
         },
-        plugins: [],
       }),
     )
 

@@ -2,7 +2,7 @@ import path from 'path'
 import merge from 'lodash/merge'
 import { outputJSON } from 'fs-extra'
 import { NamespaceNode } from '@gatsby-plugin-multilingual/shared'
-import { PluginValidatedOptions } from './types'
+import { Options } from './types'
 import {
   CACHE_NAMESPACES_FILE,
   CACHE_TRANSLATIONS_ALL_FILE,
@@ -12,11 +12,7 @@ import {
 
 export const aggregateTranslations = (
   nodes: NamespaceNode[],
-  {
-    defaultLanguage,
-    availableLanguages,
-    defaultNamespace,
-  }: PluginValidatedOptions,
+  { defaultLanguage, availableLanguages, defaultNamespace }: Options,
 ): Record<string, object> => {
   const result: Record<string, object> = {}
   const namespaces = new Set([defaultNamespace])
@@ -67,7 +63,7 @@ export const aggregateTranslations = (
 
 export const processTranslations = async (
   nodes: NamespaceNode[],
-  options: PluginValidatedOptions,
+  options: Options,
 ): Promise<void> => {
   const translationsFiles = await aggregateTranslations(nodes, options)
 
