@@ -2,8 +2,9 @@ import createGetPath from '../create-get-path'
 
 const pages = {
   '/page-one': {
-    en: '/en/page-one-slug',
-    ru: '/ru/путь-к-странице-один',
+    en: '/page-one-path',
+    ru: '/путь-к-странице-один',
+    de: '',
   },
 }
 
@@ -46,49 +47,64 @@ describe(`createGetLanguages`, () => {
     expect(getPath({ path: '/non-existent', strict: false })).toEqual(
       '/non-existent',
     )
-
-    expect(getPath({ path: '/non-existent', strict: false })).toEqual(
-      '/non-existent',
-    )
   })
 
-  it(`should return correct path value`, () => {
-    expect(getPath('/page-one')).toEqual('/en/page-one-slug')
-    expect(getPath('/en/page-one-slug')).toEqual('/en/page-one-slug')
-    expect(getPath('/ru/путь-к-странице-один')).toEqual('/en/page-one-slug')
+  it(`should return correct path values for string inputs`, () => {
+    expect(getPath('/page-one')).toEqual('/en/page-one-path')
+    expect(getPath('/en/page-one-path')).toEqual('/en/page-one-path')
+    expect(getPath('/ru/путь-к-странице-один')).toEqual('/en/page-one-path')
+    expect(getPath('/de/page-one')).toEqual('/en/page-one-path')
+  })
 
-    expect(getPath({ path: '/page-one' })).toEqual('/en/page-one-slug')
-    expect(getPath({ path: '/en/page-one-slug' })).toEqual('/en/page-one-slug')
+  it(`should return correct path values for object inputs`, () => {
+    expect(getPath({ path: '/page-one' })).toEqual('/en/page-one-path')
+    expect(getPath({ path: '/en/page-one-path' })).toEqual('/en/page-one-path')
     expect(getPath({ path: '/ru/путь-к-странице-один' })).toEqual(
-      '/en/page-one-slug',
+      '/en/page-one-path',
     )
+    expect(getPath({ path: '/de/page-one' })).toEqual('/en/page-one-path')
+  })
 
+  it(`should return correct path values for specified default language`, () => {
     expect(getPath({ path: '/page-one', language: 'en' })).toEqual(
-      '/en/page-one-slug',
+      '/en/page-one-path',
     )
-    expect(getPath({ path: '/en/page-one-slug', language: 'en' })).toEqual(
-      '/en/page-one-slug',
+    expect(getPath({ path: '/en/page-one-path', language: 'en' })).toEqual(
+      '/en/page-one-path',
     )
     expect(
       getPath({ path: '/ru/путь-к-странице-один', language: 'en' }),
-    ).toEqual('/en/page-one-slug')
+    ).toEqual('/en/page-one-path')
+    expect(getPath({ path: '/de/page-one', language: 'en' })).toEqual(
+      '/en/page-one-path',
+    )
+  })
 
+  it(`should return correct path values for specified other language`, () => {
     expect(getPath({ path: '/page-one', language: 'ru' })).toEqual(
       '/ru/путь-к-странице-один',
     )
-    expect(getPath({ path: '/en/page-one-slug', language: 'ru' })).toEqual(
+    expect(getPath({ path: '/en/page-one-path', language: 'ru' })).toEqual(
       '/ru/путь-к-странице-один',
     )
     expect(
       getPath({ path: '/ru/путь-к-странице-один', language: 'ru' }),
     ).toEqual('/ru/путь-к-странице-один')
+    expect(getPath({ path: '/de/page-one', language: 'ru' })).toEqual(
+      '/ru/путь-к-странице-один',
+    )
+  })
 
+  it(`should return correct generic path values`, () => {
     expect(getPath({ path: '/page-one', generic: true })).toEqual('/page-one')
-    expect(getPath({ path: '/en/page-one-slug', generic: true })).toEqual(
+    expect(getPath({ path: '/en/page-one-path', generic: true })).toEqual(
       '/page-one',
     )
     expect(
       getPath({ path: '/ru/путь-к-странице-один', generic: true }),
     ).toEqual('/page-one')
+    expect(getPath({ path: '/de/page-one', generic: true })).toEqual(
+      '/page-one',
+    )
   })
 })

@@ -74,7 +74,7 @@ export const onCreatePage: GatsbyNode['onCreatePage'] = async (
   }
 
   const options = getValidatedOptions(pluginOptions)
-  const { pages, redirects, error, removeOriginalPage } = generatePages(
+  const { pages, redirects, errors, removeOriginalPage } = generatePages(
     typedPage,
     options,
   )
@@ -83,25 +83,27 @@ export const onCreatePage: GatsbyNode['onCreatePage'] = async (
     deletePage(typedPage)
   }
 
-  if (error) {
+  if (errors.length) {
     const message =
       `${PLUGIN_NAME}: The following errors were encountered while ` +
-      `processing pages:\n${error.message}`
+      `processing pages:\n`
 
-    switch (error.type) {
-      case 'warn':
-        reporter.warn(message)
-        break
-      case 'error':
-        reporter.error(message)
-        break
-      case 'panic':
-        reporter.panic(message)
-        break
-      default:
-        reporter.warn('Unknown error type')
-        break
-    }
+    errors.map(error => {
+      switch (error.type) {
+        case 'warn':
+          reporter.warn(message + error.message)
+          break
+        case 'error':
+          reporter.error(message + error.message)
+          break
+        case 'panic':
+          reporter.panic(message + error.message)
+          break
+        default:
+          reporter.warn('Unknown error type')
+          break
+      }
+    })
   }
 
   if (redirects) {

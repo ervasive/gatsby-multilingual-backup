@@ -73,14 +73,14 @@ describe('getValidatedOptions', () => {
     )
   })
 
-  it('should throw on invalid "customSlugs" values', (): void => {
+  it('should throw on invalid "pathOverrides" values', (): void => {
     fc.assert(
       fc.property(
         fc.anything().filter(v => !(isPlainObject(v) || isUndefined(v))),
         data => {
           expect((): void => {
-            getValidatedOptions({ customSlugs: data })
-          }).toThrow(/customSlugs" value/i)
+            getValidatedOptions({ pathOverrides: data })
+          }).toThrow(/pathOverrides" value/i)
         },
       ),
     )

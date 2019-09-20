@@ -1,4 +1,5 @@
 import isPlainObject from 'lodash/isPlainObject'
+import normalizePath from './utils/normalize-path'
 import getPageGenericPath from './utils/get-page-generic-path'
 import { ContextProviderData, PagesRegistry } from './types'
 
@@ -67,7 +68,13 @@ export default (
       if (genericOnly) {
         return genericPath
       } else if (pages[genericPath][language]) {
-        return pages[genericPath][language]
+        return normalizePath(
+          `${language}/${
+            pages[genericPath][language] === ''
+              ? genericPath
+              : pages[genericPath][language]
+          }`,
+        )
       }
     }
 

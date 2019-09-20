@@ -3,6 +3,7 @@ import { debounce } from 'lodash'
 import { GatsbyPage } from '@gatsby-plugin-multilingual/shared'
 import { MonolingualPage, PagesRegistry } from './types'
 import { CACHE_PAGES_FILE } from './constants'
+import normalizePath from './utils/normalize-path'
 
 export const createPagesRegistry = (
   pages: Map<string, GatsbyPage>,
@@ -29,7 +30,13 @@ export const createPagesRegistry = (
     if (registry[genericPath][language]) {
       duplicates.push(currentPage)
     } else {
-      registry[genericPath][language] = path || genericPath
+      // We are going to set language path to an empty string in cases when
+      // the language path matches the generic path value. It will minimize the
+      // size of the generated pages registry file.
+      const customPath = normalizePath(path.replace(language, ''))
+
+      registry[genericPath][language] =
+        customPath === genericPath ? '' : customPath
     }
   }
 

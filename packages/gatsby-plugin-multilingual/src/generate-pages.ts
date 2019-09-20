@@ -1,8 +1,8 @@
-import path from 'path'
 import { merge } from 'lodash'
 import Joi from '@hapi/joi'
 import { GatsbyPage } from '@gatsby-plugin-multilingual/shared'
 import normalizePath from './utils/normalize-path'
+import { REDIRECT_TEMPLATE_FILE } from './constants'
 import {
   Options,
   MultilingualPage,
@@ -18,14 +18,14 @@ export default (
     includeDefaultLanguageInURL,
     removeInvalidPages,
     removeSkippedPages,
-    customSlugs,
+    pathOverrides,
   }: Options,
 ): PagesGeneratorResult => {
   let genericPath = ''
-  const languageToSlugMap: Map<string, string> = new Map()
+  const languagePathMap: Map<string, string> = new Map()
 
-  // If we have a potential MultilingualPage try to validate it and get the
-  // multilingual data from it first
+  // 1. If we have a potential MultilingualPage try to validate it and get the
+  // multilingual data from it as the first step
   if (page.context.multilingual) {
     const { error } = Joi.validate(
       page.context.multilingual,
@@ -35,7 +35,7 @@ export default (
             Joi.string(),
             Joi.object({
               language: Joi.string().required(),
-              slug: Joi.string(),
+              path: Joi.string(),
             }),
           )
           .required()
@@ -44,7 +44,7 @@ export default (
               `The "languages" property must be an array which can contain ` +
               `two value types:\n` +
               `\tstring - represents a language key` +
-              `\tobject - represents a language key and a custom page slug`,
+              `\tobject - represents a language key and a custom page path`,
           ),
         skip: Joi.boolean().error(
           () => `The "skip" property must be a boolean value`,
@@ -63,6 +63,7 @@ export default (
         return {
           pages: [],
           redirects: [],
+          errors: [],
           removeOriginalPage: removeSkippedPages,
         }
       }
@@ -70,33 +71,35 @@ export default (
       genericPath = multilintualPage.path
       multilintualPage.context.multilingual.languages.map(value => {
         if (typeof value === 'string') {
-          languageToSlugMap.set(value, genericPath)
+          languagePathMap.set(value, genericPath)
         } else {
-          languageToSlugMap.set(value.language, value.slug || genericPath)
+          languagePathMap.set(value.language, value.path || genericPath)
         }
       })
     } else {
-      const errorMsg = `The page with the path: "${
-        page.path
-      }" has invalid properties:\n\t- ${error.details
-        .map(err => err.message)
-        .join('\n\t- ')}`
+      const errorMsg =
+        `A page with the following path: "${page.path}" has invalid ` +
+        `properties:\n\t- ${error.details
+          .map(err => err.message)
+          .join('\n\t- ')}`
 
       return {
         pages: [],
         redirects: [],
-        error: {
-          type: 'warn',
-          message: errorMsg,
-        },
+        errors: [
+          {
+            type: 'warn',
+            message: errorMsg,
+          },
+        ],
         removeOriginalPage: removeInvalidPages,
       }
     }
   }
 
-  // If the previous step was unable to extract multilingual data, try to get it
-  // from the path property
-  if (genericPath === '' || !languageToSlugMap.size) {
+  // 2. If the previous step was unable to extract multilingual data, try to get
+  // it from the path property
+  if (genericPath === '' || !languagePathMap.size) {
     const pathPartsMatches = /(.+)\.(.+)?$/.exec(page.path)
 
     if (pathPartsMatches) {
@@ -106,91 +109,109 @@ export default (
         .replace('/', '')
         .split(',')
         .map(language => {
-          languageToSlugMap.set(language, genericPath)
+          languagePathMap.set(language, genericPath)
         })
     }
   }
 
-  // If by now we couldn't get multilingual data, give up
-  if (genericPath === '' || !languageToSlugMap.size) {
+  // 3. If by now we couldn't get multilingual data, give up
+  if (genericPath === '' || !languagePathMap.size) {
     return {
       pages: [],
       redirects: [],
+      errors: [],
     }
   }
 
-  // Get the page's allowed languages
+  // 4. Determine all the languages this page supports
   const pageAllowedLanguages: Required<MultilingualContextLanguage>[] = []
 
   // if "all" keyword is present than the page supports all available languages
-  if (languageToSlugMap.get('all')) {
+  if (languagePathMap.get('all')) {
     availableLanguages.forEach(language => {
       pageAllowedLanguages.push({
         language,
-        slug: languageToSlugMap.get(language) || genericPath,
+        path: languagePathMap.get(language) || genericPath,
       })
     })
   } else {
-    languageToSlugMap.forEach((slug, language) => {
+    languagePathMap.forEach((path, language) => {
       if (availableLanguages.includes(language)) {
         pageAllowedLanguages.push({
           language,
-          slug,
+          path,
         })
       }
     })
   }
 
-  // Warn user if we end up without valid languages
+  // 5. Warn the user if we end up without any valid language
   if (!pageAllowedLanguages.length) {
     return {
       pages: [],
       redirects: [],
-      error: {
-        type: 'warn',
-        message: `The page with the path: "${page.path}" has no valid languages. Skipping...`,
-      },
+      errors: [
+        {
+          type: 'warn',
+          message:
+            `A page with the following path: "${page.path}" does not have ` +
+            `any valid (allowed) language. Skipping...`,
+        },
+      ],
       removeOriginalPage: false,
     }
   }
 
-  // Everything seems fine, lets generate some pages
+  // 6. Everything seems fine, lets generate some pages
   const result: PagesGeneratorResult = {
     pages: [],
     redirects: [],
     removeOriginalPage: true,
+    errors: [],
   }
 
+  // We want to pass all the properties of the original page except the
+  // "context.multilingual" to the newly generated pages
   const plainGatsbyPage: GatsbyPage = { ...page }
   delete plainGatsbyPage.context.multilingual
 
-  pageAllowedLanguages.forEach(({ language, slug }): void => {
+  pageAllowedLanguages.forEach(({ language, path }): void => {
     const shouldIncludeLanguagePrefix =
       includeDefaultLanguageInURL || language !== defaultLanguage
 
-    // Shared generic page path (used as a unique value in determinig related
-    // language-specific pages)
-    genericPath = normalizePath(genericPath)
+    // Globally defined "path overrides" take precedence over the path value
+    // provided as a context property
+    let plainPath: string
 
-    // Globally defined page slugs take precedence over slug values defined in
-    // a page property
-    const pageSlug =
-      customSlugs[genericPath] && customSlugs[genericPath][language]
-        ? customSlugs[genericPath][language]
-        : slug
+    if (pathOverrides[genericPath] && pathOverrides[genericPath][language]) {
+      const pathOverride = pathOverrides[genericPath][language]
 
-    const pagePrefixlessPath = normalizePath(pageSlug)
+      if (typeof pathOverride === 'string' && pathOverride.length) {
+        plainPath = normalizePath(pathOverride)
+      } else {
+        result.errors.push({
+          type: 'warn',
+          message:
+            `Invalid path override found: "${genericPath}.${language}".` +
+            `Please make sure its value is a non empty string.`,
+        })
 
-    const pagePrefixedPath = normalizePath(
-      shouldIncludeLanguagePrefix ? `${language}/${pageSlug}` : pageSlug,
+        plainPath = normalizePath(path)
+      }
+    } else {
+      plainPath = normalizePath(path)
+    }
+
+    const possiblyPrefixedPath = normalizePath(
+      shouldIncludeLanguagePrefix ? `${language}/${plainPath}` : plainPath,
     )
 
     result.pages.push(
       merge({}, plainGatsbyPage, {
-        path: pagePrefixedPath,
+        path: possiblyPrefixedPath,
         context: {
           language,
-          genericPath,
+          genericPath: normalizePath(genericPath),
         },
       }),
     )
@@ -200,22 +221,24 @@ export default (
       // Client side redirect
       result.pages.push(
         merge({}, plainGatsbyPage, {
-          path: pagePrefixlessPath,
-          component: path.resolve('.cache/multilingual/RedirectTemplate.js'),
+          path: plainPath,
+          component: REDIRECT_TEMPLATE_FILE,
           context: {
-            redirectTo: pagePrefixedPath,
+            redirectTo: possiblyPrefixedPath,
           },
         }),
       )
 
-      // Server side redirect
+      // Server side redirect, passed to "createRedirect":
+      // https://www.gatsbyjs.org/docs/actions/#createRedirect
       result.redirects.push({
-        fromPath: pagePrefixlessPath,
-        toPath: pagePrefixedPath,
+        fromPath: plainPath,
+        toPath: possiblyPrefixedPath,
         isPermanent: true,
       })
     }
   })
 
+  // 7. Yay
   return result
 }
