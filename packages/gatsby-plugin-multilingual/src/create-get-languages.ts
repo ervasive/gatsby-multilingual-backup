@@ -1,4 +1,5 @@
 import isPlainObject from 'lodash/isPlainObject'
+import normalizePath from './utils/normalize-path'
 import getPageGenericPath from './utils/get-page-generic-path'
 import { ContextProviderData, PagesRegistry } from './types'
 
@@ -76,12 +77,13 @@ export default (
     }
 
     return Object.entries(pages[genericPath])
-      .filter(([language]) =>
-        skipCurrentLanguage ? language !== currentPageLanguage : true,
+      .filter(
+        ([language]) =>
+          !(skipCurrentLanguage && language === currentPageLanguage),
       )
-      .map(([language, slug]) => ({
+      .map(([language, path]) => ({
         language,
-        path: slug,
+        path: normalizePath(`${language}/${path === '' ? genericPath : path}`),
       }))
   }
 

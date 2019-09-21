@@ -3,7 +3,7 @@ import React from 'react'
 import { useMultilingual } from 'gatsby-plugin-multilingual'
 
 const Index = () => {
-  const { getPath, getLanguages } = useMultilingual()
+  const { getPath, getLanguages, currentLanguage } = useMultilingual()
 
   return (
     <div>
@@ -18,7 +18,7 @@ const Index = () => {
       <p>
         Get existent page path by slug value:{' '}
         <span id="page-path-by-slug">
-          {getPath('/ru/all-languages-static')}
+          {getPath(`/${currentLanguage}/all-languages-static`)}
         </span>
       </p>
       <h2>getLanguages</h2>

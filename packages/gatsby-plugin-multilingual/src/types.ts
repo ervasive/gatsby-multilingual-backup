@@ -5,6 +5,8 @@ import {
 import i18next from 'i18next'
 import { GatsbyPage, GatsbyRedirect } from '@gatsby-plugin-multilingual/shared'
 
+export type PagesRegistry = Record<string, Record<string, string>>
+
 export interface Options extends GatsbyPluginOptions {
   defaultLanguage: string
   availableLanguages: string[]
@@ -14,12 +16,12 @@ export interface Options extends GatsbyPluginOptions {
   removeInvalidPages: boolean
   removeSkippedPages: boolean
   pathToRedirectTemplate?: string
-  customSlugs: Record<string, Record<string, string>>
+  pathOverrides: PagesRegistry
 }
 
 export interface MultilingualContextLanguage {
   language: string
-  slug?: string
+  path?: string
 }
 
 export interface MultilingualPage extends GatsbyPage {
@@ -47,14 +49,12 @@ export interface RedirectPage extends GatsbyPage {
 export interface PagesGeneratorResult {
   pages: (MonolingualPage | RedirectPage)[]
   redirects: GatsbyRedirect[]
-  error?: {
+  errors: {
     type: string
     message: string
-  }
+  }[]
   removeOriginalPage?: boolean
 }
-
-export type PagesRegistry = Record<string, Record<string, string>>
 
 export type ContextProviderData = Pick<
   Options,

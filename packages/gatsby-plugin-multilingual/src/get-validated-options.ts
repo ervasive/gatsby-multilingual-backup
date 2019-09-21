@@ -22,11 +22,11 @@ const errorMessages = {
       `More info: https://www.i18next.com/principles/namespaces`,
       `Default value: "${JSON.stringify(DEFAULT_OPTIONS.defaultNamespace)}"`,
     ].join('\n'),
-  customSlugs: (): string =>
+  pathOverrides: (): string =>
     [
-      `The "customSlugs" value must be an object representing globally defined ` +
-        `custom page slugs of the following shape:`,
-      `{ "/page-generic-path": { en: "/en/slugified-page-path", ru: "/ru/путь-к-странице" } }`,
+      `The "pathOverrides" value must be an object representing globally defined ` +
+        `custom page paths of the following shape:`,
+      `{ "/page-generic-path": { en: "custom-page-path", ru: "путь-к-странице" } }`,
       `Default value: "${JSON.stringify(DEFAULT_OPTIONS.customSlugs)}"`,
     ].join('\n'),
   includeDefaultLanguageInURL: (): string =>
@@ -71,7 +71,7 @@ const schema = Joi.object({
   defaultNamespace: Joi.string()
     .error(errorMessages.defaultNamespace)
     .default(DEFAULT_OPTIONS.defaultNamespace),
-  customSlugs: Joi.object()
+  pathOverrides: Joi.object()
     // TODO: finish schema and tests after Joi is updated to v16.x
     // .pattern(
     //   Joi.string()
@@ -87,7 +87,7 @@ const schema = Joi.object({
     //     )
     //     .error(errorMessages.customSlugs),
     // )
-    .error(errorMessages.customSlugs)
+    .error(errorMessages.pathOverrides)
     .default({}),
   includeDefaultLanguageInURL: Joi.boolean()
     .error(errorMessages.includeDefaultLanguageInURL)
