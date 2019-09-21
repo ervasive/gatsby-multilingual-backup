@@ -67,7 +67,7 @@ export default (
     if (genericPath) {
       if (genericOnly) {
         return genericPath
-      } else if (pages[genericPath][language]) {
+      } else if (typeof pages[genericPath][language] === 'string') {
         return normalizePath(
           `${language}/${
             pages[genericPath][language] === ''

@@ -39,7 +39,7 @@ describe(`createGetLanguages`, () => {
       /could not find a page/i,
     )
     expect(() =>
-      getPath({ path: '/page-one', language: 'de', strict: true }),
+      getPath({ path: '/page-one', language: 'es', strict: true }),
     ).toThrow(/could not find a page/i)
   })
 
@@ -54,6 +54,10 @@ describe(`createGetLanguages`, () => {
     expect(getPath('/en/page-one-path')).toEqual('/en/page-one-path')
     expect(getPath('/ru/путь-к-странице-один')).toEqual('/en/page-one-path')
     expect(getPath('/de/page-one')).toEqual('/en/page-one-path')
+
+    expect(
+      createGetPath({ '/page': { en: '', ru: '' } }, 'en', false)('/page'),
+    ).toEqual('/en/page')
   })
 
   it(`should return correct path values for object inputs`, () => {
@@ -63,6 +67,12 @@ describe(`createGetLanguages`, () => {
       '/en/page-one-path',
     )
     expect(getPath({ path: '/de/page-one' })).toEqual('/en/page-one-path')
+
+    expect(
+      createGetPath({ '/page': { en: '', ru: '' } }, 'en', false)({
+        path: '/page',
+      }),
+    ).toEqual('/en/page')
   })
 
   it(`should return correct path values for specified default language`, () => {
