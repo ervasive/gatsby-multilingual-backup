@@ -102,10 +102,9 @@ export const onCreateNode: GatsbyNode['onCreateNode'] = async (
   try {
     JSON.parse(nodeContent as string)
   } catch (e) {
-    reporter.panic(
-      `There was an error validating one of the translations files:\n` +
-        `${node.absolutePath}\n`,
-      e,
+    reporter.warn(
+      `There was an error validating one of the translations files:` +
+        `"${node.absolutePath}"\n${e}`,
     )
     return
   }
