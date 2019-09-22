@@ -1,8 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
-  testPathIgnorePatterns: ['/node_modules/'],
+  testPathIgnorePatterns: ['/node_modules/', '/.cache/', '/generic-tests/'],
   setupFiles: [`<rootDir>/jest/loadershim.js`],
   globals: {
     'ts-jest': {

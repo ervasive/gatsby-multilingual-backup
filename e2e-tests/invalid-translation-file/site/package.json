@@ -1,0 +1,19 @@
+{
+  "name": "e2e-invalid-translation",
+  "version": "0.1.1-alpha.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "serve": "gatsby serve",
+    "start": "npm run develop"
+  },
+  "dependencies": {
+    "@gatsby-plugin-multilingual/translations-loader": "file:../../../packages/@translations-loader",
+    "gatsby": "2.15.20",
+    "react": "16.9.0",
+    "react-dom": "16.9.0"
+  }
+}
