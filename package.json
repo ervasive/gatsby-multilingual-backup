@@ -8,6 +8,8 @@
     "ts:clean": "tsc --build --clean",
     "ts:watch": "tsc --build --watch",
     "jest": "jest",
+    "jest:unit": "jest --testPathPattern \"packages/.*/__tests__/*\"",
+    "jest:e2e": "jest --testPathPattern \"e2e-tests/.*/__tests__/*\"",
     "jest:watch": "jest --watchAll",
     "lint": "eslint '**/*.{js,jsx,ts,tsx}'",
     "lerna": "lerna"

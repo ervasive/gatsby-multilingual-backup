@@ -15,11 +15,13 @@ jobs:
       - name: Compile typescript
         run: npm run ts:compile
       - name: Run unit tests
-        run: npm run jest -- --ci
+        run: npm run jest:unit -- --ci
       - name: Run e2e tests
         env:
           CYPRESS_RECORD_KEY: ${{secrets.CYPRESS_TOKEN}}
-        run: npm run lerna -- run test --scope=e2e-generic-test-site --stream
+        run: |
+          npm run jest:e2e -- --ci
+          npm run lerna -- run test --scope=e2e-generic-test-site --stream
       - name: Upload code coverage reports
         env:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}

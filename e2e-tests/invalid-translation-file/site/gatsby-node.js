@@ -1,0 +1,3 @@
+exports.onPostBootstrap = () => {
+  process.exit()
+}
