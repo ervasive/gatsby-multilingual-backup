@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "e2e-generic-test-theme": "file:../theme",
-    "gatsby": "2.15.20",
+    "gatsby": "2.15.21",
     "gatsby-plugin-multilingual": "file:../../../packages/gatsby-plugin-multilingual",
     "gatsby-plugin-page-creator": "2.1.21",
     "gatsby-source-filesystem": "2.1.26",
