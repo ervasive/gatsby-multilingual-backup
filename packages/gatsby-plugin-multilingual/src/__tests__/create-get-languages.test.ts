@@ -1,6 +1,13 @@
+import fc from 'fast-check'
+import { isString, isPlainObject, isUndefined, isBoolean } from 'lodash'
 import createGetLanguages from '../create-get-languages'
 
 const pages = {
+  '/': {
+    en: '',
+    ru: '',
+    de: '',
+  },
   '/page-one': {
     en: '/page-one-path',
     ru: '/путь-к-странице-один',
@@ -14,24 +21,49 @@ const pages = {
 }
 
 describe(`createGetLanguages`, () => {
-  const getLanguages = createGetLanguages(pages, '/page-one', 'en', false)
+  const getLanguages = createGetLanguages({
+    pages,
+    pageGenericPath: '/page-one',
+    pageLanguage: 'en',
+    strict: false,
+  })
 
-  it(`should throw a TypeError on invalid argument types and shape`, () => {
-    ;[
-      null,
-      1,
-      NaN,
-      true,
-      false,
-      [],
-      () => {},
-      Symbol(''),
-      { path: 1 },
-      { skipCurrentLanguage: 1 },
-      { strict: 1 },
-    ].map(value =>
-      expect(() => getLanguages(value)).toThrow(
-        /"getLanguages" function received invalid argument/i,
+  it(`should throw a TypeError on invalid argument types`, () => {
+    fc.assert(
+      fc.property(
+        fc
+          .anything()
+          .filter(v => !(isUndefined(v) || isString(v) || isPlainObject(v))),
+        data => {
+          expect((): void => {
+            createGetLanguages({
+              pages,
+              pageGenericPath: '/page-one',
+              pageLanguage: 'en',
+              strict: false,
+            })(data)
+          }).toThrow(/"getLanguages" function received invalid argument/i)
+        },
+      ),
+    )
+  })
+
+  it(`should throw a TypeError on invalid argument object shape`, () => {
+    fc.assert(
+      fc.property(
+        fc.anything().filter(v => !(isString(v) || isUndefined(v))),
+        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        (path, skipCurrentLanguage, strict) => {
+          expect((): void => {
+            createGetLanguages({
+              pages,
+              pageGenericPath: '/page-one',
+              pageLanguage: 'en',
+              strict: false,
+            })({ path, skipCurrentLanguage, strict })
+          }).toThrow(/"getLanguages" function received invalid argument/i)
+        },
       ),
     )
   })
