@@ -1,3 +1,4 @@
+import parse from 'url-parse'
 import isPlainObject from 'lodash/isPlainObject'
 import normalizePath from './utils/normalize-path'
 import getPageGenericPath from './utils/get-page-generic-path'
@@ -8,11 +9,19 @@ const invalidValueErrorMessage =
   `"object" of the following shape: { path: string, language?: ` +
   `string, strict?: boolean, generic?: boolean } are allowed.`
 
-export default (
-  pages: PagesRegistry,
-  currentPageLanguage: string,
-  globalStrict: boolean,
-): ContextProviderData['getPath'] => {
+export default ({
+  pages,
+  pageLanguage,
+  defaultLanguage,
+  includeDefaultLanguageInURL,
+  strict: globalStrict,
+}: {
+  pages: PagesRegistry
+  pageLanguage: string
+  defaultLanguage: string
+  includeDefaultLanguageInURL: boolean
+  strict: boolean
+}): ContextProviderData['getPath'] => {
   const fn: ContextProviderData['getPath'] = value => {
     const prevalidatedValue = value as unknown
 
@@ -30,7 +39,7 @@ export default (
 
     if (typeof prevalidatedValue === 'string') {
       path = prevalidatedValue
-      language = currentPageLanguage
+      language = pageLanguage
       strict = globalStrict
       genericOnly = false
     } else {
@@ -62,35 +71,55 @@ export default (
       }
 
       path = values.path
-      language = values.language || currentPageLanguage
+      language = values.language || pageLanguage
       strict = typeof values.strict === 'boolean' ? values.strict : globalStrict
       genericOnly = !!values.generic
     }
 
-    const genericPath = getPageGenericPath(path, pages)
+    const { slashes, protocol, port, pathname, query, hash } = parse(path, {})
 
-    if (genericPath) {
-      if (genericOnly) {
-        return genericPath
-      } else if (typeof pages[genericPath][language] === 'string') {
-        return normalizePath(
-          `${language}/${
-            pages[genericPath][language] === ''
-              ? genericPath
-              : pages[genericPath][language]
-          }`,
+    if (slashes || protocol || port) {
+      return path
+    }
+
+    const genericPath = getPageGenericPath(pathname, pages)
+
+    if (!genericPath) {
+      if (strict) {
+        throw new Error(
+          `The "getPath" function returned an error. Could not find a ` +
+            `page with the following path: ${path}, and language: ${language}`,
         )
+      } else {
+        return path
       }
     }
 
-    if (strict) {
+    if (genericOnly) {
+      return genericPath
+    }
+
+    if (typeof pages[genericPath][language] === 'string') {
+      const pathPrefix =
+        !includeDefaultLanguageInURL && language === defaultLanguage
+          ? ''
+          : language
+
+      const genericPathNormalized =
+        pathPrefix !== '' && genericPath === '/' ? '' : genericPath
+
+      const pathValue =
+        pages[genericPath][language] === ''
+          ? genericPathNormalized
+          : pages[genericPath][language]
+
+      return normalizePath(`${pathPrefix}${pathValue}${query}${hash}`)
+    } else {
       throw new Error(
         `The "getPath" function returned an error. Could not find a ` +
           `page with the following path: ${path}, and language: ${language}`,
       )
     }
-
-    return path
   }
 
   return fn
