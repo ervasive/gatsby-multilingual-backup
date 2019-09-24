@@ -1,120 +1,326 @@
+import fc from 'fast-check'
+import { isString, isPlainObject, isUndefined, isBoolean } from 'lodash'
 import createGetPath from '../create-get-path'
 
 const pages = {
+  '/': {
+    en: '',
+    ru: '',
+    de: '',
+  },
   '/page-one': {
-    en: '/page-one-path',
-    ru: '/путь-к-странице-один',
+    en: '/page-path',
+    ru: '/путь-к-странице',
     de: '',
   },
 }
 
-describe(`createGetLanguages`, () => {
-  const getPath = createGetPath(pages, 'en', false)
-
-  it(`should throw a TypeError on invalid argument types and shape`, () => {
-    ;[
-      null,
-      undefined,
-      1,
-      NaN,
-      true,
-      false,
-      [],
-      () => {},
-      Symbol(''),
-      {},
-      { path: 1 },
-      { path: '', language: 1 },
-      { path: '', strict: 1 },
-      { path: '', generic: 1 },
-    ].map(value =>
-      expect(() => getPath(value)).toThrow(
-        /"getPath" function received invalid argument/i,
+describe(`createGetPath`, () => {
+  it(`should throw a TypeError on invalid argument types`, () => {
+    fc.assert(
+      fc.property(
+        fc
+          .anything()
+          .filter(
+            v => !(isString(v) || (isPlainObject(v) && Object.keys(v).length)),
+          ),
+        data => {
+          expect((): void => {
+            createGetPath({
+              pages,
+              pageLanguage: 'en',
+              defaultLanguage: 'en',
+              includeDefaultLanguageInURL: true,
+              strict: false,
+            })(data)
+          }).toThrow(/"getPath" function received invalid argument/i)
+        },
       ),
     )
   })
 
-  it(`should throw an Error on non-existent page or language and strict=true flag`, () => {
-    expect(() => getPath({ path: '/non-existent', strict: true })).toThrow(
+  it(`should throw a TypeError on invalid argument object shape`, () => {
+    fc.assert(
+      fc.property(
+        fc.anything().filter(v => !isString(v)),
+        fc.anything().filter(v => !(isString(v) || isUndefined(v))),
+        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        (path, language, strict, generic) => {
+          expect((): void => {
+            createGetPath({
+              pages,
+              pageLanguage: 'en',
+              defaultLanguage: 'en',
+              includeDefaultLanguageInURL: true,
+              strict: false,
+            })({ path, language, strict, generic })
+          }).toThrow(/"getPath" function received invalid argument/i)
+        },
+      ),
+    )
+  })
+
+  it(`should throw on a non existent "path" if "strict checks" enabled`, () => {
+    const getPath = createGetPath({
+      pages,
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: true,
+    })
+
+    expect(() => getPath('/non-existent')).toThrow(/could not find a page/i)
+    expect(() => getPath({ path: '/non-existent' })).toThrow(
       /could not find a page/i,
     )
+  })
+
+  it(`should return back a non existent "path" if "strict checks" disabled`, () => {
+    const getPath = createGetPath({
+      pages,
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: false,
+    })
+
+    expect(getPath('/non-existent')).toBe('/non-existent')
+    expect(getPath({ path: '/non-existent' })).toBe('/non-existent')
+  })
+
+  it(`should return a correct "path" if the provided value is valid`, () => {
+    const getPath = createGetPath({
+      pages,
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: true,
+    })
+
+    expect(getPath('/')).toBe('/en')
+    expect(getPath({ path: '/' })).toBe('/en')
+
+    expect(getPath('/ru/')).toBe('/en')
+    expect(getPath({ path: '/ru/' })).toBe('/en')
+
+    expect(getPath('/en/page-path')).toBe('/en/page-path')
+    expect(getPath({ path: '/en/page-path' })).toBe('/en/page-path')
+
+    expect(getPath('/ru/путь-к-странице')).toBe('/en/page-path')
+    expect(getPath({ path: '/ru/путь-к-странице' })).toBe('/en/page-path')
+
+    expect(getPath('/de/page-one')).toBe('/en/page-path')
+    expect(getPath({ path: '/de/page-one' })).toBe('/en/page-path')
+  })
+
+  it(`should return the provided value back if it is not in the form of relative path`, () => {
+    const getPath = createGetPath({
+      pages,
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: false,
+    })
+
+    expect(getPath('https://sample.org')).toEqual('https://sample.org')
+    expect(getPath({ path: 'https://sample.org' })).toEqual(
+      'https://sample.org',
+    )
+
+    expect(getPath('//sample.org')).toEqual('//sample.org')
+    expect(getPath({ path: '//sample.org' })).toEqual('//sample.org')
+
+    expect(getPath('sample.org:9090')).toEqual('sample.org:9090')
+    expect(getPath({ path: 'sample.org:9090' })).toEqual('sample.org:9090')
+  })
+
+  it(`should preserve query string and hash value of the provided path`, () => {
+    const getPath = createGetPath({
+      pages,
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: false,
+    })
+
+    expect(getPath('/ru/путь-к-странице?var=1#fragment')).toEqual(
+      '/en/page-path?var=1#fragment',
+    )
+    expect(getPath({ path: '/ru/путь-к-странице?var=1#fragment' })).toEqual(
+      '/en/page-path?var=1#fragment',
+    )
+  })
+
+  it(`should throw on non existent "language" value and "strict checks" enabled`, () => {
+    const getPath = createGetPath({
+      pages,
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: true,
+    })
+
+    expect(() => getPath({ path: '/', language: 'es' })).toThrow(
+      /could not find a page/i,
+    )
+
     expect(() =>
-      getPath({ path: '/page-one', language: 'es', strict: true }),
+      getPath({ path: '/ru/путь-к-странице', language: 'es' }),
     ).toThrow(/could not find a page/i)
   })
 
-  it(`should return the input path value back on non-existent page and strict=false flag`, () => {
-    expect(getPath({ path: '/non-existent', strict: false })).toEqual(
-      '/non-existent',
+  it(`should throw on non existent "language" value and "strict checks" disabled`, () => {
+    const getPath = createGetPath({
+      pages,
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: false,
+    })
+
+    expect(() => getPath({ path: '/', language: 'es' })).toThrow(
+      /could not find a page/i,
+    )
+
+    expect(() =>
+      getPath({ path: '/ru/путь-к-странице', language: 'es' }),
+    ).toThrow(/could not find a page/i)
+  })
+
+  it(`should return a correct path with overriden valid language value`, () => {
+    const getPath = createGetPath({
+      pages,
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: true,
+    })
+
+    expect(getPath({ path: '/', language: 'ru' })).toBe('/ru')
+    expect(getPath({ path: '/en/page-path', language: 'ru' })).toBe(
+      '/ru/путь-к-странице',
     )
   })
 
-  it(`should return correct path values for string inputs`, () => {
-    expect(getPath('/page-one')).toEqual('/en/page-one-path')
-    expect(getPath('/en/page-one-path')).toEqual('/en/page-one-path')
-    expect(getPath('/ru/путь-к-странице-один')).toEqual('/en/page-one-path')
-    expect(getPath('/de/page-one')).toEqual('/en/page-one-path')
+  it(`should override global strict checks with the one specified inline`, () => {
+    expect(() =>
+      createGetPath({
+        pages,
+        pageLanguage: 'en',
+        defaultLanguage: 'en',
+        includeDefaultLanguageInURL: false,
+        strict: false,
+      })({ path: '/non-existent', strict: true }),
+    ).toThrow(/could not find a page/i)
 
     expect(
-      createGetPath({ '/page': { en: '', ru: '' } }, 'en', false)('/page'),
-    ).toEqual('/en/page')
+      createGetPath({
+        pages,
+        pageLanguage: 'en',
+        defaultLanguage: 'en',
+        includeDefaultLanguageInURL: false,
+        strict: true,
+      })({ path: '/non-existent', strict: false }),
+    ).toBe('/non-existent')
   })
 
-  it(`should return correct path values for object inputs`, () => {
-    expect(getPath({ path: '/page-one' })).toEqual('/en/page-one-path')
-    expect(getPath({ path: '/en/page-one-path' })).toEqual('/en/page-one-path')
-    expect(getPath({ path: '/ru/путь-к-странице-один' })).toEqual(
-      '/en/page-one-path',
-    )
-    expect(getPath({ path: '/de/page-one' })).toEqual('/en/page-one-path')
+  it(`should return a generic path value on "generic=true" flag`, () => {
+    const getPath = createGetPath({
+      pages,
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: true,
+    })
 
-    expect(
-      createGetPath({ '/page': { en: '', ru: '' } }, 'en', false)({
-        path: '/page',
-      }),
-    ).toEqual('/en/page')
-  })
-
-  it(`should return correct path values for specified default language`, () => {
-    expect(getPath({ path: '/page-one', language: 'en' })).toEqual(
-      '/en/page-one-path',
-    )
-    expect(getPath({ path: '/en/page-one-path', language: 'en' })).toEqual(
-      '/en/page-one-path',
-    )
-    expect(
-      getPath({ path: '/ru/путь-к-странице-один', language: 'en' }),
-    ).toEqual('/en/page-one-path')
-    expect(getPath({ path: '/de/page-one', language: 'en' })).toEqual(
-      '/en/page-one-path',
-    )
-  })
-
-  it(`should return correct path values for specified other language`, () => {
-    expect(getPath({ path: '/page-one', language: 'ru' })).toEqual(
-      '/ru/путь-к-странице-один',
-    )
-    expect(getPath({ path: '/en/page-one-path', language: 'ru' })).toEqual(
-      '/ru/путь-к-странице-один',
-    )
-    expect(
-      getPath({ path: '/ru/путь-к-странице-один', language: 'ru' }),
-    ).toEqual('/ru/путь-к-странице-один')
-    expect(getPath({ path: '/de/page-one', language: 'ru' })).toEqual(
-      '/ru/путь-к-странице-один',
-    )
-  })
-
-  it(`should return correct generic path values`, () => {
-    expect(getPath({ path: '/page-one', generic: true })).toEqual('/page-one')
-    expect(getPath({ path: '/en/page-one-path', generic: true })).toEqual(
-      '/page-one',
-    )
-    expect(
-      getPath({ path: '/ru/путь-к-странице-один', generic: true }),
-    ).toEqual('/page-one')
-    expect(getPath({ path: '/de/page-one', generic: true })).toEqual(
+    expect(getPath({ path: '/', generic: true })).toBe('/')
+    expect(getPath({ path: '/en/page-path', generic: true })).toBe('/page-one')
+    expect(getPath({ path: '/ru/путь-к-странице', generic: true })).toBe(
       '/page-one',
     )
   })
+
+  it(
+    `should prepend path prefix for the same "pageLanguage" & ` +
+      `"defaultLanguage" values on "includeDefaultLanguageInURL=true"`,
+    () => {
+      const getPath = createGetPath({
+        pages,
+        pageLanguage: 'en',
+        defaultLanguage: 'en',
+        includeDefaultLanguageInURL: true,
+        strict: false,
+      })
+
+      expect(getPath('/')).toBe('/en')
+      expect(getPath('/en')).toBe('/en')
+      expect(getPath('/ru')).toBe('/en')
+      expect(getPath({ path: '/' })).toBe('/en')
+      expect(getPath({ path: '/en' })).toBe('/en')
+      expect(getPath({ path: '/ru' })).toBe('/en')
+
+      expect(getPath('/page-one')).toBe('/en/page-path')
+      expect(getPath('/en/page-path')).toBe('/en/page-path')
+      expect(getPath('/ru/путь-к-странице')).toBe('/en/page-path')
+      expect(getPath({ path: '/page-one' })).toBe('/en/page-path')
+      expect(getPath({ path: '/en/page-path' })).toBe('/en/page-path')
+      expect(getPath({ path: '/ru/путь-к-странице' })).toBe('/en/page-path')
+    },
+  )
+
+  it(
+    `should omit path prefix for the same "pageLanguage" & ` +
+      `"defaultLanguage" values on "includeDefaultLanguageInURL=false"`,
+    () => {
+      const getPath = createGetPath({
+        pages,
+        pageLanguage: 'en',
+        defaultLanguage: 'en',
+        includeDefaultLanguageInURL: false,
+        strict: false,
+      })
+
+      expect(getPath('/')).toBe('/')
+      expect(getPath('/en')).toBe('/')
+      expect(getPath('/ru')).toBe('/')
+      expect(getPath({ path: '/' })).toBe('/')
+      expect(getPath({ path: '/en' })).toBe('/')
+      expect(getPath({ path: '/ru' })).toBe('/')
+
+      expect(getPath('/page-one')).toBe('/page-path')
+      expect(getPath('/en/page-path')).toBe('/page-path')
+      expect(getPath('/ru/путь-к-странице')).toBe('/page-path')
+      expect(getPath({ path: '/page-one' })).toBe('/page-path')
+      expect(getPath({ path: '/en/page-path' })).toBe('/page-path')
+      expect(getPath({ path: '/ru/путь-к-странице' })).toBe('/page-path')
+    },
+  )
+
+  it(
+    `should omit path prefix for the same overriden language & ` +
+      `"defaultLanguage" values on "includeDefaultLanguageInURL=false"`,
+    () => {
+      const getPath = createGetPath({
+        pages,
+        pageLanguage: 'en',
+        defaultLanguage: 'ru',
+        includeDefaultLanguageInURL: false,
+        strict: true,
+      })
+
+      expect(getPath({ path: '/', language: 'ru' })).toBe('/')
+      expect(getPath({ path: '/en', language: 'ru' })).toBe('/')
+      expect(getPath({ path: '/ru', language: 'ru' })).toBe('/')
+      expect(getPath({ path: '/page-one', language: 'ru' })).toBe(
+        '/путь-к-странице',
+      )
+      expect(getPath({ path: '/en/page-path', language: 'ru' })).toBe(
+        '/путь-к-странице',
+      )
+      expect(getPath({ path: '/ru/путь-к-странице', language: 'ru' })).toBe(
+        '/путь-к-странице',
+      )
+    },
+  )
 })

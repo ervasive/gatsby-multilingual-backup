@@ -9,6 +9,7 @@ const {
   availableLanguages,
   defaultNamespace,
   includeDefaultLanguageInURL,
+  strictPathChecks,
 } = DEFAULT_OPTIONS
 
 export const MultilingualContext = React.createContext<ContextProviderData>({
@@ -17,6 +18,17 @@ export const MultilingualContext = React.createContext<ContextProviderData>({
   availableLanguages,
   defaultNamespace,
   includeDefaultLanguageInURL,
-  getPath: createGetPath({}, '', false),
-  getLanguages: createGetLanguages({}, '', '', false),
+  getPath: createGetPath({
+    pages: {},
+    pageLanguage: defaultLanguage,
+    defaultLanguage,
+    includeDefaultLanguageInURL,
+    strict: strictPathChecks,
+  }),
+  getLanguages: createGetLanguages({
+    pages: {},
+    pageGenericPath: '/',
+    pageLanguage: defaultLanguage,
+    strict: strictPathChecks,
+  }),
 })

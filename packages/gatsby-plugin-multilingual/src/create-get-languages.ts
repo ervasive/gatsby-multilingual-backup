@@ -8,15 +8,22 @@ const invalidValueErrorMessage =
   `"object" of the following shape: { path?: string, skipCurrentLanguage?: ` +
   `boolean, strict?: boolean } are allowed.`
 
-export default (
-  pages: PagesRegistry,
-  currentPageGenericPath: string,
-  currentPageLanguage: string,
-  globalStrict: boolean,
-): ContextProviderData['getLanguages'] => {
+export default ({
+  pages,
+  pageGenericPath,
+  pageLanguage,
+  strict: globalStrict,
+}: {
+  pages: PagesRegistry
+  pageGenericPath: string
+  pageLanguage: string
+  strict: boolean
+}): ContextProviderData['getLanguages'] => {
   const fn: ContextProviderData['getLanguages'] = value => {
+    const prevalidatedValue = value as unknown
+
     if (
-      !['undefined', 'string'].includes(typeof value) &&
+      !['undefined', 'string'].includes(typeof prevalidatedValue) &&
       !isPlainObject(value)
     ) {
       throw new TypeError(invalidValueErrorMessage)
@@ -26,16 +33,16 @@ export default (
     let skipCurrentLanguage: boolean
     let strict: boolean
 
-    if (typeof value === 'undefined') {
-      path = currentPageGenericPath
+    if (typeof prevalidatedValue === 'undefined') {
+      path = pageGenericPath
       skipCurrentLanguage = false
       strict = globalStrict
-    } else if (typeof value === 'string') {
-      path = value
+    } else if (typeof prevalidatedValue === 'string') {
+      path = prevalidatedValue
       skipCurrentLanguage = false
       strict = globalStrict
     } else {
-      const values = value as Record<string, unknown>
+      const values = prevalidatedValue as Record<string, unknown>
 
       if (
         typeof values.path !== 'undefined' &&
@@ -58,7 +65,7 @@ export default (
         throw new TypeError(invalidValueErrorMessage)
       }
 
-      path = values.path || currentPageGenericPath
+      path = values.path || pageGenericPath
       skipCurrentLanguage = values.skipCurrentLanguage || false
       strict = values.strict || globalStrict
     }
@@ -78,8 +85,7 @@ export default (
 
     return Object.entries(pages[genericPath])
       .filter(
-        ([language]) =>
-          !(skipCurrentLanguage && language === currentPageLanguage),
+        ([language]) => !(skipCurrentLanguage && language === pageLanguage),
       )
       .map(([language, path]) => ({
         language,
