@@ -14,7 +14,12 @@ export default (
   globalStrict: boolean,
 ): ContextProviderData['getPath'] => {
   const fn: ContextProviderData['getPath'] = value => {
-    if (typeof value !== 'string' && !isPlainObject(value)) {
+    const prevalidatedValue = value as unknown
+
+    if (
+      typeof prevalidatedValue !== 'string' &&
+      !isPlainObject(prevalidatedValue)
+    ) {
       throw new TypeError(invalidValueErrorMessage)
     }
 
@@ -23,13 +28,13 @@ export default (
     let strict: boolean
     let genericOnly: boolean
 
-    if (typeof value === 'string') {
-      path = value
+    if (typeof prevalidatedValue === 'string') {
+      path = prevalidatedValue
       language = currentPageLanguage
       strict = globalStrict
       genericOnly = false
     } else {
-      const values = value as Record<string, unknown>
+      const values = prevalidatedValue as Record<string, unknown>
 
       if (typeof values.path !== 'string') {
         throw new TypeError(invalidValueErrorMessage)

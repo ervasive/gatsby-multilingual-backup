@@ -64,9 +64,20 @@ export type ContextProviderData = Pick<
   | 'includeDefaultLanguageInURL'
 > & {
   currentLanguage: string
-  getPath: (value?: unknown) => Error | string
+  getPath: (
+    value:
+      | string
+      | {
+          path: string
+          language?: string
+          generic?: boolean
+          strict?: boolean
+        },
+  ) => Error | string
   getLanguages: (
-    value?: unknown,
+    value?:
+      | string
+      | { path?: string; skipCurrentLanguage?: boolean; strict?: boolean },
   ) => Error | { language: string; path: string }[]
 }
 

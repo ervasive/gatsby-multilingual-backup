@@ -15,8 +15,10 @@ export default (
   globalStrict: boolean,
 ): ContextProviderData['getLanguages'] => {
   const fn: ContextProviderData['getLanguages'] = value => {
+    const prevalidatedValue = value as unknown
+
     if (
-      !['undefined', 'string'].includes(typeof value) &&
+      !['undefined', 'string'].includes(typeof prevalidatedValue) &&
       !isPlainObject(value)
     ) {
       throw new TypeError(invalidValueErrorMessage)
@@ -26,16 +28,16 @@ export default (
     let skipCurrentLanguage: boolean
     let strict: boolean
 
-    if (typeof value === 'undefined') {
+    if (typeof prevalidatedValue === 'undefined') {
       path = currentPageGenericPath
       skipCurrentLanguage = false
       strict = globalStrict
-    } else if (typeof value === 'string') {
-      path = value
+    } else if (typeof prevalidatedValue === 'string') {
+      path = prevalidatedValue
       skipCurrentLanguage = false
       strict = globalStrict
     } else {
-      const values = value as Record<string, unknown>
+      const values = prevalidatedValue as Record<string, unknown>
 
       if (
         typeof values.path !== 'undefined' &&
