@@ -106,7 +106,7 @@ export default ({
           pages,
           suffix: `${query}${hash}`,
         }),
-        isCurrent: language === defaultLanguage,
+        isCurrent: language === pageLanguage,
       }))
   }
 

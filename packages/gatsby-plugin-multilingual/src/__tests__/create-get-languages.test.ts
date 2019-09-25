@@ -168,6 +168,35 @@ describe(`createGetLanguages`, () => {
     expect(getLanguages({ path: '/de/page-two' })).toEqual(expected)
   })
 
+  it(`should set isCurrent=true correctly if the "pageLanguage" differs from the "defaultLanguage"`, () => {
+    const getLanguages = createGetLanguages({
+      pages,
+      pageGenericPath: '/page-one',
+      pageLanguage: 'ru',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: false,
+    })
+
+    const expected = [
+      { language: 'en', path: '/en/page-two-path', isCurrent: false },
+      { language: 'ru', path: '/ru/путь-к-странице-два', isCurrent: true },
+      { language: 'de', path: '/de/page-two', isCurrent: false },
+    ]
+
+    expect(getLanguages('/page-two')).toEqual(expected)
+    expect(getLanguages({ path: '/page-two' })).toEqual(expected)
+
+    expect(getLanguages('/en/page-two-path')).toEqual(expected)
+    expect(getLanguages({ path: '/en/page-two-path' })).toEqual(expected)
+
+    expect(getLanguages('/ru/путь-к-странице-два')).toEqual(expected)
+    expect(getLanguages({ path: '/ru/путь-к-странице-два' })).toEqual(expected)
+
+    expect(getLanguages('/de/page-two')).toEqual(expected)
+    expect(getLanguages({ path: '/de/page-two' })).toEqual(expected)
+  })
+
   it(`should return languages array skipping the "current language"`, () => {
     const getLanguages = createGetLanguages({
       pages,
