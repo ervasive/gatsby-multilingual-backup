@@ -77,8 +77,12 @@ export type ContextProviderData = Pick<
   getLanguages: (
     value?:
       | string
-      | { path?: string; skipCurrentLanguage?: boolean; strict?: boolean },
-  ) => Error | { language: string; path: string }[]
+      | {
+          path?: string
+          skipCurrentLanguage?: boolean
+          strict?: boolean
+        },
+  ) => Error | { language: string; path: string; isCurrent: boolean }[]
 }
 
 export interface WrapRootElementProps {

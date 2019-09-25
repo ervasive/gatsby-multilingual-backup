@@ -1,6 +1,7 @@
+import parse from 'url-parse'
 import isPlainObject from 'lodash/isPlainObject'
-import normalizePath from './utils/normalize-path'
 import getPageGenericPath from './utils/get-page-generic-path'
+import getPagePrefixedPath from './utils/get-page-prefixed-path'
 import { ContextProviderData, PagesRegistry } from './types'
 
 const invalidValueErrorMessage =
@@ -12,11 +13,15 @@ export default ({
   pages,
   pageGenericPath,
   pageLanguage,
+  defaultLanguage,
+  includeDefaultLanguageInURL,
   strict: globalStrict,
 }: {
   pages: PagesRegistry
   pageGenericPath: string
   pageLanguage: string
+  defaultLanguage: string
+  includeDefaultLanguageInURL: boolean
   strict: boolean
 }): ContextProviderData['getLanguages'] => {
   const fn: ContextProviderData['getLanguages'] = value => {
@@ -67,10 +72,16 @@ export default ({
 
       path = values.path || pageGenericPath
       skipCurrentLanguage = values.skipCurrentLanguage || false
-      strict = values.strict || globalStrict
+      strict = typeof values.strict === 'boolean' ? values.strict : globalStrict
     }
 
-    const genericPath = getPageGenericPath(path, pages)
+    const { slashes, protocol, port, pathname, query, hash } = parse(path, {})
+
+    if (slashes || protocol || port) {
+      return []
+    }
+
+    const genericPath = getPageGenericPath(pathname, pages)
 
     if (!genericPath) {
       if (strict) {
@@ -83,13 +94,19 @@ export default ({
       }
     }
 
-    return Object.entries(pages[genericPath])
-      .filter(
-        ([language]) => !(skipCurrentLanguage && language === pageLanguage),
-      )
-      .map(([language, path]) => ({
+    return Object.keys(pages[genericPath])
+      .filter(language => !(skipCurrentLanguage && language === pageLanguage))
+      .map(language => ({
         language,
-        path: normalizePath(`${language}/${path === '' ? genericPath : path}`),
+        path: getPagePrefixedPath({
+          genericPath,
+          language,
+          defaultLanguage,
+          includeDefaultLanguageInURL,
+          pages,
+          suffix: `${query}${hash}`,
+        }),
+        isCurrent: language === defaultLanguage,
       }))
   }
 
