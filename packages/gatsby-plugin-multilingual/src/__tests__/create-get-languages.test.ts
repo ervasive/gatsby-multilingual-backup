@@ -21,13 +21,6 @@ const pages = {
 }
 
 describe(`createGetLanguages`, () => {
-  const getLanguages = createGetLanguages({
-    pages,
-    pageGenericPath: '/page-one',
-    pageLanguage: 'en',
-    strict: false,
-  })
-
   it(`should throw a TypeError on invalid argument types`, () => {
     fc.assert(
       fc.property(
@@ -40,6 +33,8 @@ describe(`createGetLanguages`, () => {
               pages,
               pageGenericPath: '/page-one',
               pageLanguage: 'en',
+              defaultLanguage: 'en',
+              includeDefaultLanguageInURL: false,
               strict: false,
             })(data)
           }).toThrow(/"getLanguages" function received invalid argument/i)
@@ -60,6 +55,8 @@ describe(`createGetLanguages`, () => {
               pages,
               pageGenericPath: '/page-one',
               pageLanguage: 'en',
+              defaultLanguage: 'en',
+              includeDefaultLanguageInURL: false,
               strict: false,
             })({ path, skipCurrentLanguage, strict })
           }).toThrow(/"getLanguages" function received invalid argument/i)
@@ -68,88 +65,178 @@ describe(`createGetLanguages`, () => {
     )
   })
 
-  it(`should throw an Error on non-exitent page and strict=true flag`, () => {
-    expect(() => getLanguages({ path: '/non-exitent', strict: true })).toThrow(
+  it(`should throw an Error on a non-exitent "path" if "strict checks" enabled`, () => {
+    const getLanguages = createGetLanguages({
+      pages,
+      pageGenericPath: '/page-one',
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: false,
+      strict: true,
+    })
+
+    expect(() => getLanguages('/non-exitent')).toThrow(/could not find a page/i)
+    expect(() => getLanguages({ path: '/non-exitent' })).toThrow(
       /could not find a page/i,
     )
   })
 
-  it(`should return an empty array on non-existent page and strict=false flag`, () => {
-    expect(getLanguages({ path: '/non-exitent', strict: false })).toEqual([])
+  it(`should return an empty array on a non-exitent "path" if "strict checks" disabled`, () => {
+    const getLanguages = createGetLanguages({
+      pages,
+      pageGenericPath: '/page-one',
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: false,
+      strict: false,
+    })
+
+    expect(getLanguages('/non-exitent')).toEqual([])
+    expect(getLanguages({ path: '/non-exitent' })).toEqual([])
   })
 
-  it(`should return languages array for the current page if the path was not provided`, () => {
-    expect(getLanguages()).toEqual([
-      { language: 'en', path: '/en/page-one-path' },
-      { language: 'ru', path: '/ru/путь-к-странице-один' },
-      { language: 'de', path: '/de/page-one' },
-    ])
+  it(`should override global strict checks with the one specified inline`, () => {
+    expect(() =>
+      createGetLanguages({
+        pages,
+        pageGenericPath: '/page-one',
+        pageLanguage: 'en',
+        defaultLanguage: 'en',
+        includeDefaultLanguageInURL: false,
+        strict: false,
+      })({ path: '/non-exitent', strict: true }),
+    ).toThrow(/could not find a page/i)
 
-    expect(getLanguages({ path: undefined })).toEqual([
-      { language: 'en', path: '/en/page-one-path' },
-      { language: 'ru', path: '/ru/путь-к-странице-один' },
-      { language: 'de', path: '/de/page-one' },
-    ])
+    expect(
+      createGetLanguages({
+        pages,
+        pageGenericPath: '/page-one',
+        pageLanguage: 'en',
+        defaultLanguage: 'en',
+        includeDefaultLanguageInURL: false,
+        strict: true,
+      })({ path: '/non-exitent', strict: false }),
+    ).toEqual([])
   })
 
-  it(`should return languages array for provided page path as a string`, () => {
-    expect(getLanguages('/page-two')).toEqual([
-      { language: 'en', path: '/en/page-two-path' },
-      { language: 'ru', path: '/ru/путь-к-странице-два' },
-      { language: 'de', path: '/de/page-two' },
-    ])
+  it(`should return languages array for the current page if the path value was not provided`, () => {
+    const getLanguages = createGetLanguages({
+      pages,
+      pageGenericPath: '/page-two',
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: false,
+    })
 
-    expect(getLanguages('/en/page-two-path')).toEqual([
-      { language: 'en', path: '/en/page-two-path' },
-      { language: 'ru', path: '/ru/путь-к-странице-два' },
-      { language: 'de', path: '/de/page-two' },
-    ])
+    const expected = [
+      { language: 'en', path: '/en/page-two-path', isCurrent: true },
+      { language: 'ru', path: '/ru/путь-к-странице-два', isCurrent: false },
+      { language: 'de', path: '/de/page-two', isCurrent: false },
+    ]
 
-    expect(getLanguages('/ru/путь-к-странице-два')).toEqual([
-      { language: 'en', path: '/en/page-two-path' },
-      { language: 'ru', path: '/ru/путь-к-странице-два' },
-      { language: 'de', path: '/de/page-two' },
-    ])
-
-    expect(getLanguages('/de/page-two')).toEqual([
-      { language: 'en', path: '/en/page-two-path' },
-      { language: 'ru', path: '/ru/путь-к-странице-два' },
-      { language: 'de', path: '/de/page-two' },
-    ])
+    expect(getLanguages()).toEqual(expected)
+    expect(getLanguages({ path: undefined })).toEqual(expected)
   })
 
-  it(`should return languages array for provided page path as an object`, () => {
-    expect(getLanguages({ path: '/page-two' })).toEqual([
-      { language: 'en', path: '/en/page-two-path' },
-      { language: 'ru', path: '/ru/путь-к-странице-два' },
-      { language: 'de', path: '/de/page-two' },
-    ])
+  it(`should return languages array for provided existing page path`, () => {
+    const getLanguages = createGetLanguages({
+      pages,
+      pageGenericPath: '/page-one',
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: false,
+    })
 
-    expect(getLanguages({ path: '/en/page-two-path' })).toEqual([
-      { language: 'en', path: '/en/page-two-path' },
-      { language: 'ru', path: '/ru/путь-к-странице-два' },
-      { language: 'de', path: '/de/page-two' },
-    ])
+    const expected = [
+      { language: 'en', path: '/en/page-two-path', isCurrent: true },
+      { language: 'ru', path: '/ru/путь-к-странице-два', isCurrent: false },
+      { language: 'de', path: '/de/page-two', isCurrent: false },
+    ]
 
-    expect(getLanguages({ path: '/ru/путь-к-странице-два' })).toEqual([
-      { language: 'en', path: '/en/page-two-path' },
-      { language: 'ru', path: '/ru/путь-к-странице-два' },
-      { language: 'de', path: '/de/page-two' },
-    ])
+    expect(getLanguages('/page-two')).toEqual(expected)
+    expect(getLanguages({ path: '/page-two' })).toEqual(expected)
 
-    expect(getLanguages({ path: '/de/page-two' })).toEqual([
-      { language: 'en', path: '/en/page-two-path' },
-      { language: 'ru', path: '/ru/путь-к-странице-два' },
-      { language: 'de', path: '/de/page-two' },
-    ])
+    expect(getLanguages('/en/page-two-path')).toEqual(expected)
+    expect(getLanguages({ path: '/en/page-two-path' })).toEqual(expected)
+
+    expect(getLanguages('/ru/путь-к-странице-два')).toEqual(expected)
+    expect(getLanguages({ path: '/ru/путь-к-странице-два' })).toEqual(expected)
+
+    expect(getLanguages('/de/page-two')).toEqual(expected)
+    expect(getLanguages({ path: '/de/page-two' })).toEqual(expected)
   })
 
-  it(`should return languages array skipping the "current language" if the flag skipCurrentLanguage=true`, () => {
+  it(`should return languages array skipping the "current language"`, () => {
+    const getLanguages = createGetLanguages({
+      pages,
+      pageGenericPath: '/page-one',
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: false,
+      strict: false,
+    })
+
     expect(
       getLanguages({ path: '/page-one', skipCurrentLanguage: true }),
     ).toEqual([
-      { language: 'ru', path: '/ru/путь-к-странице-один' },
-      { language: 'de', path: '/de/page-one' },
+      { language: 'ru', path: '/ru/путь-к-странице-один', isCurrent: false },
+      { language: 'de', path: '/de/page-one', isCurrent: false },
     ])
+  })
+
+  it(`should return an empty array if the provided path is not relative`, () => {
+    const getLanguages = createGetLanguages({
+      pages,
+      pageGenericPath: '/page-one',
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: false,
+    })
+
+    expect(getLanguages('https://sample.org')).toEqual([])
+    expect(getLanguages({ path: 'https://sample.org' })).toEqual([])
+
+    expect(getLanguages('//sample.org')).toEqual([])
+    expect(getLanguages({ path: '//sample.org' })).toEqual([])
+
+    expect(getLanguages('sample.org:9090')).toEqual([])
+    expect(getLanguages({ path: 'sample.org:9090' })).toEqual([])
+  })
+
+  it(`should pass query string and fragments to the resulting array values`, () => {
+    const getLanguages = createGetLanguages({
+      pages,
+      pageGenericPath: '/page-one',
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: false,
+    })
+
+    const expected = [
+      {
+        language: 'en',
+        path: '/en/page-two-path?var=val#fragment',
+        isCurrent: true,
+      },
+      {
+        language: 'ru',
+        path: '/ru/путь-к-странице-два?var=val#fragment',
+        isCurrent: false,
+      },
+      {
+        language: 'de',
+        path: '/de/page-two?var=val#fragment',
+        isCurrent: false,
+      },
+    ]
+
+    expect(getLanguages('/page-two?var=val#fragment')).toEqual(expected)
+    expect(getLanguages({ path: '/page-two?var=val#fragment' })).toEqual(
+      expected,
+    )
   })
 })

@@ -29,6 +29,8 @@ export const MultilingualContext = React.createContext<ContextProviderData>({
     pages: {},
     pageGenericPath: '/',
     pageLanguage: defaultLanguage,
+    defaultLanguage,
+    includeDefaultLanguageInURL,
     strict: strictPathChecks,
   }),
 })

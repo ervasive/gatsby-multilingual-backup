@@ -1,7 +1,7 @@
 import parse from 'url-parse'
 import isPlainObject from 'lodash/isPlainObject'
-import normalizePath from './utils/normalize-path'
 import getPageGenericPath from './utils/get-page-generic-path'
+import getPagePrefixedPath from './utils/get-page-prefixed-path'
 import { ContextProviderData, PagesRegistry } from './types'
 
 const invalidValueErrorMessage =
@@ -35,13 +35,13 @@ export default ({
     let path: string
     let language: string
     let strict: boolean
-    let genericOnly: boolean
+    let generic: boolean
 
     if (typeof prevalidatedValue === 'string') {
       path = prevalidatedValue
       language = pageLanguage
       strict = globalStrict
-      genericOnly = false
+      generic = false
     } else {
       const values = prevalidatedValue as Record<string, unknown>
 
@@ -73,7 +73,7 @@ export default ({
       path = values.path
       language = values.language || pageLanguage
       strict = typeof values.strict === 'boolean' ? values.strict : globalStrict
-      genericOnly = !!values.generic
+      generic = !!values.generic
     }
 
     const { slashes, protocol, port, pathname, query, hash } = parse(path, {})
@@ -95,25 +95,19 @@ export default ({
       }
     }
 
-    if (genericOnly) {
+    if (generic) {
       return genericPath
     }
 
     if (typeof pages[genericPath][language] === 'string') {
-      const pathPrefix =
-        !includeDefaultLanguageInURL && language === defaultLanguage
-          ? ''
-          : language
-
-      const genericPathNormalized =
-        pathPrefix !== '' && genericPath === '/' ? '' : genericPath
-
-      const pathValue =
-        pages[genericPath][language] === ''
-          ? genericPathNormalized
-          : pages[genericPath][language]
-
-      return normalizePath(`${pathPrefix}${pathValue}${query}${hash}`)
+      return getPagePrefixedPath({
+        genericPath,
+        language,
+        defaultLanguage,
+        includeDefaultLanguageInURL,
+        pages,
+        suffix: `${query}${hash}`,
+      })
     } else {
       throw new Error(
         `The "getPath" function returned an error. Could not find a ` +
