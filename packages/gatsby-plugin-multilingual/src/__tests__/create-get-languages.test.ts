@@ -47,9 +47,7 @@ describe(`createGetLanguages`, () => {
     fc.assert(
       fc.property(
         fc.anything().filter(v => !(isString(v) || isUndefined(v))),
-        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
-        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
-        (path, skipCurrentLanguage, strict) => {
+        path => {
           expect((): void => {
             createGetLanguages({
               pages,
@@ -58,7 +56,43 @@ describe(`createGetLanguages`, () => {
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: false,
               strict: false,
-            })({ path, skipCurrentLanguage, strict })
+            })({ path })
+          }).toThrow(/"getLanguages" function received invalid argument/i)
+        },
+      ),
+    )
+
+    fc.assert(
+      fc.property(
+        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        skipCurrentLanguage => {
+          expect((): void => {
+            createGetLanguages({
+              pages,
+              pageGenericPath: '/page-one',
+              pageLanguage: 'en',
+              defaultLanguage: 'en',
+              includeDefaultLanguageInURL: false,
+              strict: false,
+            })({ skipCurrentLanguage })
+          }).toThrow(/"getLanguages" function received invalid argument/i)
+        },
+      ),
+    )
+
+    fc.assert(
+      fc.property(
+        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        strict => {
+          expect((): void => {
+            createGetLanguages({
+              pages,
+              pageGenericPath: '/page-one',
+              pageLanguage: 'en',
+              defaultLanguage: 'en',
+              includeDefaultLanguageInURL: false,
+              strict: false,
+            })({ strict })
           }).toThrow(/"getLanguages" function received invalid argument/i)
         },
       ),
