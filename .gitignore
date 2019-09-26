@@ -23,8 +23,7 @@ public/
 
 # testing reports
 coverage/
-videos/
-screenshots/
+reports/
 
 # compiled assets
 packages/**/*.js

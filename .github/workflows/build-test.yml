@@ -17,8 +17,6 @@ jobs:
       - name: Run unit tests
         run: npm run jest:unit -- --ci
       - name: Run e2e tests
-        env:
-          CYPRESS_RECORD_KEY: ${{secrets.CYPRESS_TOKEN}}
         run: |
           npm run jest:e2e -- --ci
           npm run lerna -- run test --scope=e2e-generic-test-site --stream
@@ -26,3 +24,13 @@ jobs:
         env:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
         run: bash <(curl -s https://codecov.io/bash)
+      - name: Archive testing reports
+        uses: actions/upload-artifact@v1
+        with:
+          name: reports
+          path: reports
+      - name: Archive coverage reports
+        uses: actions/upload-artifact@v1
+        with:
+          name: coverage
+          path: coverage

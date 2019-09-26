@@ -1,4 +1,5 @@
 {
   "baseUrl": "http://localhost:9000",
-  "projectId": "gnar39"
+  "screenshotsFolder": "../../../reports/generic-tests/screenshots",
+  "videosFolder": "../../../reports/generic-tests/videos"
 }
