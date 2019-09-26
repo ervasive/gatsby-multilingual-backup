@@ -16,10 +16,10 @@
   },
   "dependencies": {
     "e2e-generic-test-theme": "file:../theme",
-    "gatsby": "2.15.24",
+    "gatsby": "2.15.28",
     "gatsby-plugin-multilingual": "file:../../../packages/gatsby-plugin-multilingual",
-    "gatsby-plugin-page-creator": "2.1.21",
-    "gatsby-source-filesystem": "2.1.26",
+    "gatsby-plugin-page-creator": "2.1.23",
+    "gatsby-source-filesystem": "2.1.28",
     "react": "16.9.0",
     "react-dom": "16.9.0"
   }
