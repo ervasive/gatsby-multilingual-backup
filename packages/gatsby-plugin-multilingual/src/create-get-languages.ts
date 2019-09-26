@@ -29,7 +29,7 @@ export default ({
 
     if (
       !['undefined', 'string'].includes(typeof prevalidatedValue) &&
-      !isPlainObject(value)
+      !isPlainObject(prevalidatedValue)
     ) {
       throw new TypeError(invalidValueErrorMessage)
     }
