@@ -21,13 +21,12 @@ describe(`createGetPath`, () => {
       fc.property(
         fc
           .anything()
-          .filter(
-            v => !(isString(v) || (isPlainObject(v) && Object.keys(v).length)),
-          ),
+          .filter(v => !(isString(v) || isUndefined(v) || isPlainObject(v))),
         data => {
           expect((): void => {
             createGetPath({
               pages,
+              pageGenericPath: '/',
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: true,
@@ -42,19 +41,73 @@ describe(`createGetPath`, () => {
   it(`should throw a TypeError on invalid argument object shape`, () => {
     fc.assert(
       fc.property(
-        fc.anything().filter(v => !isString(v)),
         fc.anything().filter(v => !(isString(v) || isUndefined(v))),
-        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
-        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
-        (path, language, strict, generic) => {
+        path => {
           expect((): void => {
             createGetPath({
               pages,
+              pageGenericPath: '/',
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: true,
               strict: false,
-            })({ path, language, strict, generic })
+            })({ path })
+          }).toThrow(/"getPath" function received invalid argument/i)
+        },
+      ),
+    )
+
+    fc.assert(
+      fc.property(
+        fc.anything().filter(v => !(isString(v) || isUndefined(v))),
+        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        language => {
+          expect((): void => {
+            createGetPath({
+              pages,
+              pageGenericPath: '/',
+              pageLanguage: 'en',
+              defaultLanguage: 'en',
+              includeDefaultLanguageInURL: true,
+              strict: false,
+            })({ language })
+          }).toThrow(/"getPath" function received invalid argument/i)
+        },
+      ),
+    )
+
+    fc.assert(
+      fc.property(
+        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        strict => {
+          expect((): void => {
+            createGetPath({
+              pages,
+              pageGenericPath: '/',
+              pageLanguage: 'en',
+              defaultLanguage: 'en',
+              includeDefaultLanguageInURL: true,
+              strict: false,
+            })({ strict })
+          }).toThrow(/"getPath" function received invalid argument/i)
+        },
+      ),
+    )
+
+    fc.assert(
+      fc.property(
+        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        generic => {
+          expect((): void => {
+            createGetPath({
+              pages,
+              pageGenericPath: '/',
+              pageLanguage: 'en',
+              defaultLanguage: 'en',
+              includeDefaultLanguageInURL: true,
+              strict: false,
+            })({ generic })
           }).toThrow(/"getPath" function received invalid argument/i)
         },
       ),
@@ -64,6 +117,7 @@ describe(`createGetPath`, () => {
   it(`should throw on a non existent "path" if "strict checks" enabled`, () => {
     const getPath = createGetPath({
       pages,
+      pageGenericPath: '/',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
@@ -76,9 +130,10 @@ describe(`createGetPath`, () => {
     )
   })
 
-  it(`should return back a non existent "path" if "strict checks" disabled`, () => {
+  it(`should return the value back a non existent "path" if "strict checks" disabled`, () => {
     const getPath = createGetPath({
       pages,
+      pageGenericPath: '/',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
@@ -92,11 +147,16 @@ describe(`createGetPath`, () => {
   it(`should return a correct "path" if the provided value is valid`, () => {
     const getPath = createGetPath({
       pages,
+      pageGenericPath: '/',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
       strict: true,
     })
+
+    expect(getPath()).toBe('/en')
+    expect(getPath({})).toBe('/en')
+    expect(getPath({ path: undefined })).toBe('/en')
 
     expect(getPath('/')).toBe('/en')
     expect(getPath({ path: '/' })).toBe('/en')
@@ -117,6 +177,7 @@ describe(`createGetPath`, () => {
   it(`should return the provided value back if it is not in the form of relative path`, () => {
     const getPath = createGetPath({
       pages,
+      pageGenericPath: '/',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
@@ -135,9 +196,10 @@ describe(`createGetPath`, () => {
     expect(getPath({ path: 'sample.org:9090' })).toEqual('sample.org:9090')
   })
 
-  it(`should preserve query string and hash value of the provided path`, () => {
+  it(`should preserve query string and fragment value of the provided path`, () => {
     const getPath = createGetPath({
       pages,
+      pageGenericPath: '/',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
@@ -155,6 +217,7 @@ describe(`createGetPath`, () => {
   it(`should throw on non existent "language" value and "strict checks" enabled`, () => {
     const getPath = createGetPath({
       pages,
+      pageGenericPath: '/',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
@@ -173,6 +236,7 @@ describe(`createGetPath`, () => {
   it(`should throw on non existent "language" value and "strict checks" disabled`, () => {
     const getPath = createGetPath({
       pages,
+      pageGenericPath: '/',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
@@ -188,9 +252,10 @@ describe(`createGetPath`, () => {
     ).toThrow(/could not find a page/i)
   })
 
-  it(`should return a correct path with overriden valid language value`, () => {
+  it(`should return the correct path with custom, valid language value`, () => {
     const getPath = createGetPath({
       pages,
+      pageGenericPath: '/',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
@@ -207,6 +272,7 @@ describe(`createGetPath`, () => {
     expect(() =>
       createGetPath({
         pages,
+        pageGenericPath: '/',
         pageLanguage: 'en',
         defaultLanguage: 'en',
         includeDefaultLanguageInURL: false,
@@ -217,6 +283,7 @@ describe(`createGetPath`, () => {
     expect(
       createGetPath({
         pages,
+        pageGenericPath: '/',
         pageLanguage: 'en',
         defaultLanguage: 'en',
         includeDefaultLanguageInURL: false,
@@ -228,6 +295,7 @@ describe(`createGetPath`, () => {
   it(`should return a generic path value on "generic=true" flag`, () => {
     const getPath = createGetPath({
       pages,
+      pageGenericPath: '/',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
