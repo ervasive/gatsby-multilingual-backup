@@ -6,17 +6,19 @@ import { ContextProviderData, PagesRegistry } from './types'
 
 const invalidValueErrorMessage =
   `The "getPath" function received invalid argument. Only "string" or ` +
-  `"object" of the following shape: { path: string, language?: ` +
+  `"object" of the following shape: { path?: string, language?: ` +
   `string, strict?: boolean, generic?: boolean } are allowed.`
 
 export default ({
   pages,
+  pageGenericPath,
   pageLanguage,
   defaultLanguage,
   includeDefaultLanguageInURL,
   strict: globalStrict,
 }: {
   pages: PagesRegistry
+  pageGenericPath: string
   pageLanguage: string
   defaultLanguage: string
   includeDefaultLanguageInURL: boolean
@@ -26,7 +28,7 @@ export default ({
     const prevalidatedValue = value as unknown
 
     if (
-      typeof prevalidatedValue !== 'string' &&
+      !['undefined', 'string'].includes(typeof prevalidatedValue) &&
       !isPlainObject(prevalidatedValue)
     ) {
       throw new TypeError(invalidValueErrorMessage)
@@ -37,7 +39,12 @@ export default ({
     let strict: boolean
     let generic: boolean
 
-    if (typeof prevalidatedValue === 'string') {
+    if (typeof prevalidatedValue === 'undefined') {
+      path = pageGenericPath
+      language = pageLanguage
+      strict = globalStrict
+      generic = false
+    } else if (typeof prevalidatedValue === 'string') {
       path = prevalidatedValue
       language = pageLanguage
       strict = globalStrict
@@ -45,7 +52,10 @@ export default ({
     } else {
       const values = prevalidatedValue as Record<string, unknown>
 
-      if (typeof values.path !== 'string') {
+      if (
+        typeof values.path !== 'undefined' &&
+        typeof values.path !== 'string'
+      ) {
         throw new TypeError(invalidValueErrorMessage)
       }
 
@@ -70,7 +80,7 @@ export default ({
         throw new TypeError(invalidValueErrorMessage)
       }
 
-      path = values.path
+      path = values.path || pageGenericPath
       language = values.language || pageLanguage
       strict = typeof values.strict === 'boolean' ? values.strict : globalStrict
       generic = !!values.generic

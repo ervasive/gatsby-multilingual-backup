@@ -65,10 +65,10 @@ export type ContextProviderData = Pick<
 > & {
   currentLanguage: string
   getPath: (
-    value:
+    value?:
       | string
       | {
-          path: string
+          path?: string
           language?: string
           generic?: boolean
           strict?: boolean

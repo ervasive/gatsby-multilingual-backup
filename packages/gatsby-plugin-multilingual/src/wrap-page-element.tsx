@@ -30,8 +30,9 @@ const WrapPageElement = ({
         includeDefaultLanguageInURL,
         getPath: createGetPath({
           pages,
-          pageLanguage: i18next.language,
+          pageGenericPath: genericPath || props.path,
           defaultLanguage,
+          pageLanguage: i18next.language,
           includeDefaultLanguageInURL,
           strict: strictPathChecks,
         }),
