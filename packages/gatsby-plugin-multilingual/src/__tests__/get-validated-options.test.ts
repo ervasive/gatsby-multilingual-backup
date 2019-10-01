@@ -7,7 +7,6 @@ import {
   isPlainObject,
 } from 'lodash'
 import getValidatedOptions from '../get-validated-options'
-import {} from 'util'
 
 describe('getValidatedOptions', () => {
   it('should throw on invalid argument types', (): void => {
@@ -17,7 +16,7 @@ describe('getValidatedOptions', () => {
         data => {
           expect((): void => {
             getValidatedOptions(data)
-          }).toThrow(/invalid plugin options/i)
+          }).toThrow(/invalid options provided/i)
         },
       ),
     )
@@ -30,7 +29,7 @@ describe('getValidatedOptions', () => {
         data => {
           expect((): void => {
             getValidatedOptions({ defaultLanguage: data })
-          }).toThrow(/"defaultLanguage" value/i)
+          }).toThrow(/invalid options provided/i)
         },
       ),
     )
@@ -54,7 +53,7 @@ describe('getValidatedOptions', () => {
         data => {
           expect((): void => {
             getValidatedOptions({ availableLanguages: data })
-          }).toThrow(/"availableLanguages" value/i)
+          }).toThrow(/invalid options provided/i)
         },
       ),
     )
@@ -67,7 +66,58 @@ describe('getValidatedOptions', () => {
         data => {
           expect((): void => {
             getValidatedOptions({ defaultNamespace: data })
-          }).toThrow(/"defaultNamespace" value/i)
+          }).toThrow(/invalid options provided/i)
+        },
+      ),
+    )
+  })
+
+  it('should throw on invalid "mode" values', (): void => {
+    fc.assert(
+      fc.property(
+        fc
+          .anything()
+          .filter(v => !(isUndefined(v) || v === 'greedy' || v === 'lazy')),
+        data => {
+          expect((): void => {
+            getValidatedOptions({ mode: data })
+          }).toThrow(/invalid options provided/i)
+        },
+      ),
+    )
+  })
+
+  it('should throw on invalid "missingLanguagePages" values', (): void => {
+    fc.assert(
+      fc.property(
+        fc
+          .anything()
+          .filter(
+            v =>
+              !(
+                isUndefined(v) ||
+                v === 'ignore' ||
+                v === 'generate' ||
+                v === 'redirect'
+              ),
+          ),
+        data => {
+          expect((): void => {
+            getValidatedOptions({ missingLanguagePages: data })
+          }).toThrow(/invalid options provided/i)
+        },
+      ),
+    )
+  })
+
+  it('should throw on invalid "includeDefaultLanguageInURL" values', (): void => {
+    fc.assert(
+      fc.property(
+        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        data => {
+          expect((): void => {
+            getValidatedOptions({ includeDefaultLanguageInURL: data })
+          }).toThrow(/invalid options provided/i)
         },
       ),
     )
@@ -80,74 +130,94 @@ describe('getValidatedOptions', () => {
         data => {
           expect((): void => {
             getValidatedOptions({ pathOverrides: data })
-          }).toThrow(/pathOverrides" value/i)
+          }).toThrow(/invalid options provided/i)
         },
       ),
     )
   })
 
-  // TODO: finish the test after Joi is updated to v16.x
-  it.skip('should throw on invalid "customSlugs" shape', (): void => {
-    ;[{ '/page-path': 1 }].map((value): void => {
-      expect((): void => {
-        getValidatedOptions({ customSlugs: value })
-      }).toThrow(/"customSlugs" value/i)
-    })
+  it('should throw on invalid "strictChecks" values', (): void => {
+    fc.assert(
+      fc.property(
+        fc.anything().filter(v => !(isPlainObject(v) || isUndefined(v))),
+        data => {
+          expect((): void => {
+            getValidatedOptions({ strictChecks: data })
+          }).toThrow(/invalid options provided/i)
+        },
+      ),
+    )
   })
 
-  it('should throw on invalid "includeDefaultLanguageInURL" values', (): void => {
+  it('should throw on invalid "strictChecks.paths" values', (): void => {
     fc.assert(
       fc.property(
         fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
         data => {
           expect((): void => {
-            getValidatedOptions({ includeDefaultLanguageInURL: data })
-          }).toThrow(/"includeDefaultLanguageInURL" value/i)
+            getValidatedOptions({ strictChecks: { paths: data } })
+          }).toThrow(/invalid options provided/i)
         },
       ),
     )
   })
 
-  it('should throw on invalid "strictPathChecks" values', (): void => {
+  it('should throw on invalid "strictChecks.pages" values', (): void => {
     fc.assert(
       fc.property(
         fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
         data => {
           expect((): void => {
-            getValidatedOptions({ strictPathChecks: data })
-          }).toThrow(/"strictPathChecks" value/i)
+            getValidatedOptions({ strictChecks: { pages: data } })
+          }).toThrow(/invalid options provided/i)
         },
       ),
     )
   })
 
-  it('should throw on invalid "removeInvalidPages" values', (): void => {
+  it('should throw on invalid "strictChecks.translations" values', (): void => {
     fc.assert(
       fc.property(
         fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
         data => {
           expect((): void => {
-            getValidatedOptions({ removeInvalidPages: data })
-          }).toThrow(/"removeInvalidPages" value/i)
+            getValidatedOptions({ strictChecks: { translations: data } })
+          }).toThrow(/invalid options provided/i)
         },
       ),
     )
   })
 
-  it('should throw on invalid "removeSkippedPages" values', (): void => {
+  it('should throw on invalid "pathToRedirectTemplate" values', (): void => {
     fc.assert(
       fc.property(
-        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        fc.anything().filter(v => !(isString(v) || isUndefined(v))),
         data => {
           expect((): void => {
-            getValidatedOptions({ removeSkippedPages: data })
-          }).toThrow(/"removeSkippedPages" value/i)
+            getValidatedOptions({ pathToRedirectTemplate: data })
+          }).toThrow(/invalid options provided/i)
         },
       ),
     )
   })
 
-  it('should add the default language to available languages', (): void => {
+  it('should set default values on undefined argument', (): void => {
+    const result = getValidatedOptions()
+
+    expect(result.defaultLanguage).toBe('en')
+    expect(result.availableLanguages).toStrictEqual(['en'])
+    expect(result.defaultNamespace).toBe('common')
+    expect(result.mode).toBe('lazy')
+    expect(result.missingLanguagePages).toBe('ignore')
+    expect(result.includeDefaultLanguageInURL).toBe(false)
+    expect(result.pathOverrides).toStrictEqual({})
+    expect(result.strictChecks.paths).toBe(false)
+    expect(result.strictChecks.pages).toBe(false)
+    expect(result.strictChecks.translations).toBe(false)
+    expect(result.pathToRedirectTemplate).toBe(undefined)
+  })
+
+  it('should add the default language to available languages array', (): void => {
     const options = getValidatedOptions({
       defaultLanguage: 'fr',
       availableLanguages: ['de'],

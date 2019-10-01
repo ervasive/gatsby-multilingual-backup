@@ -7,36 +7,50 @@ import { GatsbyPage, GatsbyRedirect } from '@gatsby-plugin-multilingual/shared'
 
 export type PagesRegistry = Record<string, Record<string, string>>
 
+export type Language =
+  | string
+  | {
+      language: string
+      path?: string
+    }
+
+export interface PageOverride {
+  path: string
+  process?: boolean
+  languages?: Language[]
+}
+
 export interface Options extends GatsbyPluginOptions {
   defaultLanguage: string
   availableLanguages: string[]
   defaultNamespace: string
+  mode: 'greedy' | 'lazy'
+  missingLanguagePages: 'ignore' | 'generate' | 'redirect'
   includeDefaultLanguageInURL: boolean
-  strictPathChecks: boolean
-  removeInvalidPages: boolean
-  removeSkippedPages: boolean
+  overrides: ((page: GatsbyPage) => PageOverride | void) | PageOverride[]
+  strictChecks: {
+    paths: boolean
+    pages: boolean
+    translations: boolean
+  }
   pathToRedirectTemplate?: string
-  pathOverrides: PagesRegistry
-}
-
-export interface MultilingualContextLanguage {
-  language: string
-  path?: string
 }
 
 export interface MultilingualPage extends GatsbyPage {
   context: {
-    multilingual: {
-      languages: (MultilingualContextLanguage | string)[]
-      skip?: boolean
-    }
+    multilingual?:
+      | boolean
+      | {
+          pageId: string
+          languages?: Language[]
+        }
   }
 }
 
 export interface MonolingualPage extends GatsbyPage {
   context: {
     language: string
-    genericPath: string
+    pageId: string
   }
 }
 

@@ -16,6 +16,8 @@ import {
 } from './constants'
 import copyRedirectTemplate from './copyRedirectTemplate'
 import generatePages from './generate-pages'
+import shouldPageBeProcessed from './utils/should-page-be-processed'
+import getPageOverride from './utils/get-page-override'
 
 export const onCreateWebpackConfig: GatsbyNode['onCreateWebpackConfig'] = ({
   actions,
@@ -68,51 +70,45 @@ export const onCreatePage: GatsbyNode['onCreatePage'] = async (
   pluginOptions,
 ): Promise<void> => {
   const typedPage = (page as unknown) as GatsbyPage
+  const options = getValidatedOptions(pluginOptions)
 
-  if (typedPage.path === '/dev-404-page/') {
+  if (!shouldPageBeProcessed(typedPage, options)) {
     return
   }
 
-  const options = getValidatedOptions(pluginOptions)
-  const { pages, redirects, errors, removeOriginalPage } = generatePages(
-    typedPage,
-    options,
-  )
+  const override = getPageOverride(typedPage, options.overrides)
 
-  if (removeOriginalPage) {
-    deletePage(typedPage)
-  }
+  // We can have the following page variations here:
+  // 1. A regular page without the context property and no overrides
+  // 2. A regular page with overrides
+  // 3. A page with the context.multilingual property and no overrides
+  // 4. A page with the context.multilingual property and overrides
 
-  if (errors.length) {
-    const message =
-      `${PLUGIN_NAME}: The following errors were encountered while ` +
-      `processing pages:\n`
+  // pages generation by language note:
+  // 1. if the page includes the default language in overrides or context or
+  // it is a "regular" page then we are going to generate, for "greedy" all
+  // pages, for "lazy" only specified ones.
+  // 2. if the page does not include the default language in overrides or
+  // context and it is not a regular page, then we only going to generate this
+  // particular language version.
 
-    errors.map(error => {
-      switch (error.type) {
-        case 'warn':
-          reporter.warn(message + error.message)
-          break
-        case 'error':
-          reporter.error(message + error.message)
-          break
-        case 'panic':
-          reporter.panic(message + error.message)
-          break
-        default:
-          reporter.warn('Unknown error type')
-          break
-      }
-    })
-  }
+  // This array is going to be the source for deciding which pages we will need
+  // to generate.
+  // 1. We will generate all required (default) language-paths
+  // 2. Then we will try to
+  // const languagePaths: LanguagePath[] = []
 
-  if (redirects) {
-    redirects.forEach(redirect => createRedirect(redirect))
-  }
+  // if (typedPage)
 
-  if (pages) {
-    pages.forEach(page => createPage(page as GatsbyPage))
-  }
+  // create pages-to-create array
+  //   - get the source page "language key"
+  //   - get the source page "language path"
+  //   - if "missingLanguagePages" is set to generate: generate pages for all
+  //      language versions except the existing ones (from the store)
+  //   - if "missingLanguagePages" is set to redirect: generate redirects for
+  //      all language versions except the existing ones (from the store)
+  // add entries into the pages registry
+  // actually create pages and redirects
 }
 
 export const onPostBootstrap: GatsbyNode['onPostBootstrap'] = async ({
