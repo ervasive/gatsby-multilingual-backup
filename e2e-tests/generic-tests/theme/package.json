@@ -3,7 +3,7 @@
   "version": "0.1.1-alpha.0",
   "private": true,
   "dependencies": {
-    "gatsby": "2.15.29",
+    "gatsby": "2.15.31",
     "react": "16.10.2",
     "react-dom": "16.10.2"
   }
