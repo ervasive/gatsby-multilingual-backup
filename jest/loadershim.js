@@ -5,9 +5,9 @@ global.___loader = {
 global.___navigate = jest.fn()
 
 console.error = err => {
-  throw new Error(err)
+  throw new Error(`console.error: ${err}`)
 }
 
-console.warn = warning => {
-  throw new Error(warning)
-}
+// console.warn = warning => {
+//   throw new Error(`console.warn: ${warning}`)
+// }

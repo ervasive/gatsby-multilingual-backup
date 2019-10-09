@@ -20,14 +20,14 @@ export const createPagesRegistry = (
 
     const {
       path,
-      context: { language, genericPath },
+      context: { language, pageId },
     } = currentPage
 
-    if (!registry[genericPath]) {
-      registry[genericPath] = {}
+    if (!registry[pageId]) {
+      registry[pageId] = {}
     }
 
-    if (registry[genericPath][language]) {
+    if (registry[pageId][language]) {
       duplicates.push(currentPage)
     } else {
       // We are going to set language path to an empty string in cases when
@@ -35,8 +35,7 @@ export const createPagesRegistry = (
       // size of the generated pages registry file.
       const customPath = normalizePath(path.replace(language, ''))
 
-      registry[genericPath][language] =
-        customPath === genericPath ? '' : customPath
+      registry[pageId][language] = customPath === pageId ? '' : customPath
     }
   }
 

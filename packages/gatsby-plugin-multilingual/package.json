@@ -24,8 +24,7 @@
   },
   "dependencies": {
     "@gatsby-plugin-multilingual/shared": "file:../@shared",
-    "@hapi/joi": "^15.1.0",
-    "@types/url-parse": "^1.4.3",
+    "@hapi/joi": "^16.1.7",
     "fs-extra": "^8.1.0",
     "i18next": "^17.0.6",
     "i18next-xhr-backend": "^3.0.0",

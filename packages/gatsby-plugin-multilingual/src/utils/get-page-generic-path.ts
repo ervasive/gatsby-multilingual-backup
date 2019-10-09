@@ -1,19 +1,20 @@
+import { Maybe } from 'true-myth'
 import { PagesRegistry } from '../types'
 
-export default (path: string, pages: PagesRegistry): string | void => {
+export default (path: string, pages: PagesRegistry): Maybe<string> => {
   if (path[0] !== '/') {
-    return
+    return Maybe.nothing<string>()
   }
 
   if (path === '/' && pages[path]) {
-    return '/'
+    return Maybe.just('/')
   }
 
   // Remove trailing slashes
   const normalizedPath = path.replace(/^(.+?)\/*?$/, '$1')
 
   if (pages[normalizedPath]) {
-    return normalizedPath
+    return Maybe.just(normalizedPath)
   }
 
   // Extract potential language & custom page path values
@@ -25,7 +26,7 @@ export default (path: string, pages: PagesRegistry): string | void => {
     const language = parts[1]
 
     if (pages['/'] && typeof pages['/'][language] === 'string') {
-      return '/'
+      return Maybe.just('/')
     }
   }
 
@@ -43,8 +44,10 @@ export default (path: string, pages: PagesRegistry): string | void => {
           extractedPath === genericPath &&
           customPath === '')
       ) {
-        return genericPath
+        return Maybe.just(genericPath)
       }
     }
   }
+
+  return Maybe.nothing<string>()
 }

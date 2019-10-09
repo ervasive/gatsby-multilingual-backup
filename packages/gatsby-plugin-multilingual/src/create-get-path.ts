@@ -2,12 +2,29 @@ import parse from 'url-parse'
 import isPlainObject from 'lodash/isPlainObject'
 import getPageGenericPath from './utils/get-page-generic-path'
 import getPagePrefixedPath from './utils/get-page-prefixed-path'
-import { ContextProviderData, PagesRegistry } from './types'
+import { ContextProviderData, PagesRegistry, StrictCheckType } from './types'
 
-const invalidValueErrorMessage =
+const invalidArgErrorMessage =
   `The "getPath" function received invalid argument. Only "string" or ` +
   `"object" of the following shape: { path?: string, language?: ` +
-  `string, strict?: boolean, generic?: boolean } are allowed.`
+  `string, strict?: "ignore" | "warn" | "error", generic?: boolean } are ` +
+  `allowed.`
+
+const getMissingPageErrorMessage = (
+  path: string,
+  language?: string,
+): string => {
+  const result = [
+    `The "getPath" function returned an error. Could not find a ` +
+      `page with the following path: "${path}"`,
+  ]
+
+  if (language) {
+    result.push(`and language: "${language}" combination`)
+  }
+
+  return result.join(' ')
+}
 
 export default ({
   pages,
@@ -22,7 +39,7 @@ export default ({
   pageLanguage: string
   defaultLanguage: string
   includeDefaultLanguageInURL: boolean
-  strict: boolean
+  strict: StrictCheckType
 }): ContextProviderData['getPath'] => {
   const fn: ContextProviderData['getPath'] = value => {
     const prevalidatedValue = value as unknown
@@ -31,15 +48,15 @@ export default ({
       !['undefined', 'string'].includes(typeof prevalidatedValue) &&
       !isPlainObject(prevalidatedValue)
     ) {
-      throw new TypeError(invalidValueErrorMessage)
+      throw new TypeError(invalidArgErrorMessage)
     }
 
     let path: string
     let language: string
-    let strict: boolean
+    let strict: StrictCheckType
     let generic: boolean
 
-    if (typeof prevalidatedValue === 'undefined') {
+    if (prevalidatedValue === undefined) {
       path = pageGenericPath
       language = pageLanguage
       strict = globalStrict
@@ -52,37 +69,42 @@ export default ({
     } else {
       const values = prevalidatedValue as Record<string, unknown>
 
-      if (
-        typeof values.path !== 'undefined' &&
-        typeof values.path !== 'string'
-      ) {
-        throw new TypeError(invalidValueErrorMessage)
+      if (!(values.path === undefined || typeof values.path === 'string')) {
+        throw new TypeError(invalidArgErrorMessage)
       }
 
       if (
-        typeof values.language !== 'undefined' &&
-        typeof values.language !== 'string'
+        !(values.language === undefined || typeof values.language === 'string')
       ) {
-        throw new TypeError(invalidValueErrorMessage)
+        throw new TypeError(invalidArgErrorMessage)
       }
 
       if (
-        typeof values.strict !== 'undefined' &&
-        typeof values.strict !== 'boolean'
+        !(
+          values.strict === undefined ||
+          (typeof values.strict === 'string' &&
+            [
+              StrictCheckType.Ignore,
+              StrictCheckType.Warn,
+              StrictCheckType.Error,
+            ].includes(values.strict as StrictCheckType))
+        )
       ) {
-        throw new TypeError(invalidValueErrorMessage)
+        throw new TypeError(invalidArgErrorMessage)
       }
 
       if (
-        typeof values.generic !== 'undefined' &&
-        typeof values.generic !== 'boolean'
+        !(values.generic === undefined || typeof values.generic === 'boolean')
       ) {
-        throw new TypeError(invalidValueErrorMessage)
+        throw new TypeError(invalidArgErrorMessage)
       }
 
       path = values.path || pageGenericPath
       language = values.language || pageLanguage
-      strict = typeof values.strict === 'boolean' ? values.strict : globalStrict
+      strict =
+        values.strict === undefined
+          ? globalStrict
+          : (values.strict as StrictCheckType)
       generic = !!values.generic
     }
 
@@ -94,35 +116,35 @@ export default ({
 
     const genericPath = getPageGenericPath(pathname, pages)
 
-    if (!genericPath) {
-      if (strict) {
-        throw new Error(
-          `The "getPath" function returned an error. Could not find a ` +
-            `page with the following path: ${path}, and language: ${language}`,
-        )
+    if (genericPath.isNothing()) {
+      if (strict === StrictCheckType.Error) {
+        throw new Error(getMissingPageErrorMessage(path))
       } else {
+        if (strict === StrictCheckType.Warn) {
+          console.warn(getMissingPageErrorMessage(path))
+        }
+
         return path
       }
-    }
-
-    if (generic) {
-      return genericPath
-    }
-
-    if (typeof pages[genericPath][language] === 'string') {
-      return getPagePrefixedPath({
-        genericPath,
-        language,
-        defaultLanguage,
-        includeDefaultLanguageInURL,
-        pages,
-        suffix: `${query}${hash}`,
-      })
     } else {
-      throw new Error(
-        `The "getPath" function returned an error. Could not find a ` +
-          `page with the following path: ${path}, and language: ${language}`,
-      )
+      const path = genericPath.unsafelyUnwrap()
+
+      if (generic) {
+        return path
+      }
+
+      if (typeof pages[path][language] === 'string') {
+        return getPagePrefixedPath({
+          genericPath: path,
+          language,
+          defaultLanguage,
+          includeDefaultLanguageInURL,
+          pages,
+          suffix: `${query}${hash}`,
+        })
+      } else {
+        throw new Error(getMissingPageErrorMessage(path, language))
+      }
     }
   }
 

@@ -2,12 +2,16 @@ import parse from 'url-parse'
 import isPlainObject from 'lodash/isPlainObject'
 import getPageGenericPath from './utils/get-page-generic-path'
 import getPagePrefixedPath from './utils/get-page-prefixed-path'
-import { ContextProviderData, PagesRegistry } from './types'
+import { ContextProviderData, PagesRegistry, StrictCheckType } from './types'
 
-const invalidValueErrorMessage =
+const invalidArgErrorMessage =
   `The "getLanguages" function received invalid argument. Only "string" or ` +
   `"object" of the following shape: { path?: string, skipCurrentLanguage?: ` +
-  `boolean, strict?: boolean } are allowed.`
+  `boolean, strict?: "ignore" | "warn" | "error" } are allowed.`
+
+const getMissingPageErrorMessage = (path: string): string =>
+  `The "getPath" function returned an error. Could not find a ` +
+  `page with the following path: "${path}"`
 
 export default ({
   pages,
@@ -22,7 +26,7 @@ export default ({
   pageLanguage: string
   defaultLanguage: string
   includeDefaultLanguageInURL: boolean
-  strict: boolean
+  strict: StrictCheckType
 }): ContextProviderData['getLanguages'] => {
   const fn: ContextProviderData['getLanguages'] = value => {
     const prevalidatedValue = value as unknown
@@ -31,14 +35,14 @@ export default ({
       !['undefined', 'string'].includes(typeof prevalidatedValue) &&
       !isPlainObject(prevalidatedValue)
     ) {
-      throw new TypeError(invalidValueErrorMessage)
+      throw new TypeError(invalidArgErrorMessage)
     }
 
     let path: string
     let skipCurrentLanguage: boolean
-    let strict: boolean
+    let strict: StrictCheckType
 
-    if (typeof prevalidatedValue === 'undefined') {
+    if (prevalidatedValue === undefined) {
       path = pageGenericPath
       skipCurrentLanguage = false
       strict = globalStrict
@@ -49,30 +53,39 @@ export default ({
     } else {
       const values = prevalidatedValue as Record<string, unknown>
 
-      if (
-        typeof values.path !== 'undefined' &&
-        typeof values.path !== 'string'
-      ) {
-        throw new TypeError(invalidValueErrorMessage)
+      if (!(values.path === undefined || typeof values.path === 'string')) {
+        throw new TypeError(invalidArgErrorMessage)
       }
 
       if (
-        typeof values.skipCurrentLanguage !== 'undefined' &&
-        typeof values.skipCurrentLanguage !== 'boolean'
+        !(
+          values.skipCurrentLanguage === undefined ||
+          typeof values.skipCurrentLanguage === 'boolean'
+        )
       ) {
-        throw new TypeError(invalidValueErrorMessage)
+        throw new TypeError(invalidArgErrorMessage)
       }
 
       if (
-        typeof values.strict !== 'undefined' &&
-        typeof values.strict !== 'boolean'
+        !(
+          values.strict === undefined ||
+          (typeof values.strict === 'string' &&
+            [
+              StrictCheckType.Ignore,
+              StrictCheckType.Warn,
+              StrictCheckType.Error,
+            ].includes(values.strict as StrictCheckType))
+        )
       ) {
-        throw new TypeError(invalidValueErrorMessage)
+        throw new TypeError(invalidArgErrorMessage)
       }
 
       path = values.path || pageGenericPath
       skipCurrentLanguage = values.skipCurrentLanguage || false
-      strict = typeof values.strict === 'boolean' ? values.strict : globalStrict
+      strict =
+        values.strict === undefined
+          ? globalStrict
+          : (values.strict as StrictCheckType)
     }
 
     const { slashes, protocol, port, pathname, query, hash } = parse(path, {})
@@ -83,31 +96,34 @@ export default ({
 
     const genericPath = getPageGenericPath(pathname, pages)
 
-    if (!genericPath) {
-      if (strict) {
-        throw new Error(
-          `The "getLanguages" function returned an error. Could not find a ` +
-            `page with the following path: ${path}`,
-        )
+    if (genericPath.isNothing()) {
+      if (strict === StrictCheckType.Error) {
+        throw new Error(getMissingPageErrorMessage(path))
       } else {
+        if (strict === StrictCheckType.Warn) {
+          console.warn(getMissingPageErrorMessage(path))
+        }
+
         return []
       }
-    }
+    } else {
+      const path = genericPath.unsafelyUnwrap()
 
-    return Object.keys(pages[genericPath])
-      .filter(language => !(skipCurrentLanguage && language === pageLanguage))
-      .map(language => ({
-        language,
-        path: getPagePrefixedPath({
-          genericPath,
+      return Object.keys(pages[path])
+        .filter(language => !(skipCurrentLanguage && language === pageLanguage))
+        .map(language => ({
           language,
-          defaultLanguage,
-          includeDefaultLanguageInURL,
-          pages,
-          suffix: `${query}${hash}`,
-        }),
-        isCurrent: language === pageLanguage,
-      }))
+          path: getPagePrefixedPath({
+            genericPath: path,
+            language,
+            defaultLanguage,
+            includeDefaultLanguageInURL,
+            pages,
+            suffix: `${query}${hash}`,
+          }),
+          isCurrent: language === pageLanguage,
+        }))
+    }
   }
 
   return fn

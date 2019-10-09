@@ -1,6 +1,7 @@
 import fc from 'fast-check'
 import { isString, isPlainObject, isUndefined, isBoolean } from 'lodash'
 import createGetPath from '../create-get-path'
+import { StrictCheckType } from '../types'
 
 const pages = {
   '/': {
@@ -21,7 +22,7 @@ describe(`createGetPath`, () => {
       fc.property(
         fc
           .anything()
-          .filter(v => !(isString(v) || isUndefined(v) || isPlainObject(v))),
+          .filter(v => !(isUndefined(v) || isString(v) || isPlainObject(v))),
         data => {
           expect((): void => {
             createGetPath({
@@ -30,7 +31,7 @@ describe(`createGetPath`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: true,
-              strict: false,
+              strict: StrictCheckType.Ignore,
             })(data)
           }).toThrow(/"getPath" function received invalid argument/i)
         },
@@ -41,7 +42,7 @@ describe(`createGetPath`, () => {
   it(`should throw a TypeError on invalid argument object shape`, () => {
     fc.assert(
       fc.property(
-        fc.anything().filter(v => !(isString(v) || isUndefined(v))),
+        fc.anything().filter(v => !(isUndefined(v) || isString(v))),
         path => {
           expect((): void => {
             createGetPath({
@@ -50,7 +51,7 @@ describe(`createGetPath`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: true,
-              strict: false,
+              strict: StrictCheckType.Ignore,
             })({ path })
           }).toThrow(/"getPath" function received invalid argument/i)
         },
@@ -59,9 +60,7 @@ describe(`createGetPath`, () => {
 
     fc.assert(
       fc.property(
-        fc.anything().filter(v => !(isString(v) || isUndefined(v))),
-        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
-        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        fc.anything().filter(v => !(isUndefined(v) || isString(v))),
         language => {
           expect((): void => {
             createGetPath({
@@ -70,7 +69,7 @@ describe(`createGetPath`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: true,
-              strict: false,
+              strict: StrictCheckType.Ignore,
             })({ language })
           }).toThrow(/"getPath" function received invalid argument/i)
         },
@@ -79,7 +78,20 @@ describe(`createGetPath`, () => {
 
     fc.assert(
       fc.property(
-        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        fc
+          .anything()
+          .filter(
+            v =>
+              !(
+                isUndefined(v) ||
+                (isString(v) &&
+                  [
+                    StrictCheckType.Ignore,
+                    StrictCheckType.Warn,
+                    StrictCheckType.Error,
+                  ].includes(v as StrictCheckType))
+              ),
+          ),
         strict => {
           expect((): void => {
             createGetPath({
@@ -88,7 +100,7 @@ describe(`createGetPath`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: true,
-              strict: false,
+              strict: StrictCheckType.Ignore,
             })({ strict })
           }).toThrow(/"getPath" function received invalid argument/i)
         },
@@ -97,7 +109,7 @@ describe(`createGetPath`, () => {
 
     fc.assert(
       fc.property(
-        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        fc.anything().filter(v => !(isUndefined(v) || isBoolean(v))),
         generic => {
           expect((): void => {
             createGetPath({
@@ -106,7 +118,7 @@ describe(`createGetPath`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: true,
-              strict: false,
+              strict: StrictCheckType.Ignore,
             })({ generic })
           }).toThrow(/"getPath" function received invalid argument/i)
         },
@@ -114,14 +126,14 @@ describe(`createGetPath`, () => {
     )
   })
 
-  it(`should throw on a non existent "path" if "strict checks" enabled`, () => {
+  it(`should throw on a non existent "path" if "strict" is set to Error`, () => {
     const getPath = createGetPath({
       pages,
       pageGenericPath: '/',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: true,
+      strict: StrictCheckType.Error,
     })
 
     expect(() => getPath('/non-existent')).toThrow(/could not find a page/i)
@@ -130,14 +142,29 @@ describe(`createGetPath`, () => {
     )
   })
 
-  it(`should return the value back a non existent "path" if "strict checks" disabled`, () => {
+  it(`should return the value back on a non existent "path" if "strict" is set to Ignore`, () => {
     const getPath = createGetPath({
       pages,
       pageGenericPath: '/',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: false,
+      strict: StrictCheckType.Ignore,
+    })
+
+    expect(getPath('/non-existent')).toBe('/non-existent')
+    expect(getPath({ path: '/non-existent' })).toBe('/non-existent')
+  })
+
+  // TODO: add console.warn spy
+  it(`should return the value back and emit a warning on a non existent "path" if "strict" is set to Warn`, () => {
+    const getPath = createGetPath({
+      pages,
+      pageGenericPath: '/',
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: true,
+      strict: StrictCheckType.Warn,
     })
 
     expect(getPath('/non-existent')).toBe('/non-existent')
@@ -151,7 +178,7 @@ describe(`createGetPath`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: true,
+      strict: StrictCheckType.Error,
     })
 
     expect(getPath()).toBe('/en')
@@ -181,7 +208,7 @@ describe(`createGetPath`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: false,
+      strict: StrictCheckType.Ignore,
     })
 
     expect(getPath('https://sample.org')).toEqual('https://sample.org')
@@ -203,7 +230,7 @@ describe(`createGetPath`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: false,
+      strict: StrictCheckType.Ignore,
     })
 
     expect(getPath('/ru/путь-к-странице?var=1#fragment')).toEqual(
@@ -221,7 +248,7 @@ describe(`createGetPath`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: true,
+      strict: StrictCheckType.Error,
     })
 
     expect(() => getPath({ path: '/', language: 'es' })).toThrow(
@@ -240,7 +267,7 @@ describe(`createGetPath`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: false,
+      strict: StrictCheckType.Ignore,
     })
 
     expect(() => getPath({ path: '/', language: 'es' })).toThrow(
@@ -259,7 +286,7 @@ describe(`createGetPath`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: true,
+      strict: StrictCheckType.Error,
     })
 
     expect(getPath({ path: '/', language: 'ru' })).toBe('/ru')
@@ -276,8 +303,8 @@ describe(`createGetPath`, () => {
         pageLanguage: 'en',
         defaultLanguage: 'en',
         includeDefaultLanguageInURL: false,
-        strict: false,
-      })({ path: '/non-existent', strict: true }),
+        strict: StrictCheckType.Ignore,
+      })({ path: '/non-existent', strict: StrictCheckType.Error }),
     ).toThrow(/could not find a page/i)
 
     expect(
@@ -287,8 +314,8 @@ describe(`createGetPath`, () => {
         pageLanguage: 'en',
         defaultLanguage: 'en',
         includeDefaultLanguageInURL: false,
-        strict: true,
-      })({ path: '/non-existent', strict: false }),
+        strict: StrictCheckType.Error,
+      })({ path: '/non-existent', strict: StrictCheckType.Ignore }),
     ).toBe('/non-existent')
   })
 
@@ -299,7 +326,7 @@ describe(`createGetPath`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: true,
+      strict: StrictCheckType.Error,
     })
 
     expect(getPath({ path: '/', generic: true })).toBe('/')

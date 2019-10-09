@@ -1,5 +1,5 @@
 import path from 'path'
-import { Options } from './types'
+import { Options, Mode, StrictCheckType, MissingLanguages } from './types'
 
 export const PLUGIN_NAME = 'gatsby-plugin-multilingual'
 
@@ -16,23 +16,22 @@ export const CACHE_TRANSLATIONS_DEFAULT_FILE = path.resolve(
   CACHE_DIR,
   'translations-default.json',
 )
+export const REDIRECT_TEMPLATE_FILE = path.resolve(CACHE_DIR, 'Redirect.js')
 
 export const PUBLIC_TRANSLATIONS_DIR = path.resolve(PUBLIC_DIR, 'translations')
-export const REDIRECT_TEMPLATE_FILE = path.resolve(CACHE_DIR, 'Redirect.js')
 
 export const DEFAULT_OPTIONS: Options = {
   defaultLanguage: 'en',
   availableLanguages: ['en'],
   defaultNamespace: 'common',
-  mode: 'lazy',
-  missingLanguagePages: 'ignore',
+  mode: Mode.Lazy,
+  missingLanguages: MissingLanguages.Ignore,
   includeDefaultLanguageInURL: false,
-  overrides: [],
   strictChecks: {
-    paths: false,
-    pages: false,
-    translations: false,
+    paths: StrictCheckType.Ignore,
+    pages: StrictCheckType.Ignore,
+    translations: StrictCheckType.Ignore,
   },
-  pathOverrides: {},
+  overrides: [],
   plugins: [],
 }

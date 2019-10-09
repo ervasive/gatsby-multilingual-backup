@@ -1,23 +1,25 @@
-import { isPlainObject } from 'lodash'
+import { Maybe } from 'true-myth'
 import { GatsbyPage } from '@gatsby-plugin-multilingual/shared'
-import { Options } from '../types'
+import { Options, MultilingualOverride } from '../types'
 
-export default (page: GatsbyPage, { mode, overrides }: Options): boolean => {
+export default (
+  page: GatsbyPage,
+  mode: Options['mode'],
+  override: Maybe<MultilingualOverride>,
+): boolean => {
   if (page.path === '/dev-404-page/') {
     return false
   }
 
   // First, let's check if the page is covered by the global overrides
-  const override = Array.isArray(overrides)
-    ? overrides.find(({ path }) => path === page.path)
-    : overrides(page)
+  if (override.isJust()) {
+    const { shouldBeProcessed } = override.unsafelyUnwrap()
 
-  if (override && isPlainObject(override)) {
-    if (mode === 'greedy' && override.process === false) {
+    if (mode === 'greedy' && shouldBeProcessed === false) {
       return false
     }
 
-    if (mode === 'lazy' && override.process === true) {
+    if (mode === 'lazy' && shouldBeProcessed === true) {
       return true
     }
   }

@@ -12,11 +12,11 @@ const WrapPageElement = ({
     availableLanguages,
     defaultNamespace,
     includeDefaultLanguageInURL,
-    strictPathChecks,
+    strictChecks,
   },
   pages,
 }: WrapPageElementProps): JSX.Element => {
-  const { language, genericPath } = props.pageContext
+  const { language, pageId } = props.pageContext
   const { i18n } = useTranslation()
 
   useEffect(() => {
@@ -33,19 +33,19 @@ const WrapPageElement = ({
         includeDefaultLanguageInURL,
         getPath: createGetPath({
           pages,
-          pageGenericPath: genericPath || props.path,
+          pageGenericPath: pageId || props.path,
           pageLanguage: i18n.language,
           defaultLanguage,
           includeDefaultLanguageInURL,
-          strict: strictPathChecks,
+          strict: strictChecks.paths,
         }),
         getLanguages: createGetLanguages({
           pages,
-          pageGenericPath: genericPath || props.path,
+          pageGenericPath: pageId || props.path,
           pageLanguage: i18n.language,
           defaultLanguage,
           includeDefaultLanguageInURL,
-          strict: strictPathChecks,
+          strict: strictChecks.paths,
         }),
       }}
     >

@@ -1,5 +1,5 @@
 import React from 'react'
-import { DEFAULT_OPTIONS } from './constants'
+import getOptions from './get-options'
 import { ContextProviderData } from './types'
 
 const {
@@ -7,7 +7,7 @@ const {
   availableLanguages,
   defaultNamespace,
   includeDefaultLanguageInURL,
-} = DEFAULT_OPTIONS
+} = getOptions()
 
 export const MultilingualContext = React.createContext<ContextProviderData>({
   defaultLanguage,

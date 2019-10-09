@@ -1,11 +1,11 @@
 import { copy, pathExists } from 'fs-extra'
 import { REDIRECT_TEMPLATE_FILE } from './constants'
 
-export default async (defaultTemplatePath?: string): Promise<void> => {
+export default async (templatePath?: string): Promise<void> => {
   let redirectFile
 
-  if (defaultTemplatePath && (await pathExists(defaultTemplatePath))) {
-    redirectFile = defaultTemplatePath
+  if (templatePath && (await pathExists(templatePath))) {
+    redirectFile = templatePath
   } else {
     redirectFile = require.resolve('./RedirectTemplate.js')
   }

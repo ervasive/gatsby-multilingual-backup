@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@gatsby-plugin-multilingual/shared": "file:../@shared",
-    "@hapi/joi": "^15.1.0",
+    "@hapi/joi": "^16.1.7",
     "fs-extra": "^8.1.0",
     "gatsby-source-filesystem": "^2.1.2",
     "js-yaml": "^3.13.1",

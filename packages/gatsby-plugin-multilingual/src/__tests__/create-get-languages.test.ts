@@ -1,6 +1,7 @@
 import fc from 'fast-check'
 import { isString, isPlainObject, isUndefined, isBoolean } from 'lodash'
 import createGetLanguages from '../create-get-languages'
+import { StrictCheckType } from '../types'
 
 const pages = {
   '/': {
@@ -35,7 +36,7 @@ describe(`createGetLanguages`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: false,
-              strict: false,
+              strict: StrictCheckType.Ignore,
             })(data)
           }).toThrow(/"getLanguages" function received invalid argument/i)
         },
@@ -55,7 +56,7 @@ describe(`createGetLanguages`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: false,
-              strict: false,
+              strict: StrictCheckType.Ignore,
             })({ path })
           }).toThrow(/"getLanguages" function received invalid argument/i)
         },
@@ -73,7 +74,7 @@ describe(`createGetLanguages`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: false,
-              strict: false,
+              strict: StrictCheckType.Ignore,
             })({ skipCurrentLanguage })
           }).toThrow(/"getLanguages" function received invalid argument/i)
         },
@@ -82,7 +83,20 @@ describe(`createGetLanguages`, () => {
 
     fc.assert(
       fc.property(
-        fc.anything().filter(v => !(isBoolean(v) || isUndefined(v))),
+        fc
+          .anything()
+          .filter(
+            v =>
+              !(
+                isUndefined(v) ||
+                (isString(v) &&
+                  [
+                    StrictCheckType.Ignore,
+                    StrictCheckType.Warn,
+                    StrictCheckType.Error,
+                  ].includes(v as StrictCheckType))
+              ),
+          ),
         strict => {
           expect((): void => {
             createGetLanguages({
@@ -91,7 +105,7 @@ describe(`createGetLanguages`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: false,
-              strict: false,
+              strict: StrictCheckType.Ignore,
             })({ strict })
           }).toThrow(/"getLanguages" function received invalid argument/i)
         },
@@ -99,14 +113,14 @@ describe(`createGetLanguages`, () => {
     )
   })
 
-  it(`should throw an Error on a non-exitent "path" if "strict checks" enabled`, () => {
+  it(`should throw an Error on a non-exitent "path" if "strict" is set to Error`, () => {
     const getLanguages = createGetLanguages({
       pages,
       pageGenericPath: '/page-one',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: false,
-      strict: true,
+      strict: StrictCheckType.Error,
     })
 
     expect(() => getLanguages('/non-exitent')).toThrow(/could not find a page/i)
@@ -115,14 +129,29 @@ describe(`createGetLanguages`, () => {
     )
   })
 
-  it(`should return an empty array on a non-exitent "path" if "strict checks" disabled`, () => {
+  it(`should return an empty array on a non-exitent "path" if "strict" is set to Ignore`, () => {
     const getLanguages = createGetLanguages({
       pages,
       pageGenericPath: '/page-one',
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: false,
-      strict: false,
+      strict: StrictCheckType.Ignore,
+    })
+
+    expect(getLanguages('/non-exitent')).toEqual([])
+    expect(getLanguages({ path: '/non-exitent' })).toEqual([])
+  })
+
+  // TODO: add console.warn spy
+  it(`should return an empty array and emit a warning on a non-exitent "path" if "strict" is set to Warn`, () => {
+    const getLanguages = createGetLanguages({
+      pages,
+      pageGenericPath: '/page-one',
+      pageLanguage: 'en',
+      defaultLanguage: 'en',
+      includeDefaultLanguageInURL: false,
+      strict: StrictCheckType.Warn,
     })
 
     expect(getLanguages('/non-exitent')).toEqual([])
@@ -137,8 +166,8 @@ describe(`createGetLanguages`, () => {
         pageLanguage: 'en',
         defaultLanguage: 'en',
         includeDefaultLanguageInURL: false,
-        strict: false,
-      })({ path: '/non-exitent', strict: true }),
+        strict: StrictCheckType.Ignore,
+      })({ path: '/non-exitent', strict: StrictCheckType.Error }),
     ).toThrow(/could not find a page/i)
 
     expect(
@@ -148,8 +177,8 @@ describe(`createGetLanguages`, () => {
         pageLanguage: 'en',
         defaultLanguage: 'en',
         includeDefaultLanguageInURL: false,
-        strict: true,
-      })({ path: '/non-exitent', strict: false }),
+        strict: StrictCheckType.Error,
+      })({ path: '/non-exitent', strict: StrictCheckType.Ignore }),
     ).toEqual([])
   })
 
@@ -160,7 +189,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: false,
+      strict: StrictCheckType.Ignore,
     })
 
     const expected = [
@@ -180,7 +209,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: false,
+      strict: StrictCheckType.Ignore,
     })
 
     const expected = [
@@ -209,7 +238,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'ru',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: false,
+      strict: StrictCheckType.Ignore,
     })
 
     const expected = [
@@ -238,7 +267,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: false,
-      strict: false,
+      strict: StrictCheckType.Ignore,
     })
 
     expect(
@@ -256,7 +285,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: false,
+      strict: StrictCheckType.Ignore,
     })
 
     expect(getLanguages('https://sample.org')).toEqual([])
@@ -276,7 +305,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: false,
+      strict: StrictCheckType.Ignore,
     })
 
     const expected = [

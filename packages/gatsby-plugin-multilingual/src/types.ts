@@ -7,50 +7,66 @@ import { GatsbyPage, GatsbyRedirect } from '@gatsby-plugin-multilingual/shared'
 
 export type PagesRegistry = Record<string, Record<string, string>>
 
-export type Language =
-  | string
-  | {
-      language: string
-      path?: string
-    }
+export enum Mode {
+  Greedy = 'greedy',
+  Lazy = 'lazy',
+}
 
-export interface PageOverride {
-  path: string
-  process?: boolean
-  languages?: Language[]
+export enum MissingLanguages {
+  Ignore = 'ignore',
+  Generate = 'generate',
+  Redirect = 'redirect',
+}
+
+export type Language = {
+  language: string
+  path?: string
+}
+
+export enum StrictCheckType {
+  Ignore = 'ignore',
+  Warn = 'warn',
+  Error = 'error',
+}
+
+export interface MultilingualProperty {
+  pageId: string
+  languages?: (Language | string)[]
+  missingLanguages?: MissingLanguages
+}
+
+export interface MultilingualOverride extends MultilingualProperty {
+  shouldBeProcessed?: boolean
 }
 
 export interface Options extends GatsbyPluginOptions {
   defaultLanguage: string
   availableLanguages: string[]
   defaultNamespace: string
-  mode: 'greedy' | 'lazy'
-  missingLanguagePages: 'ignore' | 'generate' | 'redirect'
+  mode: Mode
+  missingLanguages: MissingLanguages
   includeDefaultLanguageInURL: boolean
-  overrides: ((page: GatsbyPage) => PageOverride | void) | PageOverride[]
+  overrides:
+    | ((page: GatsbyPage) => MultilingualOverride | never)
+    | MultilingualOverride[]
   strictChecks: {
-    paths: boolean
-    pages: boolean
-    translations: boolean
+    paths: StrictCheckType
+    pages: StrictCheckType
+    translations: StrictCheckType
   }
   pathToRedirectTemplate?: string
 }
 
 export interface MultilingualPage extends GatsbyPage {
   context: {
-    multilingual?:
-      | boolean
-      | {
-          pageId: string
-          languages?: Language[]
-        }
+    multilingual?: boolean | MultilingualProperty
   }
 }
 
 export interface MonolingualPage extends GatsbyPage {
   context: {
-    language: string
     pageId: string
+    language: string
   }
 }
 
@@ -85,18 +101,18 @@ export type ContextProviderData = Pick<
           path?: string
           language?: string
           generic?: boolean
-          strict?: boolean
+          strict?: StrictCheckType
         },
-  ) => Error | string
+  ) => string | never // This function throws in certain cases
   getLanguages: (
     value?:
       | string
       | {
           path?: string
           skipCurrentLanguage?: boolean
-          strict?: boolean
+          strict?: StrictCheckType
         },
-  ) => Error | { language: string; path: string; isCurrent: boolean }[]
+  ) => { language: string; path: string; isCurrent: boolean }[] | never // This function throws in certain cases
 }
 
 export interface WrapRootElementProps {

@@ -13,6 +13,8 @@ module.exports = {
         defaultLanguage: 'en',
         availableLanguages: ['en', 'ru'],
         includeDefaultLanguageInURL: true,
+        missingLanguages: 'ignore',
+        overrides: [{ pageId: 'all-languages-dynamic' }],
       },
     },
     {
