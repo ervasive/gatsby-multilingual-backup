@@ -3,7 +3,7 @@ import Joi from '@hapi/joi'
 const { string, object } = Joi.types()
 
 export default object
-  .label('MonolingualPage')
+  .label('monolingual page')
   .keys({
     path: string.required(),
     context: object
@@ -13,7 +13,6 @@ export default object
       })
       .required(),
   })
-  .required()
   .options({
     allowUnknown: true,
   })

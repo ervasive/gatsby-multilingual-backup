@@ -1,25 +1,16 @@
 import Joi from '@hapi/joi'
-import languageSchema from './language'
-import missingLanguagesSchema from './missingLanguages'
+import multilingualPropertySchema from './multilingualProperty'
 
-const { boolean, string, array, object } = Joi.types()
+const { boolean, string, object } = Joi.types()
 
 export default object
-  .label('MultilingualPage')
+  .label('multilingual page')
   .keys({
     path: string.required(),
     context: object.keys({
-      multilingual: [
-        boolean,
-        object.keys({
-          pageId: string.required(),
-          languages: array.items(string, languageSchema),
-          missingLanguages: missingLanguagesSchema,
-        }),
-      ],
+      multilingual: [boolean, multilingualPropertySchema],
     }),
   })
-  .required()
   .options({
     allowUnknown: true,
   })

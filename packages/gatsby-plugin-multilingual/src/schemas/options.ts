@@ -6,25 +6,21 @@ import {
   multilingualOverrideSchema,
 } from '.'
 
-const { boolean, string, array, object } = Joi.types()
+const { boolean, string, array, object, alternatives } = Joi.types()
 
-export default object
-  .keys({
-    defaultLanguage: string,
-    availableLanguages: array,
-    defaultNamespace: string,
-    mode: modeSchema,
-    missingLanguages: missingLanguagesSchema,
-    includeDefaultLanguageInURL: boolean,
-    overrides: [
-      Joi.function().arity(1),
-      array.items(multilingualOverrideSchema),
-    ],
-    strictChecks: object.keys({
-      paths: strictChecksSchema,
-      pages: strictChecksSchema,
-      translations: strictChecksSchema,
+export default object.keys({
+  defaultLanguage: string,
+  availableLanguages: array.items(string),
+  defaultNamespace: string,
+  mode: modeSchema,
+  missingLanguages: missingLanguagesSchema,
+  includeDefaultLanguageInURL: boolean,
+  overrides: alternatives
+    .try(Joi.function().arity(1), array.items(multilingualOverrideSchema))
+    .messages({
+      'alternatives.types':
+        '"{{#label}}" may be one of [function, array of overrides]',
     }),
-    pathToRedirectTemplate: string,
-  })
-  .required()
+  strictChecks: strictChecksSchema,
+  pathToRedirectTemplate: string,
+})
