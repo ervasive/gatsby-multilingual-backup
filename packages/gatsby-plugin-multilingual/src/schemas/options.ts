@@ -1,14 +1,12 @@
 import Joi from '@hapi/joi'
-import {
-  modeSchema,
-  strictChecksSchema,
-  missingLanguagesSchema,
-  multilingualOverrideSchema,
-} from '.'
+import modeSchema from './mode'
+import strictChecksSchema from './strictChecks'
+import missingLanguagesSchema from './missingLanguages'
+import multilingualOverrideSchema from './multilingualOverride'
 
 const { boolean, string, array, object, alternatives } = Joi.types()
 
-export default object.keys({
+export default object.label('options').keys({
   defaultLanguage: string,
   availableLanguages: array.items(string),
   defaultNamespace: string,

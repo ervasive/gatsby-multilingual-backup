@@ -7,7 +7,7 @@ import {
   NamespaceNode,
   GatsbyStorePlugin,
 } from '@gatsby-plugin-multilingual/shared'
-import getValidatedOptions from './get-validated-options'
+import getOptions from './get-options'
 import { PLUGIN_NAME, SOURCE_FILESYSTEM_INSTANCE_NAME } from './constants'
 import { StorePluginLoader } from './types'
 
@@ -15,7 +15,7 @@ export const onPreBootstrap: GatsbyNode['onPreBootstrap'] = async (
   { reporter, store },
   pluginOptions,
 ): Promise<void> => {
-  const options = getValidatedOptions(pluginOptions)
+  const options = getOptions(pluginOptions)
 
   // Panic if more than one plugin instance uses the same directory path
   const pluginInstances = store
@@ -59,7 +59,7 @@ export const onCreateNode: GatsbyNode['onCreateNode'] = async (
   },
   pluginOptions,
 ): Promise<void> => {
-  const options = getValidatedOptions(pluginOptions)
+  const options = getOptions(pluginOptions)
 
   // Continue only if we have an appropriate "node" type
   if (node.sourceInstanceName !== SOURCE_FILESYSTEM_INSTANCE_NAME) {

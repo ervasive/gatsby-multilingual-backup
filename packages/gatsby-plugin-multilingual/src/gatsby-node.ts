@@ -25,7 +25,7 @@ export const onPreBootstrap: GatsbyNode['onPreBootstrap'] = (
 ) => {
   const options = getOptions(pluginOptions)
 
-  emptyDir(CACHE_DIR)
+  return emptyDir(CACHE_DIR)
     .then(() =>
       Promise.all([
         outputJSON(CACHE_PAGES_FILE, {}),
@@ -82,15 +82,22 @@ export const onCreatePage: GatsbyNode['onCreatePage'] = async (
 
   const result = generatePages(
     (page as unknown) as GatsbyPage,
-    Array.from(store.getState().pages.values()) as GatsbyPage[],
+    store.getState().pages,
     options,
   )
+
+  result.pages.forEach(page => createPage(page as GatsbyPage))
+
+  if (result.removeOriginalPage) {
+    deletePage((page as unknown) as GatsbyPage)
+  }
 }
 
 export const onPostBootstrap: GatsbyNode['onPostBootstrap'] = async ({
   store,
   emitter,
 }) => {
+  console.log(store.getState().pages)
   const registry = createPagesRegistry(store.getState().pages).registry
   await writePagesRegistry(registry)
 
