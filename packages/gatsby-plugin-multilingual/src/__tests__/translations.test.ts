@@ -1,7 +1,7 @@
 import path from 'path'
 import { NamespaceNode } from '@gatsby-plugin-multilingual/shared'
 import { aggregateTranslations } from '../translations'
-import getValidatedOptions from '../get-validated-options'
+import getOptions from '../get-options'
 import {
   CACHE_NAMESPACES_FILE,
   CACHE_TRANSLATIONS_ALL_FILE,
@@ -33,7 +33,7 @@ describe('Aggregate translations files', (): void => {
   describe('should return default structure on empty nodes and', (): void => {
     it('single language', async (): Promise<void> => {
       expect.assertions(1)
-      const options = getValidatedOptions({
+      const options = getOptions({
         defaultLanguage: 'en',
         availableLanguages: ['en'],
         defaultNamespace: 'common',
@@ -56,7 +56,7 @@ describe('Aggregate translations files', (): void => {
 
     it('multiple languages', async (): Promise<void> => {
       expect.assertions(1)
-      const options = getValidatedOptions({
+      const options = getOptions({
         defaultLanguage: 'en',
         availableLanguages: ['en', 'ru'],
         defaultNamespace: 'common',
@@ -83,7 +83,7 @@ describe('Aggregate translations files', (): void => {
   describe('should return data for multiple namespaces and', (): void => {
     it('single language', async (): Promise<void> => {
       expect.assertions(1)
-      const options = getValidatedOptions({
+      const options = getOptions({
         defaultLanguage: 'en',
         availableLanguages: ['en'],
         defaultNamespace: 'common',
@@ -117,7 +117,7 @@ describe('Aggregate translations files', (): void => {
 
   it('multiple languages', async (): Promise<void> => {
     expect.assertions(1)
-    const options = getValidatedOptions({
+    const options = getOptions({
       defaultLanguage: 'en',
       availableLanguages: ['en', 'ru'],
       defaultNamespace: 'common',
@@ -160,7 +160,7 @@ describe('Aggregate translations files', (): void => {
   describe('should take into account priority value', (): void => {
     it('single language', async (): Promise<void> => {
       expect.assertions(1)
-      const options = getValidatedOptions({
+      const options = getOptions({
         defaultLanguage: 'en',
         availableLanguages: ['en'],
         defaultNamespace: 'common',
@@ -195,7 +195,7 @@ describe('Aggregate translations files', (): void => {
 
     it('multiple languages', async (): Promise<void> => {
       expect.assertions(1)
-      const options = getValidatedOptions({
+      const options = getOptions({
         defaultLanguage: 'en',
         availableLanguages: ['en', 'ru'],
         defaultNamespace: 'common',

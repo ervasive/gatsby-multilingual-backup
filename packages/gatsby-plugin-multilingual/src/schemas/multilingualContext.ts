@@ -4,8 +4,8 @@ import missingLanguagesSchema from './missingLanguages'
 
 const { string, array, object } = Joi.types()
 
-export default object.label('multilingual property').keys({
-  pageId: string.required(),
+export default object.label('multilingual context').keys({
+  pageId: string,
   languages: array.items(string, languageSchema),
   missingLanguages: missingLanguagesSchema,
 })

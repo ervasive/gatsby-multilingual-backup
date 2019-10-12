@@ -1,5 +1,5 @@
 import Joi from '@hapi/joi'
-import multilingualPropertySchema from './multilingualProperty'
+import multilingualContextSchema from './multilingualContext'
 
 const { boolean, string, object } = Joi.types()
 
@@ -8,7 +8,7 @@ export default object
   .keys({
     path: string.required(),
     context: object.keys({
-      multilingual: [boolean, multilingualPropertySchema],
+      multilingual: [boolean, multilingualContextSchema],
     }),
   })
   .options({

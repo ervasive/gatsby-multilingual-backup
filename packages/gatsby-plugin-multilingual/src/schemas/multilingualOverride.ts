@@ -1,8 +1,9 @@
 import Joi from '@hapi/joi'
-import multilingualPropertySchema from './multilingualProperty'
+import multilingualContextSchema from './multilingualContext'
 
-const { boolean } = Joi.types()
+const { boolean, string } = Joi.types()
 
-export default multilingualPropertySchema.label('multilingual override').keys({
+export default multilingualContextSchema.label('multilingual override').keys({
+  pageId: string.required(),
   shouldBeProcessed: boolean,
 })

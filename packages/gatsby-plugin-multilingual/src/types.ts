@@ -29,13 +29,14 @@ export enum StrictCheckType {
   Error = 'error',
 }
 
-export interface MultilingualProperty {
-  pageId: string
+export interface MultilingualContext {
+  pageId?: string
   languages?: (Language | string)[]
   missingLanguages?: MissingLanguages
 }
 
-export interface MultilingualOverride extends MultilingualProperty {
+export interface MultilingualOverride extends MultilingualContext {
+  pageId: string
   shouldBeProcessed?: boolean
 }
 
@@ -59,7 +60,7 @@ export interface Options extends GatsbyPluginOptions {
 
 export interface MultilingualPage extends GatsbyPage {
   context: {
-    multilingual?: boolean | MultilingualProperty
+    multilingual?: boolean | MultilingualContext
   }
 }
 

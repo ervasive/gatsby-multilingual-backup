@@ -1,15 +1,18 @@
 import { assert, property, anything } from 'fast-check'
 import { isUndefined, isString, isArray } from 'lodash'
-import s from '../multilingualProperty'
+import s from '../multilingualContext'
 
-describe('multilingualPropertySchema', () => {
+describe('multilingualContextSchema', () => {
   it('should error out on invalid pageId inputs', () => {
     assert(
-      property(anything().filter(v => !(isString(v) && v.length)), data => {
-        expect(s.validate({ pageId: data }).error.details[0].message).toMatch(
-          /("pageId" is required)|("pageId" must be a string)|("pageId" is not allowed to be empty)/i,
-        )
-      }),
+      property(
+        anything().filter(v => !(isUndefined(v) || (isString(v) && v.length))),
+        data => {
+          expect(s.validate({ pageId: data }).error.details[0].message).toMatch(
+            /("pageId" must be a string)|("pageId" is not allowed to be empty)/i,
+          )
+        },
+      ),
     )
   })
 

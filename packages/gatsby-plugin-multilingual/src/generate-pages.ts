@@ -5,10 +5,10 @@ import shouldPageBeSkipped from './utils/should-page-be-skipped'
 import getPageOverride from './utils/get-page-override'
 import normalizePath from './utils/normalize-path'
 import { REDIRECT_TEMPLATE_FILE } from './constants'
-import multilingualPropertySchema from './schemas/multilingualProperty'
+import multilingualContextSchema from './schemas/multilingualContext'
 import {
   Options,
-  MultilingualProperty,
+  MultilingualContext,
   PagesGeneratorResult,
   MissingLanguages,
   MonolingualPage,
@@ -48,16 +48,6 @@ export const createRedirect = (from: string, to: string): GatsbyRedirect => ({
   isPermanent: true,
 })
 
-const getMultilingualContext = (
-  page: GatsbyPage,
-): Maybe<MultilingualProperty> => {
-  const { error, value } = multilingualPropertySchema.validate(
-    page.context.multilingual,
-  )
-
-  return Maybe.of(error ? undefined : (value as MultilingualProperty))
-}
-
 export default (
   page: GatsbyPage,
   pages: Map<string, GatsbyPage>,
@@ -80,12 +70,11 @@ export default (
   let pageId = page.path
   let missingLanguagesStrategy = missingLanguages
 
-  // We are going to collect all determined page language versions here
+  // We are going to collect all supported page language versions here.
   // Structure: Map<language, {path, force}>
   //   - language - language key
   //   - path - custom language-specific path or page.path as a fallback
-  //   - force - should this "language version" potentially overwrite existent
-  //             store page with the same constructed path
+  //   - force - allow this "language version" to overwrite existing store page
   const languageVersions: Map<
     string,
     { path: string; force: boolean }
@@ -100,9 +89,23 @@ export default (
   }
 
   // Try to get "multilingual" attributes and language versions from a global
-  // override, or if one was not found, from the page's context
-  Maybe.or(getMultilingualContext(page), override).map(property => {
-    pageId = property.pageId
+  // override, or if one was not found, from the page's context.
+  const {
+    error: contextValidationError,
+    value: contextValidationValue,
+  } = multilingualContextSchema.validate(page.context.multilingual)
+
+  const multilingualContext = Maybe.of(
+    contextValidationError
+      ? undefined
+      : (contextValidationValue as MultilingualContext),
+  )
+
+  Maybe.or(multilingualContext, override).map(property => {
+    Maybe.of(property.pageId).map(value => {
+      pageId = value
+      return value
+    })
 
     Maybe.of(property.missingLanguages).map(strategy => {
       missingLanguagesStrategy = strategy
@@ -111,9 +114,8 @@ export default (
 
     // In this case, the user explicitly specified language versions through
     // available mechanisms (override, context), so we are going to enforce
-    // the generation of these language versions even if some of them may be
-    // already present in the Gatsby store, meaning, they are going to be
-    // overwritten.
+    // the generation of these language versions even if some of them may
+    // overwrite existing pages.
     Maybe.of(property.languages).map(languages =>
       languages.map(value => {
         if (typeof value === 'string') {
@@ -132,7 +134,10 @@ export default (
     return property
   })
 
-  // We extracted all required data from the multilingual context, remove it
+  // We extracted all required data from the multilingual context, and because
+  // the provided page is going to be used as the source for the generation of
+  // the language-specific pages (preserving all provided context properties),
+  // we want to keep it clean.
   delete page.context.multilingual
 
   // Ensure that in case if the page did not specify any language versions
@@ -144,12 +149,11 @@ export default (
     languageVersions.set(defaultLanguage, { path: page.path, force: true })
   }
 
-  // If we were instructed to handle missing languages then add all missing
-  // language versions that were not added explicitly. We are not going to
-  // enforce pages generation for these language versions as they weren't
-  // explicitly set by user, meaning that they won't overwite pages from the
-  // store but they may be overwritten by some other page with the same "pageId"
-  // and context value.
+  // Add all missing language versions (that were not added explicitly) if we
+  // were instructed to do so. We are not going to enforce pages generation for
+  // these language versions as they weren't set by user, meaning that they
+  // won't overwite pages from the store but they may be overwritten by some
+  // other page with the same "pageId" and multilingual context value.
   if (
     missingLanguagesStrategy !== MissingLanguages.Ignore &&
     languageVersions.has(defaultLanguage)
@@ -161,14 +165,14 @@ export default (
     })
   }
 
-  // Filter out invalid language versions
+  // Filter out invalid language versions.
   for (const language of languageVersions.keys()) {
     if (!availableLanguages.includes(language)) {
       languageVersions.delete(language)
     }
   }
 
-  // Warn the user if we end up without any valid language
+  // Warn the user if we end up without any valid language.
   if (!languageVersions.size) {
     result.errors.push({
       type: 'warn',
@@ -181,7 +185,7 @@ export default (
   }
 
   // Everything seems fine, lets transform language versions into pages and
-  // redirects objects
+  // redirects objects.
   languageVersions.forEach(({ path, force }, language) => {
     const basePath = normalizePath(path)
     const languagePath = normalizePath(
@@ -190,13 +194,11 @@ export default (
         : path,
     )
     const defaultLanguagePath = normalizePath(
-      includeDefaultLanguageInURL
-        ? `${defaultLanguage}/${path}`
-        : defaultLanguage,
+      includeDefaultLanguageInURL ? `${defaultLanguage}/${path}` : path,
     )
 
     // This is the place where we decide which pages are allowed to overwrite
-    // present store pages and which are not
+    // existing store pages and which are not.
     if (pages.has(languagePath) && !force) {
       return
     }
@@ -211,23 +213,21 @@ export default (
         result.redirects.push(createRedirect(basePath, languagePath))
       }
     } else {
-      if (missingLanguagesStrategy === MissingLanguages.Generate) {
-        result.pages.push(
-          createMonolingualPage(page, languagePath, language, pageId),
-        )
-      }
-
       if (missingLanguagesStrategy === MissingLanguages.Redirect) {
         result.pages.push(
           createRedirectPage(page, languagePath, defaultLanguagePath),
         )
         result.redirects.push(createRedirect(languagePath, defaultLanguagePath))
+      } else {
+        result.pages.push(
+          createMonolingualPage(page, languagePath, language, pageId),
+        )
       }
     }
   })
 
   // If we reached this point, it means that we have a meaningful result that
-  // should replace the source page
+  // should replace the source page.
   result.removeOriginalPage = true
 
   return result

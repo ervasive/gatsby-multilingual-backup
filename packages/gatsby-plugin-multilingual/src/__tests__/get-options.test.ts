@@ -8,12 +8,12 @@ describe('getOptions', () => {
   })
 
   it('should override default options from the provided argument', (): void => {
-    const source: Partial<Options> = {
+    const source: Options = {
       defaultLanguage: 'de',
       availableLanguages: ['ru', 'es', 'de'],
       defaultNamespace: 'custom',
       mode: Mode.Greedy,
-      missingLanguagesStrategy: MissingLanguages.Generate,
+      missingLanguages: MissingLanguages.Generate,
       includeDefaultLanguageInURL: true,
       overrides: [{ pageId: '/page' }],
       strictChecks: {
