@@ -1,15 +1,23 @@
 import { GatsbyConfig } from 'gatsby'
-import { SOURCE_FILESYSTEM_INSTANCE_NAME } from './constants'
+import { PLUGIN_NAME, SOURCE_FILESYSTEM_INSTANCE_NAME } from './constants'
 import optionsSchema from './schemas/options'
 import getOptions from './get-options'
 import { Options } from './types'
 
 module.exports = (options: Options): GatsbyConfig => {
-  const { error } = optionsSchema.validate(options)
+  // We are going to run options validation here, because we access
+  // "getOptions" in this file.
+  const { error } = optionsSchema
+    .required()
+    .validate(options, { abortEarly: false })
 
-  // TODO: review error message
   if (error) {
-    throw error
+    const msg = `[${PLUGIN_NAME}] is misconfigured:\n${error.details
+      .map(({ message }) => `- ${message}`)
+      .join('\n')}`
+
+    console.error(msg)
+    process.exit(1)
   }
 
   return {
