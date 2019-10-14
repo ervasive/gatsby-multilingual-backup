@@ -3,4 +3,4 @@ import { Mode } from '../types'
 
 const { string } = Joi.types()
 
-export default string.label('mode').valid(Mode.Greedy, Mode.Lazy)
+export default string.valid(Mode.Greedy, Mode.Lazy)

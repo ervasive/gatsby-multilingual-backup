@@ -1,10 +1,10 @@
 import { GatsbyNode } from 'gatsby'
-import { isPlainObject } from 'lodash'
 import { outputJSON, emptyDir } from 'fs-extra'
 import {
   GatsbyPage,
   NAMESPACE_NODE_TYPENAME,
 } from '@gatsby-plugin-multilingual/shared'
+import validateInstanceUniqueness from './utils/validate-instance-uniqueness'
 import getOptions from './get-options'
 import { processTranslations } from './translations'
 import { createPagesRegistry, writePagesRegistry } from './pages-registry'
@@ -20,10 +20,15 @@ import copyRedirectTemplate from './copyRedirectTemplate'
 import generatePages from './generate-pages'
 
 export const onPreBootstrap: GatsbyNode['onPreBootstrap'] = (
-  { getNodesByType, reporter },
+  { getNodesByType, reporter, store },
   pluginOptions,
 ) => {
   const options = getOptions(pluginOptions)
+
+  // Validate that there is only a single plugin instance registered
+  validateInstanceUniqueness(store.getState().flattenedPlugins).mapErr(err =>
+    reporter.panic(err),
+  )
 
   return emptyDir(CACHE_DIR)
     .then(() =>
@@ -80,24 +85,31 @@ export const onCreatePage: GatsbyNode['onCreatePage'] = async (
 ) => {
   const options = getOptions(pluginOptions)
 
-  const result = generatePages(
+  const { pages, redirects, errors, removeOriginalPage } = generatePages(
     (page as unknown) as GatsbyPage,
     store.getState().pages,
     options,
   )
 
-  result.pages.forEach(page => createPage(page as GatsbyPage))
+  if (errors.length) {
+    reporter.warn(
+      `[${PLUGIN_NAME}] The following errors were encountered while ` +
+        `processing pages:\n${errors.map(e => `- ${e}`).join('\n')}`,
+    )
+  }
 
-  if (result.removeOriginalPage) {
+  if (removeOriginalPage) {
     deletePage((page as unknown) as GatsbyPage)
   }
+
+  redirects.forEach(redirect => createRedirect(redirect))
+  pages.forEach(page => createPage(page as GatsbyPage))
 }
 
 export const onPostBootstrap: GatsbyNode['onPostBootstrap'] = async ({
   store,
   emitter,
 }) => {
-  console.log(store.getState().pages)
   const registry = createPagesRegistry(store.getState().pages).registry
   await writePagesRegistry(registry)
 

@@ -1,7 +1,7 @@
 import fc from 'fast-check'
 import { isString, isPlainObject, isUndefined, isBoolean } from 'lodash'
 import createGetLanguages from '../create-get-languages'
-import { StrictCheckType } from '../types'
+import { CheckType } from '../types'
 
 const pages = {
   '/': {
@@ -36,7 +36,7 @@ describe(`createGetLanguages`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: false,
-              strict: StrictCheckType.Ignore,
+              onMissingPaths: CheckType.Ignore,
             })(data)
           }).toThrow(/"getLanguages" function received invalid argument/i)
         },
@@ -56,7 +56,7 @@ describe(`createGetLanguages`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: false,
-              strict: StrictCheckType.Ignore,
+              onMissingPaths: CheckType.Ignore,
             })({ path })
           }).toThrow(/"getLanguages" function received invalid argument/i)
         },
@@ -74,7 +74,7 @@ describe(`createGetLanguages`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: false,
-              strict: StrictCheckType.Ignore,
+              onMissingPaths: CheckType.Ignore,
             })({ skipCurrentLanguage })
           }).toThrow(/"getLanguages" function received invalid argument/i)
         },
@@ -90,14 +90,12 @@ describe(`createGetLanguages`, () => {
               !(
                 isUndefined(v) ||
                 (isString(v) &&
-                  [
-                    StrictCheckType.Ignore,
-                    StrictCheckType.Warn,
-                    StrictCheckType.Error,
-                  ].includes(v as StrictCheckType))
+                  [CheckType.Ignore, CheckType.Warn, CheckType.Error].includes(
+                    v as CheckType,
+                  ))
               ),
           ),
-        strict => {
+        data => {
           expect((): void => {
             createGetLanguages({
               pages,
@@ -105,8 +103,8 @@ describe(`createGetLanguages`, () => {
               pageLanguage: 'en',
               defaultLanguage: 'en',
               includeDefaultLanguageInURL: false,
-              strict: StrictCheckType.Ignore,
-            })({ strict })
+              onMissingPaths: CheckType.Ignore,
+            })({ onMissingPath: data })
           }).toThrow(/"getLanguages" function received invalid argument/i)
         },
       ),
@@ -120,7 +118,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: false,
-      strict: StrictCheckType.Error,
+      onMissingPaths: CheckType.Error,
     })
 
     expect(() => getLanguages('/non-exitent')).toThrow(/could not find a page/i)
@@ -136,7 +134,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: false,
-      strict: StrictCheckType.Ignore,
+      onMissingPaths: CheckType.Ignore,
     })
 
     expect(getLanguages('/non-exitent')).toEqual([])
@@ -151,7 +149,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: false,
-      strict: StrictCheckType.Warn,
+      onMissingPaths: CheckType.Warn,
     })
 
     expect(getLanguages('/non-exitent')).toEqual([])
@@ -166,8 +164,8 @@ describe(`createGetLanguages`, () => {
         pageLanguage: 'en',
         defaultLanguage: 'en',
         includeDefaultLanguageInURL: false,
-        strict: StrictCheckType.Ignore,
-      })({ path: '/non-exitent', strict: StrictCheckType.Error }),
+        onMissingPaths: CheckType.Ignore,
+      })({ path: '/non-exitent', onMissingPath: CheckType.Error }),
     ).toThrow(/could not find a page/i)
 
     expect(
@@ -177,8 +175,8 @@ describe(`createGetLanguages`, () => {
         pageLanguage: 'en',
         defaultLanguage: 'en',
         includeDefaultLanguageInURL: false,
-        strict: StrictCheckType.Error,
-      })({ path: '/non-exitent', strict: StrictCheckType.Ignore }),
+        onMissingPaths: CheckType.Error,
+      })({ path: '/non-exitent', onMissingPath: CheckType.Ignore }),
     ).toEqual([])
   })
 
@@ -189,7 +187,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: StrictCheckType.Ignore,
+      onMissingPaths: CheckType.Ignore,
     })
 
     const expected = [
@@ -209,7 +207,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: StrictCheckType.Ignore,
+      onMissingPaths: CheckType.Ignore,
     })
 
     const expected = [
@@ -238,7 +236,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'ru',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: StrictCheckType.Ignore,
+      onMissingPaths: CheckType.Ignore,
     })
 
     const expected = [
@@ -267,7 +265,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: false,
-      strict: StrictCheckType.Ignore,
+      onMissingPaths: CheckType.Ignore,
     })
 
     expect(
@@ -285,7 +283,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: StrictCheckType.Ignore,
+      onMissingPaths: CheckType.Ignore,
     })
 
     expect(getLanguages('https://sample.org')).toEqual([])
@@ -305,7 +303,7 @@ describe(`createGetLanguages`, () => {
       pageLanguage: 'en',
       defaultLanguage: 'en',
       includeDefaultLanguageInURL: true,
-      strict: StrictCheckType.Ignore,
+      onMissingPaths: CheckType.Ignore,
     })
 
     const expected = [

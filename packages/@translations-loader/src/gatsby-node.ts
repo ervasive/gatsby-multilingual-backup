@@ -8,13 +8,21 @@ import {
 import getOptions from './get-options'
 import transformNodeContent from './transform-node-content'
 import getNodePriority from './get-node-priority'
+import validateInstanceUniqueness from './validate-instance-uniqueness'
 import { PLUGIN_NAME, SOURCE_FILESYSTEM_INSTANCE_NAME } from './constants'
 
 export const onPreBootstrap: GatsbyNode['onPreBootstrap'] = async (
-  { reporter },
+  { store, reporter },
   pluginOptions,
 ): Promise<void> => {
   const options = getOptions(pluginOptions)
+
+  // Validate that there is only a single plugin instance registered for the
+  // same translations directory path
+  validateInstanceUniqueness(
+    options.path,
+    store.getState().flattenedPlugins,
+  ).mapErr(err => reporter.panic(err))
 
   // Attempt to create specified directory for translations files
   try {

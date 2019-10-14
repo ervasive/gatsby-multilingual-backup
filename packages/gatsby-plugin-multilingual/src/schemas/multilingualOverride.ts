@@ -3,7 +3,7 @@ import multilingualContextSchema from './multilingualContext'
 
 const { boolean, string } = Joi.types()
 
-export default multilingualContextSchema.label('multilingual override').keys({
+export default multilingualContextSchema.keys({
   pageId: string.required(),
   shouldBeProcessed: boolean,
 })

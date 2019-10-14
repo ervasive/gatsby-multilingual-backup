@@ -1,5 +1,5 @@
 import path from 'path'
-import { Options, Mode, StrictCheckType, MissingLanguages } from './types'
+import { Options, Mode, CheckType, MissingLanguages } from './types'
 
 export const PLUGIN_NAME = 'gatsby-plugin-multilingual'
 
@@ -24,13 +24,13 @@ export const DEFAULT_OPTIONS: Options = {
   defaultLanguage: 'en',
   availableLanguages: ['en'],
   defaultNamespace: 'common',
+  includeDefaultLanguageInURL: false,
   mode: Mode.Lazy,
   missingLanguages: MissingLanguages.Ignore,
-  includeDefaultLanguageInURL: false,
-  strictChecks: {
-    paths: StrictCheckType.Ignore,
-    pages: StrictCheckType.Ignore,
-    translations: StrictCheckType.Ignore,
+  checks: {
+    missingPaths: CheckType.Ignore,
+    missingLanguageVersions: CheckType.Ignore,
+    missingTranslationStrings: CheckType.Ignore,
   },
   overrides: [],
   plugins: [],

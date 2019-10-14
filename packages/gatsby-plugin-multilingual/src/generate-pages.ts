@@ -81,7 +81,7 @@ export default (
   > = new Map()
 
   const override = getPageOverride(page, overrides)
-    .mapErr(err => result.errors.push({ type: 'warn', message: err }))
+    .mapErr(err => result.errors.push(err))
     .unwrapOr(Maybe.nothing())
 
   if (shouldPageBeSkipped(page, mode, override)) {
@@ -174,12 +174,10 @@ export default (
 
   // Warn the user if we end up without any valid language.
   if (!languageVersions.size) {
-    result.errors.push({
-      type: 'warn',
-      message:
-        `A page with the following path: "${page.path}" does not have ` +
-        `any valid (allowed) language. Skipping...`,
-    })
+    result.errors.push(
+      `A page with the following path: "${page.path}" does not have any ` +
+        `valid languages. Skipping...`,
+    )
 
     return result
   }

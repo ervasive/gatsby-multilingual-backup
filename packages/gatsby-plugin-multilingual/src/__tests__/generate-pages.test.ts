@@ -481,8 +481,7 @@ describe('generatePages', () => {
     expect(result.pages.length).toBe(0)
     expect(result.redirects.length).toBe(0)
     expect(result.errors.length).toBe(1)
-    expect(result.errors[0].type).toMatch(/warn/i)
-    expect(result.errors[0].message).toMatch(/does not have any valid/i)
+    expect(result.errors[0]).toMatch(/does not have any valid/i)
     expect(result.removeOriginalPage).toBe(false)
   })
 

@@ -4,7 +4,6 @@ import multilingualContextSchema from './multilingualContext'
 const { boolean, string, object } = Joi.types()
 
 export default object
-  .label('multilingual page')
   .keys({
     path: string.required(),
     context: object.keys({

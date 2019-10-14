@@ -49,7 +49,9 @@ export default (
   } = multilingualOverrideSchema.required().validate(override)
 
   if (overrideValidationError) {
-    return Result.err('Invalid page override provided')
+    return Result.err(
+      `Page override failed validation: ${overrideValidationError.message}`,
+    )
   }
 
   return Result.ok(Maybe.just(overrideValidationValue as MultilingualOverride))

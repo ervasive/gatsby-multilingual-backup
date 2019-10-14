@@ -5,8 +5,7 @@ import getOptions from './get-options'
 import { Options } from './types'
 
 module.exports = (options: Options): GatsbyConfig => {
-  // We are going to run options validation here, because we access
-  // "getOptions" in this file.
+  // Validate plugin options
   const { error } = optionsSchema
     .required()
     .validate(options, { abortEarly: false })

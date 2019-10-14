@@ -1,6 +1,6 @@
 import getOptions from '../get-options'
 import { DEFAULT_OPTIONS } from '../constants'
-import { Options, Mode, MissingLanguages, StrictCheckType } from '../types'
+import { Options, Mode, MissingLanguages, CheckType } from '../types'
 
 describe('getOptions', () => {
   it('should set default values on undefined argument', (): void => {
@@ -16,10 +16,10 @@ describe('getOptions', () => {
       missingLanguages: MissingLanguages.Generate,
       includeDefaultLanguageInURL: true,
       overrides: [{ pageId: '/page' }],
-      strictChecks: {
-        paths: StrictCheckType.Error,
-        pages: StrictCheckType.Error,
-        translations: StrictCheckType.Error,
+      checks: {
+        missingPaths: CheckType.Error,
+        missingLanguageVersions: CheckType.Error,
+        missingTranslationStrings: CheckType.Error,
       },
       pathToRedirectTemplate: 'custom-path',
       plugins: [],

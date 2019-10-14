@@ -23,7 +23,7 @@ export type Language = {
   path?: string
 }
 
-export enum StrictCheckType {
+export enum CheckType {
   Ignore = 'ignore',
   Warn = 'warn',
   Error = 'error',
@@ -44,16 +44,16 @@ export interface Options extends GatsbyPluginOptions {
   defaultLanguage: string
   availableLanguages: string[]
   defaultNamespace: string
+  includeDefaultLanguageInURL: boolean
   mode: Mode
   missingLanguages: MissingLanguages
-  includeDefaultLanguageInURL: boolean
   overrides:
     | ((page: GatsbyPage) => MultilingualOverride | never)
     | MultilingualOverride[]
-  strictChecks: {
-    paths: StrictCheckType
-    pages: StrictCheckType
-    translations: StrictCheckType
+  checks: {
+    missingPaths: CheckType
+    missingLanguageVersions: CheckType
+    missingTranslationStrings: CheckType
   }
   pathToRedirectTemplate?: string
 }
@@ -80,10 +80,7 @@ export interface RedirectPage extends GatsbyPage {
 export interface PagesGeneratorResult {
   pages: (MonolingualPage | RedirectPage)[]
   redirects: GatsbyRedirect[]
-  errors: {
-    type: string
-    message: string
-  }[]
+  errors: string[]
   removeOriginalPage?: boolean
 }
 
@@ -102,7 +99,7 @@ export type ContextProviderData = Pick<
           path?: string
           language?: string
           generic?: boolean
-          strict?: StrictCheckType
+          onMissingPath?: CheckType
         },
   ) => string | never // This function throws in certain cases
   getLanguages: (
@@ -111,7 +108,7 @@ export type ContextProviderData = Pick<
       | {
           path?: string
           skipCurrentLanguage?: boolean
-          strict?: StrictCheckType
+          onMissingPath?: CheckType
         },
   ) => { language: string; path: string; isCurrent: boolean }[] | never // This function throws in certain cases
 }

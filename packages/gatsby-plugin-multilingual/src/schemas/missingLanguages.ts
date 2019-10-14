@@ -3,10 +3,8 @@ import { MissingLanguages } from '../types'
 
 const { string } = Joi.types()
 
-export default string
-  .label('missing languages')
-  .valid(
-    MissingLanguages.Ignore,
-    MissingLanguages.Generate,
-    MissingLanguages.Redirect,
-  )
+export default string.valid(
+  MissingLanguages.Ignore,
+  MissingLanguages.Generate,
+  MissingLanguages.Redirect,
+)

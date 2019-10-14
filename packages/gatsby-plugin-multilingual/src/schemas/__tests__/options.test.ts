@@ -1,7 +1,13 @@
 import { assert, property, anything } from 'fast-check'
-import { isUndefined, isString, isArray, isFunction } from 'lodash'
+import {
+  isUndefined,
+  isBoolean,
+  isString,
+  isArray,
+  isPlainObject,
+  isFunction,
+} from 'lodash'
 import s from '../options'
-import { isBoolean } from 'util'
 
 describe('optionsSchema', () => {
   it('should error out on invalid defaultLanguage inputs', () => {
@@ -92,7 +98,18 @@ describe('optionsSchema', () => {
     )
   })
 
-  // Skip "strictChecks" property as it is validated separately
+  it('should error out on invalid checks inputs', () => {
+    assert(
+      property(
+        anything().filter(v => !(isUndefined(v) || isPlainObject(v))),
+        data => {
+          expect(s.validate({ checks: data }).error.details[0].message).toMatch(
+            /"checks" must be of type object/i,
+          )
+        },
+      ),
+    )
+  })
 
   it('should error out on invalid pathToRedirectTemplate inputs', () => {
     assert(

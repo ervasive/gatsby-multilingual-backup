@@ -11,7 +11,7 @@ describe('modeSchema', () => {
         ),
         data => {
           expect(s.validate(data).error.details[0].message).toMatch(
-            /"mode" must be one of \[greedy, lazy\]/i,
+            /"value" must be one of \[greedy, lazy\]/i,
           )
         },
       ),

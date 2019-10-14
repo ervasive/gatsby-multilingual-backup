@@ -19,7 +19,7 @@ describe('getPageOverride', () => {
           languages: 'invalid-value',
         } as unknown) as MultilingualOverride,
       ]).toString(),
-    ).toMatch(/invalid page override provided/i)
+    ).toMatch(/page override failed validation.*"languages" must be an array/i)
 
     expect(
       getPageOverride(
@@ -30,7 +30,7 @@ describe('getPageOverride', () => {
             languages: 'invalid-value',
           } as unknown) as MultilingualOverride),
       ).toString(),
-    ).toMatch(/invalid page override provided/i)
+    ).toMatch(/page override failed validation.*"languages" must be an array/i)
   })
 
   it('should return an error on throwing override function', () => {

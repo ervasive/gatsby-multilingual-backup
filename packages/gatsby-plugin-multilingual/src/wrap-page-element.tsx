@@ -12,7 +12,7 @@ const WrapPageElement = ({
     availableLanguages,
     defaultNamespace,
     includeDefaultLanguageInURL,
-    strictChecks,
+    checks,
   },
   pages,
 }: WrapPageElementProps): JSX.Element => {
@@ -37,7 +37,7 @@ const WrapPageElement = ({
           pageLanguage: i18n.language,
           defaultLanguage,
           includeDefaultLanguageInURL,
-          strict: strictChecks.paths,
+          onMissingPaths: checks.missingPaths,
         }),
         getLanguages: createGetLanguages({
           pages,
@@ -45,7 +45,7 @@ const WrapPageElement = ({
           pageLanguage: i18n.language,
           defaultLanguage,
           includeDefaultLanguageInURL,
-          strict: strictChecks.paths,
+          onMissingPaths: checks.missingPaths,
         }),
       }}
     >

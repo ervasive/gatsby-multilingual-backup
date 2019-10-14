@@ -2,7 +2,7 @@ import parse from 'url-parse'
 import isPlainObject from 'lodash/isPlainObject'
 import getPageGenericPath from './utils/get-page-generic-path'
 import getPagePrefixedPath from './utils/get-page-prefixed-path'
-import { ContextProviderData, PagesRegistry, StrictCheckType } from './types'
+import { ContextProviderData, PagesRegistry, CheckType } from './types'
 
 const invalidArgErrorMessage =
   `The "getLanguages" function received invalid argument. Only "string" or ` +
@@ -19,14 +19,14 @@ export default ({
   pageLanguage,
   defaultLanguage,
   includeDefaultLanguageInURL,
-  strict: globalStrict,
+  onMissingPaths,
 }: {
   pages: PagesRegistry
   pageGenericPath: string
   pageLanguage: string
   defaultLanguage: string
   includeDefaultLanguageInURL: boolean
-  strict: StrictCheckType
+  onMissingPaths: CheckType
 }): ContextProviderData['getLanguages'] => {
   const fn: ContextProviderData['getLanguages'] = value => {
     const prevalidatedValue = value as unknown
@@ -40,16 +40,16 @@ export default ({
 
     let path: string
     let skipCurrentLanguage: boolean
-    let strict: StrictCheckType
+    let onMissingPath: CheckType
 
     if (prevalidatedValue === undefined) {
       path = pageGenericPath
       skipCurrentLanguage = false
-      strict = globalStrict
+      onMissingPath = onMissingPaths
     } else if (typeof prevalidatedValue === 'string') {
       path = prevalidatedValue
       skipCurrentLanguage = false
-      strict = globalStrict
+      onMissingPath = onMissingPaths
     } else {
       const values = prevalidatedValue as Record<string, unknown>
 
@@ -68,13 +68,11 @@ export default ({
 
       if (
         !(
-          values.strict === undefined ||
-          (typeof values.strict === 'string' &&
-            [
-              StrictCheckType.Ignore,
-              StrictCheckType.Warn,
-              StrictCheckType.Error,
-            ].includes(values.strict as StrictCheckType))
+          values.onMissingPath === undefined ||
+          (typeof values.onMissingPath === 'string' &&
+            [CheckType.Ignore, CheckType.Warn, CheckType.Error].includes(
+              values.onMissingPath as CheckType,
+            ))
         )
       ) {
         throw new TypeError(invalidArgErrorMessage)
@@ -82,10 +80,10 @@ export default ({
 
       path = values.path || pageGenericPath
       skipCurrentLanguage = values.skipCurrentLanguage || false
-      strict =
-        values.strict === undefined
-          ? globalStrict
-          : (values.strict as StrictCheckType)
+      onMissingPath =
+        values.onMissingPath === undefined
+          ? onMissingPaths
+          : (values.onMissingPath as CheckType)
     }
 
     const { slashes, protocol, port, pathname, query, hash } = parse(path, {})
@@ -97,10 +95,10 @@ export default ({
     const genericPath = getPageGenericPath(pathname, pages)
 
     if (genericPath.isNothing()) {
-      if (strict === StrictCheckType.Error) {
+      if (onMissingPath === CheckType.Error) {
         throw new Error(getMissingPageErrorMessage(path))
       } else {
-        if (strict === StrictCheckType.Warn) {
+        if (onMissingPath === CheckType.Warn) {
           console.warn(getMissingPageErrorMessage(path))
         }
 
