@@ -34,7 +34,7 @@ export default ({
     },
 
     react: {
-      useSuspense: false, // TODO: should it be configurable?
+      useSuspense: true, // TODO: should it be configurable?
     },
   }
 

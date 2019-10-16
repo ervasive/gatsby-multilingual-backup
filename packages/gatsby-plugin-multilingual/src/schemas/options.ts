@@ -25,4 +25,5 @@ export default object.keys({
     missingTranslationStrings: checksSchema,
   }),
   pathToRedirectTemplate: string,
+  plugins: array,
 })

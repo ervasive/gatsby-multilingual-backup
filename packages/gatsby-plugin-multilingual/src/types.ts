@@ -1,5 +1,6 @@
 import {
   PluginOptions as GatsbyPluginOptions,
+  WrapPageElementBrowserArgs,
   WrapRootElementBrowserArgs,
 } from 'gatsby'
 import i18next from 'i18next'
@@ -113,23 +114,17 @@ export type ContextProviderData = Pick<
   ) => { language: string; path: string; isCurrent: boolean }[] | never // This function throws in certain cases
 }
 
-export interface WrapRootElementProps {
-  args: WrapRootElementBrowserArgs
-  pluginOptions: Options
+export type RootElement = (args: {
   translations: i18next.Resource
   namespaces: string[]
-}
+  options: Options
+  children: JSX.Element
+}) => JSX.Element
 
-export interface WrapPageElementArgs {
-  element: object
-  props: {
-    path: string
-    pageContext: Partial<MonolingualPage['context']>
-  }
-}
-
-export interface WrapPageElementProps {
-  args: WrapPageElementArgs
-  pluginOptions: Options
+export type PageElement = (args: {
+  pageId: string
+  language: string
   pages: PagesRegistry
-}
+  options: Options
+  children: JSX.Element
+}) => JSX.Element

@@ -1,27 +1,28 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import createGetPath from './create-get-path'
-import createGetLanguages from './create-get-languages'
-import { MultilingualContext } from './MultilingualContext'
-import { WrapPageElementProps } from './types'
+import createGetPath from '../create-get-path'
+import createGetLanguages from '../create-get-languages'
+import { MultilingualContext } from '../MultilingualContext'
+import { PageElement } from '../types'
 
-const WrapPageElement = ({
-  args: { element, props },
-  pluginOptions: {
+const MultilingualPageWrapper: PageElement = ({
+  pageId,
+  language,
+  pages,
+  options: {
     defaultLanguage,
     availableLanguages,
     defaultNamespace,
     includeDefaultLanguageInURL,
     checks,
   },
-  pages,
-}: WrapPageElementProps): JSX.Element => {
-  const { language, pageId } = props.pageContext
+  children,
+}) => {
   const { i18n } = useTranslation()
-
-  useEffect(() => {
-    i18n.changeLanguage(language || defaultLanguage)
-  }, [language])
+  console.log('MultilingualPageWrapper')
+  i18n.changeLanguage(language)
+  // useEffect(() => {
+  // }, [language])
 
   return (
     <MultilingualContext.Provider
@@ -33,7 +34,7 @@ const WrapPageElement = ({
         includeDefaultLanguageInURL,
         getPath: createGetPath({
           pages,
-          pageGenericPath: pageId || props.path,
+          pageGenericPath: pageId,
           pageLanguage: i18n.language,
           defaultLanguage,
           includeDefaultLanguageInURL,
@@ -41,7 +42,7 @@ const WrapPageElement = ({
         }),
         getLanguages: createGetLanguages({
           pages,
-          pageGenericPath: pageId || props.path,
+          pageGenericPath: pageId,
           pageLanguage: i18n.language,
           defaultLanguage,
           includeDefaultLanguageInURL,
@@ -49,9 +50,9 @@ const WrapPageElement = ({
         }),
       }}
     >
-      {element}
+      {children}
     </MultilingualContext.Provider>
   )
 }
 
-export default WrapPageElement
+export default MultilingualPageWrapper
