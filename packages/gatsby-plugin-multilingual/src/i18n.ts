@@ -1,6 +1,4 @@
-import uniq from 'lodash/uniq'
 import i18n from 'i18next'
-import { initReactI18next } from 'react-i18next'
 import XHR from 'i18next-xhr-backend'
 
 export default ({
@@ -14,31 +12,30 @@ export default ({
   availableLanguages: string[]
   namespace: string
   namespaces: string[]
-  translations?: i18n.Resource
+  translations: i18n.Resource
 }): i18n.i18n => {
   const i18nInstance = i18n
   const options: i18n.InitOptions = {
     lng: language,
     fallbackLng: language,
-    whitelist: uniq([...availableLanguages, language]),
+    whitelist: availableLanguages,
     defaultNS: namespace,
-    ns: uniq([...namespaces, namespace]),
-    resources: translations,
-    preload: availableLanguages,
+    // TODO: validate that namespaces contain defaultNamespace and all elements are uniq
+    ns: namespaces,
+    // resources: translations,
+    // preload: availableLanguages,
     partialBundledLanguages: true,
 
-    // debug: true, // TODO: enable if plugin option is true
+    debug: false, // TODO: enable if plugin option is true
 
     interpolation: {
       escapeValue: false,
     },
 
     react: {
-      useSuspense: true, // TODO: should it be configurable?
+      useSuspense: false, // TODO: should it be configurable?
     },
   }
-
-  i18nInstance.use(initReactI18next)
 
   if (typeof XMLHttpRequest === 'function') {
     i18nInstance.use(XHR)

@@ -1,50 +1,52 @@
 import React, { Suspense } from 'react'
-import { GatsbyBrowser } from 'gatsby'
+
 import getOptions from './get-options'
-import { MonolingualPage } from './types'
+import { WrapRootElement, WrapPageElement } from './types'
 
 import Root from './components/MultilingualRootWrapper'
 import Page from './components/MultilingualPageWrapper'
 
-// explain
+// These modules are generated on "preBootstrap" method and available via
+// webpack alias entries
 import translations from 'translations-default'
 import namespaces from 'namespaces'
 import pages from 'pages'
 
-// explain
+// Add "all-translations" module to the webpack's dependencies graph for live
+// page reaload on translations change in development
 if (process.env.NODE_ENV === 'development') {
   require('translations-all')
 }
 
-export const wrapRootElement: GatsbyBrowser['wrapRootElement'] = (
+export const wrapRootElement: WrapRootElement = (
   { element },
   pluginOptions,
 ) => {
-  // validate a singular run on mounting
   const options = getOptions(pluginOptions)
+
   console.log('wrapRootElement')
+
   return (
     <Root namespaces={namespaces} translations={translations} options={options}>
-      {element as JSX.Element}
+      {element}
     </Root>
   )
 }
 
-export const wrapPageElement: GatsbyBrowser['wrapPageElement'] = (
-  { element, props },
+export const wrapPageElement: WrapPageElement = (
+  { element, props: { path, pageContext } },
   pluginOptions,
 ) => {
   const options = getOptions(pluginOptions)
-  const propsRecord = props as Record<string, unknown>
-  const context = propsRecord.pageContext as Partial<MonolingualPage['context']>
+  const pageId = pageContext.pageId || path
+  const language = pageContext.language || options.defaultLanguage
 
-  const pageId = context.pageId || (propsRecord.path as string)
-  const language = context.language || options.defaultLanguage
   console.log('wrapPageElement')
+
   return (
     <Suspense fallback={'Loading...'}>
       <Page pageId={pageId} language={language} pages={pages} options={options}>
-        {element as JSX.Element}
+        {element}
       </Page>
     </Suspense>
   )

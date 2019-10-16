@@ -1,3 +1,5 @@
+import React, { useLayoutEffect } from 'react'
+import { I18nextProvider } from 'react-i18next'
 import createI18Instance from '../i18n'
 import { RootElement } from '../types'
 
@@ -7,7 +9,7 @@ const MultilingualRootWrapper: RootElement = ({
   options: { defaultLanguage, availableLanguages, defaultNamespace },
   children,
 }) => {
-  createI18Instance({
+  const i18n = createI18Instance({
     language: defaultLanguage,
     availableLanguages,
     namespace: defaultNamespace,
@@ -15,7 +17,7 @@ const MultilingualRootWrapper: RootElement = ({
     translations,
   })
 
-  return children
+  return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
 }
 
 export default MultilingualRootWrapper

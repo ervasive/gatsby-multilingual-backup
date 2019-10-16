@@ -114,12 +114,29 @@ export type ContextProviderData = Pick<
   ) => { language: string; path: string; isCurrent: boolean }[] | never // This function throws in certain cases
 }
 
+export type WrapRootElement = (
+  args: { element: JSX.Element },
+  pluginOptions: Partial<Options>,
+) => JSX.Element
+
 export type RootElement = (args: {
   translations: i18next.Resource
   namespaces: string[]
   options: Options
   children: JSX.Element
 }) => JSX.Element
+
+export type WrapPageElement = (
+  args: {
+    element: JSX.Element
+    props: {
+      path: string
+      pageContext: Partial<MonolingualPage['context']>
+      [key: string]: unknown
+    }
+  },
+  pluginOptions: Partial<Options>,
+) => JSX.Element
 
 export type PageElement = (args: {
   pageId: string

@@ -19,10 +19,14 @@ const MultilingualPageWrapper: PageElement = ({
   children,
 }) => {
   const { i18n } = useTranslation()
+
   console.log('MultilingualPageWrapper')
-  i18n.changeLanguage(language)
-  // useEffect(() => {
-  // }, [language])
+
+  useEffect(() => {
+    if (language !== i18n.language) {
+      i18n.changeLanguage(language)
+    }
+  }, [language])
 
   return (
     <MultilingualContext.Provider
