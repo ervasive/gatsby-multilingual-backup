@@ -7,10 +7,9 @@ import { processTranslations } from '../translations'
 import {
   PLUGIN_NAME,
   CACHE_DIR,
-  CACHE_PAGES_FILE,
-  CACHE_NAMESPACES_FILE,
-  CACHE_TRANSLATIONS_ALL_FILE,
-  CACHE_TRANSLATIONS_DEFAULT_FILE,
+  TRANSLATIONS_FILE,
+  PAGES_REGISTRY_FILE,
+  NAMESPACES_FILE,
 } from '../constants'
 import copyRedirectTemplate from '../copyRedirectTemplate'
 
@@ -44,10 +43,9 @@ const onPreBootstrap: GatsbyNode['onPreBootstrap'] = (
   return emptyDir(CACHE_DIR)
     .then(() =>
       Promise.all([
-        outputJSON(CACHE_PAGES_FILE, {}),
-        outputJSON(CACHE_NAMESPACES_FILE, []),
-        outputJSON(CACHE_TRANSLATIONS_ALL_FILE, {}),
-        outputJSON(CACHE_TRANSLATIONS_DEFAULT_FILE, {}),
+        outputJSON(PAGES_REGISTRY_FILE, {}),
+        outputJSON(NAMESPACES_FILE, []),
+        outputJSON(TRANSLATIONS_FILE, {}),
         copyRedirectTemplate(options.pathToRedirectTemplate),
         processTranslations(getNodesByType(NAMESPACE_NODE_TYPENAME), options),
       ]),

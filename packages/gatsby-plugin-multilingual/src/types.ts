@@ -1,12 +1,26 @@
 import {
   PluginOptions as GatsbyPluginOptions,
-  WrapPageElementBrowserArgs,
-  WrapRootElementBrowserArgs,
+  RenderBodyArgs as GatsbyRenderBodyArgs,
 } from 'gatsby'
-import i18next from 'i18next'
-import { GatsbyPage, GatsbyRedirect } from '@gatsby-plugin-multilingual/shared'
+import i18next, { Resource, i18n } from 'i18next'
+import {
+  GatsbyPage,
+  GatsbyRedirect,
+  NamespaceNode,
+} from '@gatsby-plugin-multilingual/shared'
+
+declare global {
+  interface Window {
+    gpml?: {
+      language?: string
+      translations?: TranslationsResource
+    }
+  }
+}
 
 export type PagesRegistry = Record<string, Record<string, string>>
+export type PathnamesRegistry = Record<string, string>
+export type TranslationsResource = Resource
 
 export enum Mode {
   Greedy = 'greedy',
@@ -19,15 +33,21 @@ export enum MissingLanguages {
   Redirect = 'redirect',
 }
 
-export type Language = {
-  language: string
-  path?: string
-}
-
 export enum CheckType {
   Ignore = 'ignore',
   Warn = 'warn',
   Error = 'error',
+}
+
+export enum TranslationsBundling {
+  All = 'all',
+  None = 'none',
+  PageLanguage = 'page-language',
+}
+
+export type Language = {
+  language: string
+  path?: string
 }
 
 export interface MultilingualContext {
@@ -48,6 +68,8 @@ export interface Options extends GatsbyPluginOptions {
   includeDefaultLanguageInURL: boolean
   mode: Mode
   missingLanguages: MissingLanguages
+  translationsBundling: TranslationsBundling
+  pathToRedirectTemplate?: string
   overrides:
     | ((page: GatsbyPage) => MultilingualOverride | never)
     | MultilingualOverride[]
@@ -56,7 +78,6 @@ export interface Options extends GatsbyPluginOptions {
     missingLanguageVersions: CheckType
     missingTranslationStrings: CheckType
   }
-  pathToRedirectTemplate?: string
 }
 
 export interface MultilingualPage extends GatsbyPage {
@@ -78,12 +99,26 @@ export interface RedirectPage extends GatsbyPage {
   }
 }
 
-export interface PagesGeneratorResult {
-  pages: (MonolingualPage | RedirectPage)[]
-  redirects: GatsbyRedirect[]
-  errors: string[]
-  removeOriginalPage?: boolean
-}
+export type GetPathHelper = (
+  value?:
+    | string
+    | {
+        path?: string
+        language?: string
+        generic?: boolean
+        onMissingPath?: CheckType
+      },
+) => string | never // This function throws in certain cases
+
+export type GetLanguagesHelper = (
+  value?:
+    | string
+    | {
+        path?: string
+        skipCurrentLanguage?: boolean
+        onMissingPath?: CheckType
+      },
+) => { language: string; path: string; isCurrent: boolean }[] | never // This function throws in certain cases
 
 export type ContextProviderData = Pick<
   Options,
@@ -93,26 +128,38 @@ export type ContextProviderData = Pick<
   | 'includeDefaultLanguageInURL'
 > & {
   currentLanguage: string
-  getPath: (
-    value?:
-      | string
-      | {
-          path?: string
-          language?: string
-          generic?: boolean
-          onMissingPath?: CheckType
-        },
-  ) => string | never // This function throws in certain cases
-  getLanguages: (
-    value?:
-      | string
-      | {
-          path?: string
-          skipCurrentLanguage?: boolean
-          onMissingPath?: CheckType
-        },
-  ) => { language: string; path: string; isCurrent: boolean }[] | never // This function throws in certain cases
+  getPath: GetPathHelper
+  getLanguages: GetLanguagesHelper
 }
+
+export interface PagesGeneratorResult {
+  pages: (MonolingualPage | RedirectPage)[]
+  redirects: GatsbyRedirect[]
+  errors: string[]
+  removeOriginalPage?: boolean
+}
+
+export type TranslationsAggregatorResult = (
+  nodes: NamespaceNode[],
+  options: Options,
+) => {
+  namespaces: Set<string>
+  translations: TranslationsResource
+}
+
+export type CreateI18nInstance = (args: {
+  pageLanguage: string
+  defaultLanguage: string
+  availableLanguages: string[]
+  namespace: string
+  availableNamespaces: string[]
+  translations: Resource
+}) => i18n
+
+export type OnRenderBody = (
+  args: GatsbyRenderBodyArgs,
+  pluginOptions: GatsbyPluginOptions,
+) => void
 
 export type WrapRootElement = (
   args: { element: JSX.Element },
@@ -120,8 +167,9 @@ export type WrapRootElement = (
 ) => JSX.Element
 
 export type RootElement = (args: {
-  translations: i18next.Resource
+  pageLanguage: string
   namespaces: string[]
+  translations: i18next.Resource
   options: Options
   children: JSX.Element
 }) => JSX.Element
@@ -140,7 +188,7 @@ export type WrapPageElement = (
 
 export type PageElement = (args: {
   pageId: string
-  language: string
+  pageLanguage: string
   pages: PagesRegistry
   options: Options
   children: JSX.Element

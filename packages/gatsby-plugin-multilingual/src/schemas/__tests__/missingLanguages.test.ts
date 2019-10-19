@@ -1,6 +1,7 @@
 import { assert, property, anything } from 'fast-check'
 import { isUndefined } from 'lodash'
 import s from '../missingLanguages'
+import { MissingLanguages } from '../../types'
 
 describe('missingLanguagesSchema', () => {
   it('should error out on invalid values', () => {
@@ -8,7 +9,14 @@ describe('missingLanguagesSchema', () => {
       property(
         anything().filter(
           v =>
-            !(isUndefined(v) || ['ignore', 'generate', 'redirect'].includes(v)),
+            !(
+              isUndefined(v) ||
+              [
+                MissingLanguages.Ignore,
+                MissingLanguages.Generate,
+                MissingLanguages.Redirect,
+              ].includes(v)
+            ),
         ),
         data => {
           expect(s.validate(data).error.details[0].message).toMatch(
@@ -20,8 +28,8 @@ describe('missingLanguagesSchema', () => {
   })
 
   it('should not error out on valid values', () => {
-    expect(s.validate('ignore').error).toBeUndefined()
-    expect(s.validate('generate').error).toBeUndefined()
-    expect(s.validate('redirect').error).toBeUndefined()
+    expect(s.validate(MissingLanguages.Ignore).error).toBeUndefined()
+    expect(s.validate(MissingLanguages.Generate).error).toBeUndefined()
+    expect(s.validate(MissingLanguages.Redirect).error).toBeUndefined()
   })
 })

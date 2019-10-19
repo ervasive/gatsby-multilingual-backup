@@ -6,10 +6,10 @@
     "tsBuildInfoFile": "./tsconfig.tsbuildinfo",
     "baseUrl": "./src",
     "paths": {
-      "translations-all": ["stubs/translations"],
-      "translations-default": ["stubs/translations"],
       "namespaces": ["stubs/namespaces"],
-      "pages": ["stubs/pages"]
+      "translations": ["stubs/translations"],
+      "pages-registry": ["stubs/pages-registry"],
+      "pathnames-registry": ["stubs/pathnames-registry"]
     }
   },
   "include": ["src/**/*"],

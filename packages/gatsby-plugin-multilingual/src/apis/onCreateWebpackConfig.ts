@@ -1,21 +1,21 @@
 import { GatsbyNode } from 'gatsby'
 import {
-  CACHE_PAGES_FILE,
-  CACHE_NAMESPACES_FILE,
-  CACHE_TRANSLATIONS_ALL_FILE,
-  CACHE_TRANSLATIONS_DEFAULT_FILE,
+  PAGES_REGISTRY_FILE,
+  PATHNAMES_REGISTRY_FILE,
+  NAMESPACES_FILE,
+  TRANSLATIONS_FILE,
 } from '../constants'
 
-const onCreateWebpackConfig: GatsbyNode['onCreateWebpackConfig'] = ({
+const onCreateWebpackConfig: GatsbyNode['onCreateWebpackConfig'] = async ({
   actions,
 }) => {
   actions.setWebpackConfig({
     resolve: {
       alias: {
-        pages: CACHE_PAGES_FILE,
-        namespaces: CACHE_NAMESPACES_FILE,
-        'translations-all': CACHE_TRANSLATIONS_ALL_FILE,
-        'translations-default': CACHE_TRANSLATIONS_DEFAULT_FILE,
+        namespaces: NAMESPACES_FILE,
+        translations: TRANSLATIONS_FILE,
+        'pages-registry': PAGES_REGISTRY_FILE,
+        'pathnames-registry': PATHNAMES_REGISTRY_FILE,
       },
     },
   })

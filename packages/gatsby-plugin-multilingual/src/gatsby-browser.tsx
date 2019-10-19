@@ -1,35 +1,50 @@
 import React, { Suspense } from 'react'
-
 import getOptions from './get-options'
+import RootWrapper from './components/MultilingualRootWrapper'
+import PageWrapper from './components/MultilingualPageWrapper'
 import { WrapRootElement, WrapPageElement } from './types'
 
-import Root from './components/MultilingualRootWrapper'
-import Page from './components/MultilingualPageWrapper'
-
-// These modules are generated on "preBootstrap" method and available via
-// webpack alias entries
-import translations from 'translations-default'
+// These modules are generated on "preBootstrap" lifecycle method and available
+// via webpack alias entries
 import namespaces from 'namespaces'
-import pages from 'pages'
+import pagesRegistry from 'pages-registry'
 
-// Add "all-translations" module to the webpack's dependencies graph for live
-// page reaload on translations change in development
+// Get translations resource which may be defined in the document's head
+// see ./gatsby-ssr.tsx
+let translations =
+  window.gpml && window.gpml.translations ? window.gpml.translations : {}
+
+// Load all aggregated translations in development mode
 if (process.env.NODE_ENV === 'development') {
-  require('translations-all')
+  translations = require('translations')
 }
 
 export const wrapRootElement: WrapRootElement = (
   { element },
   pluginOptions,
 ) => {
+  console.log('wrapRootElement Browser')
+
   const options = getOptions(pluginOptions)
 
-  console.log('wrapRootElement')
+  // Determine page language which may be defined in the document's head
+  // (see ./gatsby-ssr.tsx) or fallback to the default one
+  const language =
+    window.gpml && window.gpml.language
+      ? window.gpml.language
+      : options.defaultLanguage
 
   return (
-    <Root namespaces={namespaces} translations={translations} options={options}>
-      {element}
-    </Root>
+    <Suspense fallback="Loading suspense...">
+      <RootWrapper
+        pageLanguage={language}
+        namespaces={namespaces}
+        translations={translations}
+        options={options}
+      >
+        {element}
+      </RootWrapper>
+    </Suspense>
   )
 }
 
@@ -37,17 +52,21 @@ export const wrapPageElement: WrapPageElement = (
   { element, props: { path, pageContext } },
   pluginOptions,
 ) => {
+  console.log('wrapPageElement Browser')
+
   const options = getOptions(pluginOptions)
+
   const pageId = pageContext.pageId || path
   const language = pageContext.language || options.defaultLanguage
 
-  console.log('wrapPageElement')
-
   return (
-    <Suspense fallback={'Loading...'}>
-      <Page pageId={pageId} language={language} pages={pages} options={options}>
-        {element}
-      </Page>
-    </Suspense>
+    <PageWrapper
+      pageId={pageId}
+      pageLanguage={language}
+      pages={pagesRegistry}
+      options={options}
+    >
+      {element}
+    </PageWrapper>
   )
 }

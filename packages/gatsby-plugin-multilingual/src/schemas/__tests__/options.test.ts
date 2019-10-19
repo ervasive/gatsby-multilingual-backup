@@ -66,6 +66,7 @@ describe('optionsSchema', () => {
 
   // Skip "mode" property as it is validated separately
   // Skip "missingLanguages" property as it is validated separately
+  // Skip "translationsBundling" property as it is validated separately
 
   it('should error out on invalid includeDefaultLanguageInURL inputs', () => {
     assert(

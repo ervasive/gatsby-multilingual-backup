@@ -1,73 +1,73 @@
 import path from 'path'
-import merge from 'lodash/merge'
 import { outputJSON } from 'fs-extra'
 import { NamespaceNode } from '@gatsby-plugin-multilingual/shared'
-import { Options } from './types'
+import { Options, TranslationsAggregatorResult } from './types'
 import {
-  CACHE_NAMESPACES_FILE,
-  CACHE_TRANSLATIONS_ALL_FILE,
-  CACHE_TRANSLATIONS_DEFAULT_FILE,
+  NAMESPACES_FILE,
+  TRANSLATIONS_FILE,
   PUBLIC_TRANSLATIONS_DIR,
 } from './constants'
 
-export const aggregateTranslations = (
-  nodes: NamespaceNode[],
-  { defaultLanguage, availableLanguages, defaultNamespace }: Options,
-): Record<string, object> => {
-  const result: Record<string, object> = {}
-  const namespaces = new Set([defaultNamespace])
-
-  let translations: Record<string, object> = availableLanguages.reduce(
-    (acc, language): Record<string, object> =>
-      merge({}, acc, { [language]: { [defaultNamespace]: {} } }),
-    {},
-  )
-
-  translations = merge(
-    {},
-    translations,
-    nodes
-      .sort((current, next): number => current.priority - next.priority)
-      .reduce((acc: object, node: NamespaceNode): object => {
-        namespaces.add(node.namespace)
-
-        return merge({}, acc, {
-          [node.language]: {
-            [node.namespace]: JSON.parse(node.data),
-          },
-        })
-      }, {}),
-  )
-
-  // `cache` related files
-  result[CACHE_NAMESPACES_FILE] = Array.from(namespaces)
-  result[CACHE_TRANSLATIONS_ALL_FILE] = translations
-  result[CACHE_TRANSLATIONS_DEFAULT_FILE] = {
-    [defaultLanguage]: translations[defaultLanguage],
+export const aggregateTranslations: TranslationsAggregatorResult = (
+  nodes,
+  { availableLanguages, defaultNamespace },
+) => {
+  const result: ReturnType<TranslationsAggregatorResult> = {
+    namespaces: new Set([defaultNamespace]),
+    translations: {},
   }
 
-  // `public` namespace files
-  for (const [language, namespaces] of Object.entries(translations)) {
-    for (const [namespace, data] of Object.entries(namespaces)) {
-      const filename = path.resolve(
-        PUBLIC_TRANSLATIONS_DIR,
-        language,
-        `${namespace}.json`,
-      )
-      result[filename] = data
-    }
-  }
+  nodes
+    .sort((c, n) => n.priority - c.priority)
+    .forEach(({ language, namespace, data }) => {
+      const parsedData = JSON.parse(data)
+
+      // Pass through only registered languages
+      if (!availableLanguages.includes(language)) {
+        return
+      }
+
+      // Collect namespace value
+      if (!result.namespaces.has(namespace)) {
+        result.namespaces.add(namespace)
+      }
+
+      // Aggregate translations resource
+      if (!result.translations[language]) {
+        result.translations[language] = {}
+      }
+
+      if (!result.translations[language][namespace]) {
+        result.translations[language][namespace] = parsedData
+      }
+    })
 
   return result
 }
 
-export const processTranslations = async (
+// language: {namespace: data}
+
+export const processTranslations = (
   nodes: NamespaceNode[],
   options: Options,
-): Promise<void> => {
-  const translationsFiles = await aggregateTranslations(nodes, options)
+): Promise<void[]> => {
+  const result = aggregateTranslations(nodes, options)
+  const files: Promise<void>[] = []
 
-  for (const [filepath, data] of Object.entries(translationsFiles)) {
-    await outputJSON(filepath, data)
-  }
+  Object.entries(result.translations).forEach(([language, namespaces]) => {
+    Object.entries(namespaces).forEach(([namespace, data]) => {
+      files.push(
+        outputJSON(
+          path.join(PUBLIC_TRANSLATIONS_DIR, language, `${namespace}.json`),
+          data,
+        ),
+      )
+    })
+  })
+
+  return Promise.all([
+    outputJSON(NAMESPACES_FILE, Array.from(result.namespaces)),
+    outputJSON(TRANSLATIONS_FILE, result.translations),
+    ...files,
+  ])
 }

@@ -7,8 +7,9 @@ import { PageElement } from '../types'
 
 const MultilingualPageWrapper: PageElement = ({
   pageId,
-  language,
+  pageLanguage,
   pages,
+  children,
   options: {
     defaultLanguage,
     availableLanguages,
@@ -16,17 +17,22 @@ const MultilingualPageWrapper: PageElement = ({
     includeDefaultLanguageInURL,
     checks,
   },
-  children,
 }) => {
   const { i18n } = useTranslation()
 
-  console.log('MultilingualPageWrapper')
-
-  useEffect(() => {
-    if (language !== i18n.language) {
-      i18n.changeLanguage(language)
+  // SSR
+  if (typeof window === 'undefined') {
+    if (pageLanguage !== i18n.language) {
+      i18n.changeLanguage(pageLanguage)
     }
-  }, [language])
+  }
+
+  // CSR
+  // useEffect(() => {
+  //   if (pageLanguage !== i18n.language) {
+  //     i18n.changeLanguage(pageLanguage)
+  //   }
+  // }, [pageLanguage])
 
   return (
     <MultilingualContext.Provider

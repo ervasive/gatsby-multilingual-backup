@@ -2,7 +2,7 @@ import { outputJSON } from 'fs-extra'
 import { debounce } from 'lodash'
 import { GatsbyPage } from '@gatsby-plugin-multilingual/shared'
 import { MonolingualPage, PagesRegistry } from './types'
-import { CACHE_PAGES_FILE } from './constants'
+import { PAGES_REGISTRY_FILE } from './constants'
 import normalizePath from './utils/normalize-path'
 
 export const createPagesRegistry = (
@@ -44,7 +44,7 @@ export const createPagesRegistry = (
 
 export const writePagesRegistry = debounce(
   async (registry: PagesRegistry): Promise<void> => {
-    await outputJSON(CACHE_PAGES_FILE, registry)
+    await outputJSON(PAGES_REGISTRY_FILE, registry)
   },
   150,
 )

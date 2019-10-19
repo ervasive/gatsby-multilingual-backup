@@ -1,6 +1,5 @@
-// This is a stub file to trick typescript into thinking that
-// "translations-all" and "translations-default" modules are available when they
-// actually are provided from webpack "alias" fields.
+// This is a stub file to trick typescript into thinking that "translations"
+// module is available when it actually is provided via webpack "alias" field.
 import { Resource } from 'i18next'
 
 const translations: Resource = {}
