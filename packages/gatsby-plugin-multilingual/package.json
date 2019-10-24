@@ -27,7 +27,7 @@
     "@hapi/joi": "^15.1.0",
     "@types/url-parse": "^1.4.3",
     "fs-extra": "^8.1.0",
-    "i18next": "^17.0.6",
+    "i18next": "^18.0.0",
     "i18next-xhr-backend": "^3.0.0",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
