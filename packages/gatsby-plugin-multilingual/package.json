@@ -31,7 +31,7 @@
     "i18next-xhr-backend": "^3.0.0",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
-    "react-i18next": "^10.11.4",
+    "react-i18next": "^11.0.0",
     "url-parse": "^1.4.7"
   },
   "peerDependencies": {
