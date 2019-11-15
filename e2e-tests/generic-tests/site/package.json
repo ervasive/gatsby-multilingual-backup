@@ -20,7 +20,7 @@
     "gatsby-plugin-multilingual": "file:../../../packages/gatsby-plugin-multilingual",
     "gatsby-plugin-page-creator": "2.1.26",
     "gatsby-source-filesystem": "2.1.32",
-    "react": "16.10.2",
-    "react-dom": "16.10.2"
+    "react": "16.12.0",
+    "react-dom": "16.12.0"
   }
 }

@@ -13,7 +13,7 @@
   "dependencies": {
     "@gatsby-plugin-multilingual/translations-loader": "file:../../../packages/@translations-loader",
     "gatsby": "2.16.0",
-    "react": "16.10.2",
-    "react-dom": "16.10.2"
+    "react": "16.12.0",
+    "react-dom": "16.12.0"
   }
 }
