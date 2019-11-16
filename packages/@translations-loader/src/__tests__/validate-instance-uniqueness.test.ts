@@ -9,10 +9,12 @@ describe('validateInstanceUniqueness', (): void => {
       expect(
         validateInstanceUniqueness('path-val', [
           {
+            id: '',
             name: PLUGIN_NAME,
             pluginOptions: { path: 'path-val', plugins: [] },
           },
           {
+            id: '',
             name: PLUGIN_NAME,
             pluginOptions: { path: 'path-val', plugins: [] },
           },
@@ -22,10 +24,12 @@ describe('validateInstanceUniqueness', (): void => {
       expect(
         validateInstanceUniqueness('path-val', [
           {
+            id: '',
             name: PLUGIN_NAME,
             pluginOptions: { path: 'path-val', priority: 1, plugins: [] },
           },
           {
+            id: '',
             name: PLUGIN_NAME,
             pluginOptions: { path: 'path-val', priority: 2, plugins: [] },
           },
@@ -41,6 +45,7 @@ describe('validateInstanceUniqueness', (): void => {
       expect(
         validateInstanceUniqueness('path-val', [
           {
+            id: '',
             name: PLUGIN_NAME,
             pluginOptions: { path: 'path-val', plugins: [] },
           },

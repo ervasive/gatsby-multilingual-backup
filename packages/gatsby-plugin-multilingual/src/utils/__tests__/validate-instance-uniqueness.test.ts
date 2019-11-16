@@ -9,10 +9,12 @@ describe('validateInstanceUniqueness', (): void => {
       expect(
         validateInstanceUniqueness([
           {
+            id: '',
             name: PLUGIN_NAME,
             pluginOptions: { plugins: [] },
           },
           {
+            id: '',
             name: PLUGIN_NAME,
             pluginOptions: { plugins: [] },
           },
@@ -28,6 +30,7 @@ describe('validateInstanceUniqueness', (): void => {
       expect(
         validateInstanceUniqueness([
           {
+            id: '',
             name: PLUGIN_NAME,
             pluginOptions: { plugins: [] },
           },

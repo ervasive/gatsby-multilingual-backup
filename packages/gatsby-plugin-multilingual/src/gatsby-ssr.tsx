@@ -1,83 +1,32 @@
 import React from 'react'
-import getOptions from './get-options'
-import RootWrapper from './components/MultilingualRootWrapper'
-import PageWrapper from './components/MultilingualPageWrapper'
-import {
-  TranslationsBundling,
-  OnRenderBody,
-  WrapRootElement,
-  WrapPageElement,
-} from './types'
+import { getOptions } from './utils'
+import { I18nextProvider } from 'react-i18next'
+import { createI18nInstance } from './i18n'
+import { MultilingualProvider } from './multilingual-context'
+import { WrapPageElement, WrapRootElement } from './types'
 
-// These modules are generated on "preBootstrap" lifecycle method and available
-// via webpack alias entries
+// These modules are generated on bootstrap and available via webpack alias
+// entries
 import namespaces from 'namespaces'
 import translations from 'translations'
 import pagesRegistry from 'pages-registry'
-import pathnamesRegistry from 'pathnames-registry'
-
-export const onRenderBody: OnRenderBody = (
-  { setHeadComponents, pathname },
-  pluginOptions,
-): void => {
-  // We are not bundling any translations in development mode because
-  // "onRenderBody" does not receive the "pathname" value, so we are not able
-  // to determine the page language
-  if (process.env.NODE_ENV === 'development') {
-    return
-  }
-
-  const { translationsBundling } = getOptions(pluginOptions)
-
-  const languageKey = pathnamesRegistry[pathname]
-  const pageLanguage = translations[languageKey] ? languageKey : undefined
-  const output = []
-
-  if (!pageLanguage) {
-    return
-  }
-
-  output.push(`language: "${pageLanguage}"`)
-
-  if (translationsBundling === TranslationsBundling.All) {
-    output.push(`translations: ${JSON.stringify(translations)}`)
-  }
-
-  if (translationsBundling === TranslationsBundling.PageLanguage) {
-    output.push(
-      `translations: ${JSON.stringify({
-        [pageLanguage]: translations[pageLanguage] || {},
-      })}`,
-    )
-  }
-
-  setHeadComponents([
-    <script
-      key="bundled-translations"
-      type="text/javascript"
-      dangerouslySetInnerHTML={{
-        __html: `window.gpml = {${output.join(',')}}`,
-      }}
-    />,
-  ])
-}
 
 export const wrapRootElement: WrapRootElement = (
   { element },
   pluginOptions,
 ) => {
+  console.log('wrapRootElement')
   const options = getOptions(pluginOptions)
 
-  return (
-    <RootWrapper
-      pageLanguage={options.defaultLanguage}
-      namespaces={namespaces}
-      translations={translations}
-      options={options}
-    >
-      {element}
-    </RootWrapper>
-  )
+  const i18nInstance = createI18nInstance({
+    defaultLanguage: options.defaultLanguage,
+    availableLanguages: options.availableLanguages,
+    defaultNamespace: options.defaultNamespace,
+    availableNamespaces: namespaces,
+    translations: translations,
+  })
+
+  return <I18nextProvider i18n={i18nInstance}>{element}</I18nextProvider>
 }
 
 export const wrapPageElement: WrapPageElement = (
@@ -85,18 +34,19 @@ export const wrapPageElement: WrapPageElement = (
   pluginOptions,
 ) => {
   const options = getOptions(pluginOptions)
-
-  const pageId = pageContext.pageId || path
+  const pageId = pageContext.multilingualId || path
   const language = pageContext.language || options.defaultLanguage
+  console.log('wrapPageElement')
 
   return (
-    <PageWrapper
+    <MultilingualProvider
       pageId={pageId}
       pageLanguage={language}
+      namespaces={namespaces}
       pages={pagesRegistry}
       options={options}
     >
       {element}
-    </PageWrapper>
+    </MultilingualProvider>
   )
 }

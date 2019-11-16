@@ -3,4 +3,8 @@ import { CheckType } from '../types'
 
 const { string } = Joi.types()
 
-export default string.valid(CheckType.Ignore, CheckType.Warn, CheckType.Error)
+export const checksSchema = string.valid(
+  CheckType.Ignore,
+  CheckType.Warn,
+  CheckType.Error,
+)

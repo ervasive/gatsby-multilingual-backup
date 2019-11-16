@@ -5,7 +5,6 @@ import {
   isString,
   isArray,
   isPlainObject,
-  isFunction,
 } from 'lodash'
 import s from '../options'
 
@@ -64,10 +63,6 @@ describe('optionsSchema', () => {
     )
   })
 
-  // Skip "mode" property as it is validated separately
-  // Skip "missingLanguages" property as it is validated separately
-  // Skip "translationsBundling" property as it is validated separately
-
   it('should error out on invalid includeDefaultLanguageInURL inputs', () => {
     assert(
       property(
@@ -82,17 +77,28 @@ describe('optionsSchema', () => {
     )
   })
 
-  it('should error out on invalid overrides inputs', () => {
+  // NOTE: The "missingLanguagesStrategy" property is tested separately
+
+  it('should error out on invalid removeInvalidPages inputs', () => {
     assert(
       property(
-        anything().filter(
-          v => !(isUndefined(v) || isArray(v) || isFunction(v)),
-        ),
+        anything().filter(v => !(isUndefined(v) || isBoolean(v))),
         data => {
           expect(
-            s.validate({ overrides: data }).error.details[0].message,
-          ).toMatch(
-            /"overrides" may be one of \[function, array of overrides\]/i,
+            s.validate({ removeInvalidPages: data }).error.details[0].message,
+          ).toMatch(/"removeInvalidPages" must be a boolean/i)
+        },
+      ),
+    )
+  })
+
+  it('should error out on invalid rules inputs', () => {
+    assert(
+      property(
+        anything().filter(v => !(isUndefined(v) || isPlainObject(v))),
+        data => {
+          expect(s.validate({ rules: data }).error.details[0].message).toMatch(
+            /"rules" must be of type object/i,
           )
         },
       ),
@@ -106,22 +112,6 @@ describe('optionsSchema', () => {
         data => {
           expect(s.validate({ checks: data }).error.details[0].message).toMatch(
             /"checks" must be of type object/i,
-          )
-        },
-      ),
-    )
-  })
-
-  it('should error out on invalid pathToRedirectTemplate inputs', () => {
-    assert(
-      property(
-        anything().filter(v => !(isUndefined(v) || (isString(v) && v.length))),
-        data => {
-          expect(
-            s.validate({ pathToRedirectTemplate: data }).error.details[0]
-              .message,
-          ).toMatch(
-            /("pathToRedirectTemplate" must be a string)|("pathToRedirectTemplate" is not allowed to be empty)/i,
           )
         },
       ),

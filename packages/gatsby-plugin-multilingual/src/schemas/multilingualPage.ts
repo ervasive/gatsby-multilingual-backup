@@ -1,15 +1,13 @@
 import Joi from '@hapi/joi'
-import multilingualContextSchema from './multilingualContext'
+import { gatsbyPageSchema } from '.'
 
-const { boolean, string, object } = Joi.types()
+const { string, object } = Joi.types()
 
-export default object
-  .keys({
-    path: string.required(),
-    context: object.keys({
-      multilingual: [boolean, multilingualContextSchema],
-    }),
-  })
-  .options({
-    allowUnknown: true,
-  })
+export const multilingualPageSchema = gatsbyPageSchema.keys({
+  context: object
+    .keys({
+      multilingualId: string.required(),
+      language: string.required(),
+    })
+    .required(),
+})

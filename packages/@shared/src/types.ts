@@ -13,6 +13,7 @@ export type GatsbyPage = Parameters<GatsbyActions['createPage']>[0] & {
 export type GatsbyRedirect = Parameters<GatsbyActions['createRedirect']>[0]
 
 export interface GatsbyStorePlugin {
+  id: string
   name: string
   pluginOptions: GatsbyPluginOptions
 }

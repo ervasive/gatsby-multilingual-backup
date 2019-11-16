@@ -1,31 +1,21 @@
 import Joi from '@hapi/joi'
-import modeSchema from './mode'
-import checksSchema from './checks'
-import missingLanguagesSchema from './missingLanguages'
-import translationsBundlingSchema from './translationsBundling'
-import multilingualOverrideSchema from './multilingualOverride'
+import { checksSchema, missingLanguagesStrategySchema } from '.'
+import ruleSchema from './rule'
 
-const { boolean, string, array, object, alternatives } = Joi.types()
+const { boolean, string, array, object } = Joi.types()
 
-export default object.keys({
+export const optionsSchema = object.keys({
   defaultLanguage: string,
   availableLanguages: array.items(string),
   defaultNamespace: string,
   includeDefaultLanguageInURL: boolean,
-  mode: modeSchema,
-  missingLanguages: missingLanguagesSchema,
-  translationsBundling: translationsBundlingSchema,
-  overrides: alternatives
-    .try(Joi.function(), array.items(multilingualOverrideSchema))
-    .messages({
-      'alternatives.types':
-        '"{{#label}}" may be one of [function, array of overrides]',
-    }),
+  missingLanguagesStrategy: missingLanguagesStrategySchema,
+  removeInvalidPages: boolean,
+  rules: object.pattern(string, ruleSchema),
   checks: object.keys({
     missingLinkPaths: checksSchema,
     missingLanguageVersions: checksSchema,
     missingTranslationStrings: checksSchema,
   }),
-  pathToRedirectTemplate: string,
   plugins: array,
 })

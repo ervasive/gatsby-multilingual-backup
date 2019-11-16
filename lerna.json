@@ -1,10 +1,7 @@
 {
   "version": "0.1.1-alpha.0",
-  "packages": [
-    "packages/*",
-    "e2e-tests/generic-tests/*",
-    "e2e-tests/invalid-translation-file/*"
-  ],
+  "npmClient": "yarn",
+  "useWorkspaces": true,
   "command": {
     "version": {
       "allowBranch": "master"

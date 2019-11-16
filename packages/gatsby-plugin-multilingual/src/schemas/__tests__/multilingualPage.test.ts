@@ -1,50 +1,53 @@
 import { assert, property, anything } from 'fast-check'
-import { isUndefined, isBoolean, isString, isPlainObject } from 'lodash'
+import { isString } from 'lodash'
 import s from '../multilingualPage'
 
 describe('multilingualPageSchema', () => {
-  it('should error out on invalid path inputs', () => {
-    assert(
-      property(anything().filter(v => !(isString(v) && v.length)), data => {
-        expect(s.validate({ path: data }).error.details[0].message).toMatch(
-          /("path" is required)|("path" must be a string)|("path" is not allowed to be empty)/i,
-        )
-      }),
-    )
-  })
-
-  it('should error out on invalid context inputs', () => {
+  it('should error out on invalid context.multilingualId inputs', () => {
     assert(
       property(
-        anything().filter(v => !(isUndefined(v) || isPlainObject(v))),
+        anything().filter(v => !(isString(v) && v.length)),
         data => {
           expect(
-            s.validate({ path: 'val', context: data }).error.details[0].message,
+            s.validate({
+              path: 'val',
+              component: 'val',
+              context: { multilingualId: data },
+            }).error.details[0].message,
           ).toMatch(
-            /("context" is required)|("context" must be of type object)/i,
+            /("context.multilingualId" is required)|("context.multilingualId" must be a string)|("context.multilingualId" is not allowed to be empty)/i,
           )
         },
       ),
     )
   })
 
-  it('should error out on invalid context.multilingual inputs', () => {
-    // NOTE: we are not testing MultilingualProperty as context.multilingual
-    // as this sub schema is tested separately
+  it('should error out on invalid context.language inputs', () => {
     assert(
       property(
-        anything().filter(
-          v => !(isUndefined(v) || isBoolean(v) || isPlainObject(v)),
-        ),
+        anything().filter(v => !(isString(v) && v.length)),
         data => {
           expect(
-            s.validate({ path: 'val', context: { multilingual: data } }).error
-              .details[0].message,
+            s.validate({
+              path: 'val',
+              component: 'val',
+              context: { multilingualId: 'val', language: data },
+            }).error.details[0].message,
           ).toMatch(
-            /"context.multilingual" must be one of \[boolean, object\]/i,
+            /("context.language" is required)|("context.language" must be a string)|("context.language" is not allowed to be empty)/i,
           )
         },
       ),
     )
+  })
+
+  it('should not error out on valid page object', () => {
+    expect(
+      s.validate({
+        path: 'val',
+        component: 'val',
+        context: { multilingualId: 'val', language: 'val' },
+      }).error,
+    ).toBeUndefined()
   })
 })

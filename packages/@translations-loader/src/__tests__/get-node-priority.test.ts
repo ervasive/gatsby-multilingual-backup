@@ -9,30 +9,37 @@ describe('getNodePriority', (): void => {
   it('should calculate the priority', (): void => {
     const plugins = [
       {
+        id: '',
         name: 'some-plugin',
         pluginOptions: { plugins: [] },
       },
       {
+        id: '',
         name: 'non-translations-loader-plugin',
         pluginOptions: { path: '/some-path', plugins: [] },
       },
       {
+        id: '',
         name: 'non-translations-loader-plugin',
         pluginOptions: { path: '/some-path', priority: 10, plugins: [] },
       },
       {
+        id: '',
         name: PLUGIN_NAME,
         pluginOptions: { path: '/some-path', priority: 1, plugins: [] },
       },
       {
+        id: '',
         name: PLUGIN_NAME,
         pluginOptions: { path: '/another-path', priority: 2, plugins: [] },
       },
       {
+        id: '',
         name: PLUGIN_NAME,
         pluginOptions: { path: '/translations', plugins: [] },
       },
       {
+        id: '',
         name: PLUGIN_NAME,
         pluginOptions: { path: '/translations-2', plugins: [] },
       },

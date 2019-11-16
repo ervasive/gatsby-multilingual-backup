@@ -1,39 +1,84 @@
 import { GatsbyNode } from 'gatsby'
-import { outputJSON } from 'fs-extra'
-import { GatsbyPage } from '@gatsby-plugin-multilingual/shared'
-import getOptions from '../get-options'
-import { createPagesRegistry, writePagesRegistry } from '../pages-registry'
-import { PATHNAMES_REGISTRY_FILE } from '../constants'
-import { PathnamesRegistry } from '../types'
+import { NAMESPACE_NODE_TYPENAME } from '@gatsby-plugin-multilingual/shared'
+import { getOptions } from '../utils'
+import {
+  processRules,
+  processGroups,
+  commitChanges,
+  writePagesRegistry,
+} from '../pages-processing'
+import { writeTranslationsRegistry } from '../translations-processing'
+import { PLUGIN_NAME } from '../constants'
+import { GatsbyStorePages } from '../types'
 
-const onPostBootstrap: GatsbyNode['onPostBootstrap'] = async (
-  { store, emitter },
+export const onPostBootstrap: GatsbyNode['onPostBootstrap'] = async (
+  { store, actions, getNodesByType, reporter, emitter },
   pluginOptions,
 ) => {
   const options = getOptions(pluginOptions)
-  const pages: Map<string, GatsbyPage> = store.getState().pages
 
-  const registry = createPagesRegistry(pages).registry
-  await writePagesRegistry(registry)
+  commitChanges(
+    processRules(store.getState().pages as GatsbyStorePages, options),
+    actions,
+    reporter,
+  )
 
-  const storage: PathnamesRegistry = {}
+  commitChanges(
+    processGroups(store.getState().pages as GatsbyStorePages, options),
+    actions,
+    reporter,
+  )
 
-  pages.forEach(page => {
-    storage[page.path] =
-      (page.context.language as string) || options.defaultLanguage
+  try {
+    await writeTranslationsRegistry(
+      getNodesByType(NAMESPACE_NODE_TYPENAME),
+      options,
+    )
+
+    await writePagesRegistry(store.getState().pages as GatsbyStorePages)
+  } catch (e) {
+    reporter.panic(`[${PLUGIN_NAME}] ${e}`)
+  }
+
+  // Re-process on consecutive "createPages" runs
+  emitter.on('CREATE_PAGE_END', async () => {
+    commitChanges(
+      processRules(store.getState().pages as GatsbyStorePages, options),
+      actions,
+      reporter,
+    )
+
+    commitChanges(
+      processGroups(store.getState().pages as GatsbyStorePages, options),
+      actions,
+      reporter,
+    )
+
+    try {
+      await writePagesRegistry(store.getState().pages as GatsbyStorePages)
+    } catch (e) {
+      reporter.panic(`[${PLUGIN_NAME}] ${e}`)
+    }
   })
 
-  await outputJSON(PATHNAMES_REGISTRY_FILE, storage)
-
+  // add handler to update registry on page create
+  // Re-process on consecutive "createPages" runs
   emitter.on('CREATE_PAGE', async () => {
-    const registry = createPagesRegistry(store.getState().pages).registry
-    await writePagesRegistry(registry)
+    try {
+      await writePagesRegistry(store.getState().pages as GatsbyStorePages)
+    } catch (e) {
+      reporter.panic(`[${PLUGIN_NAME}] ${e}`)
+    }
   })
 
-  emitter.on('DELETE_PAGE', async () => {
-    const registry = createPagesRegistry(store.getState().pages).registry
-    await writePagesRegistry(registry)
+  emitter.on('CREATE_NODE', async () => {
+    try {
+      await writeTranslationsRegistry(
+        getNodesByType(NAMESPACE_NODE_TYPENAME),
+        options,
+      )
+    } catch (e) {
+      reporter.panic(`[${PLUGIN_NAME}] ${e}`)
+    }
   })
 }
-
-export default onPostBootstrap
