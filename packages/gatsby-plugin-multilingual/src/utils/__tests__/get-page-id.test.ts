@@ -1,4 +1,4 @@
-import getPageId from '../get-page-id'
+import { getPageId } from '..'
 
 const pages = {
   home: {

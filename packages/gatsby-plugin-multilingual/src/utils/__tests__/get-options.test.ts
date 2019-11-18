@@ -1,6 +1,6 @@
-import getOptions from '../get-options'
-import { DEFAULT_OPTIONS } from '../constants'
-import { Options, MissingLanguagesStrategy, CheckType } from '../types'
+import { getOptions } from '..'
+import { DEFAULT_OPTIONS } from '../../constants'
+import { Options, MissingLanguagesStrategy, CheckType } from '../../types'
 
 describe('getOptions', () => {
   it('should set default values on undefined argument', (): void => {

@@ -2,6 +2,11 @@ import { Actions, Reporter } from 'gatsby'
 import { PLUGIN_NAME } from '../constants'
 import { PagesProcessingResult } from '../types'
 
+/**
+ * commitChanges
+ *
+ * Create and delete gatsby pages, print messages.
+ */
 export const commitChanges = async (
   {
     messages,

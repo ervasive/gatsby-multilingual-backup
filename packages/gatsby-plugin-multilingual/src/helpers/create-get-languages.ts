@@ -9,10 +9,11 @@ import {
 
 const invalidArgErrorMessage =
   `The "getLanguages" function received invalid argument. Only "string" or ` +
-  `"object" of the following shape: { path?: string, skipCurrentLanguage?: ` +
-  `boolean, onMissingPath?: "ignore" | "warn" | "error" } are allowed.`
+  `"object" of the following shape: { path: string [optional], ` +
+  `skipCurrentLanguage: boolean [optional], onMissingPath: "ignore" | "warn" ` +
+  `| "error" [optional] } are allowed`
 
-const getMissingPageErrorMessage = (path: string) =>
+const getMissingPageErrorMessage = (path: string): string =>
   `The "getLanguages" function returned an error. Could not find a ` +
   `page with the following path: "${path}"`
 
@@ -23,6 +24,7 @@ export const createGetLanguages: CreateGetLanguagesHelper = ({
   options,
 }) => {
   const fn: GetLanguagesHelper = value => {
+    // The value comes from user therefore we want to treat it as unknown
     const prevalidatedValue = value as unknown
 
     if (
@@ -84,6 +86,7 @@ export const createGetLanguages: CreateGetLanguagesHelper = ({
 
     const { slashes, protocol, port, pathname, query, hash } = parse(path, {})
 
+    // Ignore non relative path values
     if (slashes || protocol || port) {
       return []
     }
@@ -98,7 +101,7 @@ export const createGetLanguages: CreateGetLanguagesHelper = ({
         )
         .map(language => ({
           language,
-          path: pages[id][language],
+          path: pages[id][language] + query + hash,
           isCurrent: language === currentPageLanguage,
         }))
     } else {

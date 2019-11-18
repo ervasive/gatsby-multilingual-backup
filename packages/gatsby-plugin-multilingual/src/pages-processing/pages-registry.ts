@@ -4,6 +4,11 @@ import { multilingualPageSchema } from '../schemas'
 import { PAGES_REGISTRY_FILE } from '../constants'
 import { GatsbyStorePages, MultilingualPage, PagesRegistry } from '../types'
 
+/**
+ * generatePagesRegistry
+ *
+ * Build a pages registry object literal from all existing multilingual pages
+ */
 export const generatePagesRegistry = (
   pages: GatsbyStorePages,
 ): PagesRegistry => {
@@ -32,6 +37,11 @@ export const generatePagesRegistry = (
   return registry
 }
 
+/**
+ * writePagesRegistry
+ *
+ * Generate and write out pages registry as a JSON object to file system
+ */
 export const writePagesRegistry = throttle(
   async (pages: GatsbyStorePages): Promise<void> => {
     await outputJSON(PAGES_REGISTRY_FILE, generatePagesRegistry(pages))

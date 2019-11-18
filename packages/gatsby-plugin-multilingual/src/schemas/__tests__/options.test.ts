@@ -6,7 +6,7 @@ import {
   isArray,
   isPlainObject,
 } from 'lodash'
-import s from '../options'
+import { optionsSchema } from '..'
 
 describe('optionsSchema', () => {
   it('should error out on invalid defaultLanguage inputs', () => {
@@ -15,7 +15,8 @@ describe('optionsSchema', () => {
         anything().filter(v => !(isUndefined(v) || (isString(v) && v.length))),
         data => {
           expect(
-            s.validate({ defaultLanguage: data }).error.details[0].message,
+            optionsSchema.validate({ defaultLanguage: data }).error.details[0]
+              .message,
           ).toMatch(
             /("defaultLanguage" must be a string)|("defaultLanguage" is not allowed to be empty)/i,
           )
@@ -30,7 +31,8 @@ describe('optionsSchema', () => {
         anything().filter(v => !(isUndefined(v) || isArray(v))),
         data => {
           expect(
-            s.validate({ availableLanguages: data }).error.details[0].message,
+            optionsSchema.validate({ availableLanguages: data }).error
+              .details[0].message,
           ).toMatch(/"availableLanguages" must be an array/i)
         },
       ),
@@ -41,7 +43,8 @@ describe('optionsSchema', () => {
         anything().filter(v => !(isUndefined(v) || isString(v))),
         data => {
           expect(
-            s.validate({ availableLanguages: [data] }).error.details[0].message,
+            optionsSchema.validate({ availableLanguages: [data] }).error
+              .details[0].message,
           ).toMatch(/"availableLanguages\[0\]" must be a string/i)
         },
       ),
@@ -54,7 +57,8 @@ describe('optionsSchema', () => {
         anything().filter(v => !(isUndefined(v) || (isString(v) && v.length))),
         data => {
           expect(
-            s.validate({ defaultNamespace: data }).error.details[0].message,
+            optionsSchema.validate({ defaultNamespace: data }).error.details[0]
+              .message,
           ).toMatch(
             /("defaultNamespace" must be a string)|("defaultNamespace" is not allowed to be empty)/i,
           )
@@ -69,8 +73,8 @@ describe('optionsSchema', () => {
         anything().filter(v => !(isUndefined(v) || isBoolean(v))),
         data => {
           expect(
-            s.validate({ includeDefaultLanguageInURL: data }).error.details[0]
-              .message,
+            optionsSchema.validate({ includeDefaultLanguageInURL: data }).error
+              .details[0].message,
           ).toMatch(/"includeDefaultLanguageInURL" must be a boolean/i)
         },
       ),
@@ -85,7 +89,8 @@ describe('optionsSchema', () => {
         anything().filter(v => !(isUndefined(v) || isBoolean(v))),
         data => {
           expect(
-            s.validate({ removeInvalidPages: data }).error.details[0].message,
+            optionsSchema.validate({ removeInvalidPages: data }).error
+              .details[0].message,
           ).toMatch(/"removeInvalidPages" must be a boolean/i)
         },
       ),
@@ -97,9 +102,9 @@ describe('optionsSchema', () => {
       property(
         anything().filter(v => !(isUndefined(v) || isPlainObject(v))),
         data => {
-          expect(s.validate({ rules: data }).error.details[0].message).toMatch(
-            /"rules" must be of type object/i,
-          )
+          expect(
+            optionsSchema.validate({ rules: data }).error.details[0].message,
+          ).toMatch(/"rules" must be of type object/i)
         },
       ),
     )
@@ -110,9 +115,9 @@ describe('optionsSchema', () => {
       property(
         anything().filter(v => !(isUndefined(v) || isPlainObject(v))),
         data => {
-          expect(s.validate({ checks: data }).error.details[0].message).toMatch(
-            /"checks" must be of type object/i,
-          )
+          expect(
+            optionsSchema.validate({ checks: data }).error.details[0].message,
+          ).toMatch(/"checks" must be of type object/i)
         },
       ),
     )

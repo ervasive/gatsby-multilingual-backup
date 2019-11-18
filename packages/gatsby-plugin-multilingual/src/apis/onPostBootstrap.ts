@@ -61,8 +61,7 @@ export const onPostBootstrap: GatsbyNode['onPostBootstrap'] = async (
     }
   })
 
-  // add handler to update registry on page create
-  // Re-process on consecutive "createPages" runs
+  // Re-process pages registry on consecutive "onCreatePage" runs
   emitter.on('CREATE_PAGE', async () => {
     try {
       await writePagesRegistry(store.getState().pages as GatsbyStorePages)
@@ -71,6 +70,7 @@ export const onPostBootstrap: GatsbyNode['onPostBootstrap'] = async (
     }
   })
 
+  // Re-process translations registry on consecutive "sourceNodes" runs
   emitter.on('CREATE_NODE', async () => {
     try {
       await writeTranslationsRegistry(

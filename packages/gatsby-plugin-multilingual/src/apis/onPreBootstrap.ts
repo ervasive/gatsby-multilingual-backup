@@ -32,6 +32,7 @@ export const onPreBootstrap: GatsbyNode['onPreBootstrap'] = (
     reporter.panic(err),
   )
 
+  // Prepare plugin files
   return emptyDir(CACHE_DIR)
     .then(() =>
       Promise.all([

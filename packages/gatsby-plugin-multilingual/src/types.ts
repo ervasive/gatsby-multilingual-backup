@@ -31,6 +31,7 @@ export enum MessageType {
 }
 
 // TODO: consider adding a custom client side component option
+// TODO: handle "missingLanguageVersions"
 export interface Options extends GatsbyPluginOptions {
   defaultLanguage: string
   availableLanguages: string[]
@@ -72,6 +73,23 @@ export type PagesProcessingResult = {
   pagesToCreate: Set<MultilingualPage>
   redirectsToCreate: Set<GatsbyRedirect>
 }
+
+export type CreateGetLanguagesHelper = (args: {
+  currentPageId: string
+  currentPageLanguage: string
+  pages: PagesRegistry
+  options: Options
+}) => GetLanguagesHelper
+
+export type GetLanguagesHelper = (
+  value?:
+    | string
+    | {
+        path?: string
+        skipCurrentLanguage?: boolean
+        onMissingPath?: CheckType
+      },
+) => { language: string; path: string; isCurrent: boolean }[] | never // This function throws in certain cases
 
 // ------
 export type ContextProvider = (args: {
@@ -147,20 +165,3 @@ export type GetPathHelper = (
         onMissingPath?: CheckType
       },
 ) => string | never // This function throws in certain cases
-
-export type CreateGetLanguagesHelper = (args: {
-  currentPageId: string
-  currentPageLanguage: string
-  pages: PagesRegistry
-  options: Options
-}) => GetLanguagesHelper
-
-export type GetLanguagesHelper = (
-  value?:
-    | string
-    | {
-        path?: string
-        skipCurrentLanguage?: boolean
-        onMissingPath?: CheckType
-      },
-) => { language: string; path: string; isCurrent: boolean }[] | never // This function throws in certain cases

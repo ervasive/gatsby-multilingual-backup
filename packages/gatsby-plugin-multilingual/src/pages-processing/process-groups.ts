@@ -11,6 +11,12 @@ import {
   PagesProcessingResult,
 } from '../types'
 
+/**
+ * processGroups
+ *
+ * Complete "multilingual" groups by generating missing language pages, based on
+ * the "missingLanguagesStrategy" property.
+ */
 export const processGroups = (
   pages: GatsbyStorePages,
   options: Options,
@@ -24,7 +30,6 @@ export const processGroups = (
 
   const groups: MultilingualGroups = {}
   const { defaultLanguage, availableLanguages, rules } = options
-
   // Group all existing multilingual pages by "multilingualId"
   pages.forEach(page => {
     const { error } = multilingualPageSchema.required().validate(page)
@@ -64,8 +69,9 @@ export const processGroups = (
       result.messages.push({
         type: MessageType.Panic,
         message:
-          `Unable to generate missing language-specific pages for "${id}"` +
-          `multilingual group due to the lack of a default language page.`,
+          `Unable to generate missing language-specific pages for ` +
+          `multilingual group "${id}", due to the lack of a default language ` +
+          `page.`,
       })
 
       return

@@ -3,7 +3,7 @@ import { missingLanguagesStrategySchema } from '.'
 
 const { boolean, string, object, alternatives } = Joi.types()
 
-export default object.keys({
+export const ruleSchema = object.keys({
   languages: object.pattern(
     string,
     alternatives

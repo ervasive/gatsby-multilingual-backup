@@ -5,13 +5,13 @@ import { CreateGetPathHelper, GetPathHelper, CheckType } from '../types'
 
 const invalidArgErrorMessage =
   `The "getPath" function received invalid argument. Only "string" or ` +
-  `"object" of the following shape: { path?: string, language?: ` +
-  `string, onMissingPath?: "ignore" | "warn" | "error" } are ` +
-  `allowed.`
+  `"object" of the following shape: { path: string [optional], language: ` +
+  `string [optional], onMissingPath: "ignore" | "warn" | "error" [optional] } ` +
+  `are allowed`
 
-const getMissingPageErrorMessage = (path: string, language: string) =>
+const getMissingPageErrorMessage = (path: string, language: string): string =>
   `The "getPath" function returned an error. Could not find a page with ` +
-  `the "${path}" path and "${language}" language combination.`
+  `the "${path}" path and "${language}" language values`
 
 export const createGetPath: CreateGetPathHelper = ({
   currentPageId,
@@ -20,6 +20,7 @@ export const createGetPath: CreateGetPathHelper = ({
   options,
 }) => {
   const fn: GetPathHelper = value => {
+    // The value comes from user therefore we want to treat it as unknown
     const prevalidatedValue = value as unknown
 
     if (
@@ -86,7 +87,7 @@ export const createGetPath: CreateGetPathHelper = ({
     const id = getPageId(pathname, pages)
 
     if (id && typeof pages[id][language] === 'string') {
-      return pages[id][language]
+      return pages[id][language] + query + hash
     } else {
       if (onMissingPath === CheckType.Error) {
         throw new Error(getMissingPageErrorMessage(path, language))

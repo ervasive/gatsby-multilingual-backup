@@ -7,6 +7,11 @@ import {
   MessageType,
 } from '../types'
 
+/**
+ * processRules
+ *
+ * Convert pages specified in globaly defined rules to multilingual pages
+ */
 export const processRules = (
   pages: GatsbyStorePages,
   options: Options,

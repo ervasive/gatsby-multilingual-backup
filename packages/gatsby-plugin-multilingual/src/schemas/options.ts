@@ -1,6 +1,5 @@
 import Joi from '@hapi/joi'
-import { checksSchema, missingLanguagesStrategySchema } from '.'
-import ruleSchema from './rule'
+import { checksSchema, missingLanguagesStrategySchema, ruleSchema } from '.'
 
 const { boolean, string, array, object } = Joi.types()
 

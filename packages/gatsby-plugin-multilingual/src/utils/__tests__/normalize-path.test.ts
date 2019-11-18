@@ -1,4 +1,4 @@
-import normalizePath from '../normalize-path'
+import { normalizePath } from '..'
 
 describe('normalizePath', (): void => {
   it('should return a normalized path', (): void => {

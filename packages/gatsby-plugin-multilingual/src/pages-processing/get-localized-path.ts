@@ -1,6 +1,12 @@
 import { normalizePath } from '../utils'
 import { Options } from '../types'
 
+/**
+ * getLocalizedPath
+ *
+ * Convert a page path to a correct localized form with respect to the
+ * "includeDefaultLanguageInURL" and "availableLanguages" options
+ */
 export const getLocalizedPath = (
   path: string,
   language: string,

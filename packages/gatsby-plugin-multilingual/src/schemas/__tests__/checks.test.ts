@@ -1,6 +1,6 @@
 import { assert, property, anything } from 'fast-check'
 import { isUndefined } from 'lodash'
-import s from '../checks'
+import { checksSchema } from '..'
 import { CheckType } from '../../types'
 
 describe('checksSchema', () => {
@@ -15,7 +15,7 @@ describe('checksSchema', () => {
             ),
         ),
         data => {
-          expect(s.validate(data).error.details[0].message).toMatch(
+          expect(checksSchema.validate(data).error.details[0].message).toMatch(
             /"value" must be one of \[ignore, warn, error\]/i,
           )
         },
@@ -24,8 +24,8 @@ describe('checksSchema', () => {
   })
 
   it('should not error out on valid values', () => {
-    expect(s.validate(CheckType.Ignore).error).toBeUndefined()
-    expect(s.validate(CheckType.Warn).error).toBeUndefined()
-    expect(s.validate(CheckType.Error).error).toBeUndefined()
+    expect(checksSchema.validate(CheckType.Ignore).error).toBeUndefined()
+    expect(checksSchema.validate(CheckType.Warn).error).toBeUndefined()
+    expect(checksSchema.validate(CheckType.Error).error).toBeUndefined()
   })
 })

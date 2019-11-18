@@ -1,6 +1,6 @@
 import { assert, property, anything } from 'fast-check'
 import { isString } from 'lodash'
-import s from '../multilingualPage'
+import { multilingualPageSchema } from '..'
 
 describe('multilingualPageSchema', () => {
   it('should error out on invalid context.multilingualId inputs', () => {
@@ -9,7 +9,7 @@ describe('multilingualPageSchema', () => {
         anything().filter(v => !(isString(v) && v.length)),
         data => {
           expect(
-            s.validate({
+            multilingualPageSchema.validate({
               path: 'val',
               component: 'val',
               context: { multilingualId: data },
@@ -28,7 +28,7 @@ describe('multilingualPageSchema', () => {
         anything().filter(v => !(isString(v) && v.length)),
         data => {
           expect(
-            s.validate({
+            multilingualPageSchema.validate({
               path: 'val',
               component: 'val',
               context: { multilingualId: 'val', language: data },
@@ -43,7 +43,7 @@ describe('multilingualPageSchema', () => {
 
   it('should not error out on valid page object', () => {
     expect(
-      s.validate({
+      multilingualPageSchema.validate({
         path: 'val',
         component: 'val',
         context: { multilingualId: 'val', language: 'val' },

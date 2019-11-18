@@ -1,6 +1,6 @@
 import { assert, property, anything } from 'fast-check'
 import { isString, isPlainObject } from 'lodash'
-import s from '../gatsbyPage'
+import { gatsbyPageSchema } from '..'
 
 describe('gatsbyPageSchema', () => {
   it('should error out on invalid path inputs', () => {
@@ -8,7 +8,9 @@ describe('gatsbyPageSchema', () => {
       property(
         anything().filter(v => !(isString(v) && v.length)),
         data => {
-          expect(s.validate({ path: data }).error.details[0].message).toMatch(
+          expect(
+            gatsbyPageSchema.validate({ path: data }).error.details[0].message,
+          ).toMatch(
             /("path" is required)|("path" must be a string)|("path" is not allowed to be empty)/i,
           )
         },
@@ -22,8 +24,8 @@ describe('gatsbyPageSchema', () => {
         anything().filter(v => !(isString(v) && v.length)),
         data => {
           expect(
-            s.validate({ path: 'val', component: data }).error.details[0]
-              .message,
+            gatsbyPageSchema.validate({ path: 'val', component: data }).error
+              .details[0].message,
           ).toMatch(
             /("component" is required)|("component" must be a string)|("component" is not allowed to be empty)/i,
           )
@@ -38,8 +40,11 @@ describe('gatsbyPageSchema', () => {
         anything().filter(v => !isPlainObject(v)),
         data => {
           expect(
-            s.validate({ path: 'val', component: 'val', context: data }).error
-              .details[0].message,
+            gatsbyPageSchema.validate({
+              path: 'val',
+              component: 'val',
+              context: data,
+            }).error.details[0].message,
           ).toMatch(
             /("context" is required)|("context" must be of type object)/i,
           )
@@ -50,7 +55,7 @@ describe('gatsbyPageSchema', () => {
 
   it('should not error out on valid page object', () => {
     expect(
-      s.validate({
+      gatsbyPageSchema.validate({
         path: 'val',
         component: 'val',
         context: {},

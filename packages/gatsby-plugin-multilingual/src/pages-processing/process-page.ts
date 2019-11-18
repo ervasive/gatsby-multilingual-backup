@@ -10,6 +10,13 @@ import {
   PagesProcessingResult,
 } from '../types'
 
+/**
+ * processPage
+ *
+ * Validate and process each multilingual page individually to guarantee
+ * that "multilingualId" & "language" combination is unique per a multilingual
+ * group
+ */
 export const processPage = (
   page: GatsbyPage,
   pages: GatsbyStorePages,

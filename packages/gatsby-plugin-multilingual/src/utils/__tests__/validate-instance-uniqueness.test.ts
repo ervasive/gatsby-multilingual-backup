@@ -1,5 +1,5 @@
 import { PLUGIN_NAME } from '../../constants'
-import validateInstanceUniqueness from '../validate-instance-uniqueness'
+import { validateInstanceUniqueness } from '..'
 
 describe('validateInstanceUniqueness', (): void => {
   it(
