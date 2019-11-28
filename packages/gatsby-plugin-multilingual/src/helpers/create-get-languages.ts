@@ -8,13 +8,13 @@ import {
 } from '../types'
 
 const invalidArgErrorMessage =
-  `The "getLanguages" function received invalid argument. Only "string" or ` +
+  `getLanguages function received an invalid argument. Only "string" or ` +
   `"object" of the following shape: { path: string [optional], ` +
   `skipCurrentLanguage: boolean [optional], onMissingPath: "ignore" | "warn" ` +
   `| "error" [optional] } are allowed`
 
 const getMissingPageErrorMessage = (path: string): string =>
-  `The "getLanguages" function returned an error. Could not find a ` +
+  `getLanguages function returned an error. Could not find a ` +
   `page with the following path: "${path}"`
 
 export const createGetLanguages: CreateGetLanguagesHelper = ({
@@ -24,7 +24,7 @@ export const createGetLanguages: CreateGetLanguagesHelper = ({
   options,
 }) => {
   const fn: GetLanguagesHelper = value => {
-    // The value comes from user therefore we want to treat it as unknown
+    // The value comes from the user therefore we want to treat it as unknown
     const prevalidatedValue = value as unknown
 
     if (

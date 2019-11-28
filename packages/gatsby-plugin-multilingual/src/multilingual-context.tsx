@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { createGetPath, createGetLanguages } from './helpers'
 import { getOptions } from './utils'
 import { ContextData, ContextProvider } from './types'
-// import { useStaticQuery, graphql } from 'gatsby'
 
 const defaults = getOptions()
 
@@ -36,22 +35,10 @@ export const MultilingualProvider: ContextProvider = ({
   children,
 }) => {
   const { i18n } = useTranslation()
-  // const result = useStaticQuery(`query {allSitePage {
-  //   nodes {
-  //     path
-  //     context {
-  //       multilingualId
-  //       language
-  //     }
-  //   }
-  // }}`)
-
-  // console.log('result', result)
 
   if (pageLanguage !== i18n.language) {
     i18n.changeLanguage(pageLanguage)
   }
-  console.log('MultilingualContext')
 
   return (
     <MultilingualContext.Provider

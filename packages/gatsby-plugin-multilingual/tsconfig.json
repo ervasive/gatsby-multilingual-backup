@@ -8,8 +8,7 @@
     "paths": {
       "namespaces": ["stubs/namespaces"],
       "translations": ["stubs/translations"],
-      "pages-registry": ["stubs/pages-registry"],
-      "pathnames-registry": ["stubs/pathnames-registry"]
+      "pages-registry": ["stubs/pages-registry"]
     }
   },
   "include": ["src/**/*"],

@@ -4,13 +4,13 @@ import { getPageId } from '../utils'
 import { CreateGetPathHelper, GetPathHelper, CheckType } from '../types'
 
 const invalidArgErrorMessage =
-  `The "getPath" function received invalid argument. Only "string" or ` +
+  `getPath function received an invalid argument. Only "string" or ` +
   `"object" of the following shape: { path: string [optional], language: ` +
   `string [optional], onMissingPath: "ignore" | "warn" | "error" [optional] } ` +
   `are allowed`
 
 const getMissingPageErrorMessage = (path: string, language: string): string =>
-  `The "getPath" function returned an error. Could not find a page with ` +
+  `getPath function returned an error. Could not find a page with ` +
   `the "${path}" path and "${language}" language values`
 
 export const createGetPath: CreateGetPathHelper = ({

@@ -10,6 +10,14 @@ export type PagesRegistry = Record<string, Record<string, string>>
 export type NamespacesRegistry = string[]
 export type TranslationsResource = Resource
 export type GatsbyStorePages = Map<string, GatsbyPage>
+export type PageRulesRecord = Record<
+  string,
+  {
+    id: string
+    language: string
+    slug: string
+  }[]
+>
 
 export enum MissingLanguagesStrategy {
   Ignore = 'ignore',

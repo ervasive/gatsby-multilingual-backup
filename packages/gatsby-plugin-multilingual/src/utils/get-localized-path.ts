@@ -16,7 +16,7 @@ export const getLocalizedPath = (
   const prefixlessPath = path.replace(re, '$1')
 
   if (language === defaultLanguage && !includeDefaultLanguageInURL) {
-    return normalizePath(prefixlessPath)
+    return normalizePath(`/${prefixlessPath}`)
   } else {
     return normalizePath(`/${language}/${prefixlessPath}`)
   }

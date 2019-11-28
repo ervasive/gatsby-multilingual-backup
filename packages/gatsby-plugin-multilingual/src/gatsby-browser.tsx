@@ -15,7 +15,6 @@ export const wrapRootElement: WrapRootElement = (
   { element },
   pluginOptions,
 ) => {
-  console.log('wrapRootElement')
   const options = getOptions(pluginOptions)
 
   const i18nInstance = createI18nInstance({
@@ -37,7 +36,6 @@ export const wrapPageElement: WrapPageElement = (
   { element, props: { path, pageContext } },
   pluginOptions,
 ) => {
-  console.log('wrapPageElement', path)
   const options = getOptions(pluginOptions)
   const pageId = pageContext.multilingualId || path
   const language = pageContext.language || options.defaultLanguage

@@ -5,6 +5,7 @@ import {
 } from 'gatsby'
 
 export type GatsbyPage = Parameters<GatsbyActions['createPage']>[0] & {
+  updatedAt: number
   context: {
     [key: string]: unknown
   }

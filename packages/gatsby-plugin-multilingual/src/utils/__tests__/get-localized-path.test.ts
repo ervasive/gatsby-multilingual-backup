@@ -12,7 +12,7 @@ describe('getLocalizedPath', () => {
     expect(getLocalizedPath('/ru/example', 'ru', options)).toBe('/ru/example')
   })
 
-  it('should ignore language alike but not registered language prefix', () => {
+  it('should ignore non available language key prefix', () => {
     const options = getOptions({ availableLanguages: ['en', 'ru'] })
     expect(getLocalizedPath('/en/example', 'ru', options)).toBe('/ru/example')
     expect(getLocalizedPath('/ru/example', 'ru', options)).toBe('/ru/example')
@@ -21,12 +21,13 @@ describe('getLocalizedPath', () => {
     )
   })
 
-  it('should remove language prefix for default language and "options.includeDefaultLanguageInURL=false"', () => {
+  it('should remove language prefix for default language when "options.includeDefaultLanguageInURL=false"', () => {
     const options = getOptions({
       availableLanguages: ['en', 'ru'],
       includeDefaultLanguageInURL: false,
     })
 
+    expect(getLocalizedPath('/example', 'en', options)).toBe('/example')
     expect(getLocalizedPath('/en/example', 'en', options)).toBe('/example')
     expect(getLocalizedPath('/ru/example', 'en', options)).toBe('/example')
     expect(getLocalizedPath('/en/example', 'ru', options)).toBe('/ru/example')

@@ -15,7 +15,7 @@ const getPath = createGetPath({
 })
 
 describe('createGetPath', () => {
-  it('should error out on invalid value types', () => {
+  it('should error out on invalid argument types', () => {
     assert(
       property(
         anything().filter(
@@ -23,40 +23,40 @@ describe('createGetPath', () => {
         ),
         data => {
           expect(() => getPath(data)).toThrow(
-            /The "getPath" function received invalid argument/i,
+            /getPath function received an invalid argument/i,
           )
         },
       ),
     )
   })
 
-  it('should error out on invalid value.path types', () => {
+  it('should error out on invalid argument.path types', () => {
     assert(
       property(
         anything().filter(v => !(isUndefined(v) || isString(v))),
         data => {
           expect(() => getPath({ path: data })).toThrow(
-            /The "getPath" function received invalid argument/i,
+            /getPath function received an invalid argument/i,
           )
         },
       ),
     )
   })
 
-  it('should error out on invalid value.language types', () => {
+  it('should error out on invalid argument.language types', () => {
     assert(
       property(
         anything().filter(v => !(isUndefined(v) || isString(v))),
         data => {
           expect(() => getPath({ language: data })).toThrow(
-            /The "getPath" function received invalid argument/i,
+            /getPath function received an invalid argument/i,
           )
         },
       ),
     )
   })
 
-  it('should error out on invalid value.onMissingPath types', () => {
+  it('should error out on invalid argument.onMissingPath types', () => {
     assert(
       property(
         anything().filter(
@@ -64,7 +64,7 @@ describe('createGetPath', () => {
         ),
         data => {
           expect(() => getPath({ onMissingPath: data })).toThrow(
-            /The "getPath" function received invalid argument/i,
+            /getPath function received an invalid argument/i,
           )
         },
       ),

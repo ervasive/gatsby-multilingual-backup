@@ -1,4 +1,7 @@
+export * from './get-localized-path'
 export * from './get-options'
 export * from './get-page-id'
 export * from './normalize-path'
 export * from './validate-instance-uniqueness'
+// export * from './write-pages-registry'
+// export * from './write-translations-registry'

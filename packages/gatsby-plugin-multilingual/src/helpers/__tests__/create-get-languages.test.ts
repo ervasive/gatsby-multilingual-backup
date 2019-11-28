@@ -15,7 +15,7 @@ const getLanguages = createGetLanguages({
 })
 
 describe('createGetLanguages', () => {
-  it('should error out on invalid value types', () => {
+  it('should error out on invalid argument types', () => {
     assert(
       property(
         anything().filter(
@@ -23,40 +23,40 @@ describe('createGetLanguages', () => {
         ),
         data => {
           expect(() => getLanguages(data)).toThrow(
-            /The "getLanguages" function received invalid argument/i,
+            /getLanguages function received an invalid argument/i,
           )
         },
       ),
     )
   })
 
-  it('should error out on invalid value.path types', () => {
+  it('should error out on invalid argument.path types', () => {
     assert(
       property(
         anything().filter(v => !(isUndefined(v) || isString(v))),
         data => {
           expect(() => getLanguages({ path: data })).toThrow(
-            /The "getLanguages" function received invalid argument/i,
+            /getLanguages function received an invalid argument/i,
           )
         },
       ),
     )
   })
 
-  it('should error out on invalid value.skipCurrentLanguage types', () => {
+  it('should error out on invalid argument.skipCurrentLanguage types', () => {
     assert(
       property(
         anything().filter(v => !(isUndefined(v) || isBoolean(v))),
         data => {
           expect(() => getLanguages({ skipCurrentLanguage: data })).toThrow(
-            /The "getLanguages" function received invalid argument/i,
+            /getLanguages function received an invalid argument/i,
           )
         },
       ),
     )
   })
 
-  it('should error out on invalid value.onMissingPath types', () => {
+  it('should error out on invalid argument.onMissingPath types', () => {
     assert(
       property(
         anything().filter(
@@ -64,7 +64,7 @@ describe('createGetLanguages', () => {
         ),
         data => {
           expect(() => getLanguages({ onMissingPath: data })).toThrow(
-            /The "getLanguages" function received invalid argument/i,
+            /getLanguages function received an invalid argument/i,
           )
         },
       ),
@@ -81,7 +81,7 @@ describe('createGetLanguages', () => {
     expect(getLanguages({})).toStrictEqual(result)
   })
 
-  it('should return languages for existing page path', () => {
+  it('should return languages for existing page path/id', () => {
     const result = [
       { isCurrent: true, language: 'en', path: '/en/other' },
       { isCurrent: false, language: 'ru', path: '/ru/other' },
@@ -133,7 +133,7 @@ describe('createGetLanguages', () => {
     spy.mockRestore()
   })
 
-  it('should preserve provided query string and hash values of a path', () => {
+  it('should preserve provided query string and hash values of a provided path', () => {
     const result = [
       { isCurrent: true, language: 'en', path: '/en/other?sample=val#val' },
       { isCurrent: false, language: 'ru', path: '/ru/other?sample=val#val' },
